@@ -35,6 +35,7 @@ add_executable(rucio-fuse
         include/REST-API.h
         source/REST-API.cpp
         include/fuse-op.h
+        source/fuse-op.cpp
         main.c
         )
 target_link_libraries(rucio-fuse ${FUSE_LIBRARIES} ${CURL_LIBRARIES})
