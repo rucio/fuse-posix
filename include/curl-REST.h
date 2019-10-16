@@ -44,7 +44,7 @@ struct curl_wrapper{
 };
 
 // This is the static CURL used by the whole project
-static curl_wrapper static_curl = curl_wrapper();
+static curl_wrapper get_curl_instance = curl_wrapper();
 
 // This struct groups the returned CURL code and a payload in the form of splitted lines
 struct curlRet {
