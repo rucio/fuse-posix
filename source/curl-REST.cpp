@@ -3,18 +3,10 @@
 //
 
 #include <curl-REST.h>
+#include <utils.h>
 
 #define CURLOPT_FALSE 0L
 #define CURLOPT_TRUE 1L
-
-std::string to_string(char* contents, size_t size)
-{
-    std::string s;
-    for (size_t i = 0; i < size; i++) {
-        s = s + contents[i];
-    }
-    return s;
-}
 
 size_t curl_append_string_to_vect_callback(void *contents, size_t size, size_t nmemb, std::vector<std::string> &s)
 {

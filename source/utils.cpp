@@ -4,6 +4,16 @@
 
 #include <utils.h>
 #include <string>
+#include <iostream>
+
+
+std::string to_string(char* contents, size_t size){
+    std::string s;
+    for (size_t i = 0; i < size; i++) {
+        s = s + contents[i];
+    }
+    return s;
+}
 
 // Returns true if and only if path is root path
 bool is_root_path(const char *path){

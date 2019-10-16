@@ -5,6 +5,10 @@
 #ifndef RUCIO_FUSE_UTILS_H
 #define RUCIO_FUSE_UTILS_H
 
+#include <string>
+
+std::string to_string(char* contents, size_t size);
+
 // Returns true if and only if path is root path
 bool is_root_path(const char *path);
 
