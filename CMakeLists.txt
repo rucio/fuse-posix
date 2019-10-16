@@ -25,6 +25,7 @@ include_directories(${FUSE_INCLUDE_DIR})
 include_directories(include)
 
 add_executable(rucio-posix
+        include/conn-par.h
         main.c
         )
 target_link_libraries(rucio-posix ${FUSE_LIBRARIES})
