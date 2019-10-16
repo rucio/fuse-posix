@@ -32,13 +32,19 @@ include_directories(${CURL_INCLUDE_DIR})
 
 include_directories(include source)
 
-add_executable(rucio-fuse
+add_library(rucio-fuse-lib
+        include/curl-REST.h
+        include/REST-API.h
+        include/utils.h
+        include/fuse-op.h
         source/curl-REST.cpp
         source/REST-API.cpp
-        source/fuse-op.cpp
         source/utils.cpp
+        source/fuse-op.cpp)
+
+add_executable(rucio-fuse
         main.cxx
         )
-target_link_libraries(rucio-fuse ${FUSE_LIBRARIES} ${CURL_LIBRARIES})
+target_link_libraries(rucio-fuse rucio-fuse-lib ${FUSE_LIBRARIES} ${CURL_LIBRARIES})
 
 add_subdirectory(tests)
