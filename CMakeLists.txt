@@ -41,10 +41,11 @@ add_library(rucio-fuse-lib
         source/REST-API.cpp
         source/utils.cpp
         source/fuse-op.cpp)
+target_link_libraries(rucio-fuse-lib ${FUSE_LIBRARIES} ${CURL_LIBRARIES})
 
 add_executable(rucio-fuse
         main.cxx
         )
-target_link_libraries(rucio-fuse rucio-fuse-lib ${FUSE_LIBRARIES} ${CURL_LIBRARIES})
+target_link_libraries(rucio-fuse rucio-fuse-lib)
 
 add_subdirectory(tests)
