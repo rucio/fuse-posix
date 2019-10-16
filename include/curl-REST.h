@@ -14,28 +14,28 @@ static void* static_curl_address = nullptr;
 
 // This curl wrapper handles a CURL pointer with automatic cleanup
 // It supports () operator for easier usage
-struct curl_wrapper{
+struct curlWrap{
   CURL* curl;
 
-  curl_wrapper(){
+  curlWrap(){
     if(curl_singleton == 0) {
+      printf("Creating CURL instance\n");
       curl_global_init(CURL_GLOBAL_DEFAULT);
       curl = curl_easy_init();
-      curl_singleton++;
       static_curl_address = curl;
     } else {
-      printf("CURL already instanciated.\n");
-      curl = ((curl_wrapper*)static_curl_address)->curl;
+      curl = (CURL*)static_curl_address;
     }
+    curl_singleton++;
   }
 
-  ~curl_wrapper(){
-    if(curl) {
+  ~curlWrap(){
+    curl_singleton--;
+    if (curl_singleton == 0) {
+      printf("Cleaning CURL instance\n");
       curl_easy_cleanup(curl);
-      curl_singleton--;
-      static_curl_address = nullptr;
+      curl_global_cleanup();
     }
-    curl_global_cleanup();
   }
 
   CURL* operator()(){
@@ -43,8 +43,7 @@ struct curl_wrapper{
   }
 };
 
-// This is the static CURL used by the whole project
-static curl_wrapper get_curl_instance = curl_wrapper();
+static auto static_curl = curlWrap();
 
 // This struct groups the returned CURL code and a payload in the form of splitted lines
 struct curlRet {
@@ -53,8 +52,8 @@ struct curlRet {
 };
 
 // This is the REST GET wrapper
-curlRet GET(const std::string& url);
+curlRet GET(const std::string& url, curlWrap curl = curlWrap());
 
-curlRet POST(const std::string& url, const std::string& thing_to_post);
+curlRet POST(const std::string& url, const std::string& thing_to_post, curlWrap curl = curlWrap());
 
 #endif //RUCIO_FUSE_CURL_REST_H
