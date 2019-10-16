@@ -9,41 +9,43 @@
 #include <string>
 #include <curl/curl.h>
 
-static short curl_singleton = 0;
-static void* static_curl_address = nullptr;
+namespace curlSingleton {
+  static short curl_singleton = 0;
+  static void *static_curl_address = nullptr;
 
 // This curl wrapper handles a CURL pointer with automatic cleanup
 // It supports () operator for easier usage
-struct curlWrap{
-  CURL* curl;
+  struct curlWrap {
+    CURL *curl;
 
-  curlWrap(){
-    if(curl_singleton == 0) {
-      printf("Creating CURL instance\n");
-      curl_global_init(CURL_GLOBAL_DEFAULT);
-      curl = curl_easy_init();
-      static_curl_address = curl;
-    } else {
-      curl = (CURL*)static_curl_address;
+    curlWrap() {
+      if (curl_singleton == 0) {
+        printf("Creating CURL instance\n");
+        curl_global_init(CURL_GLOBAL_DEFAULT);
+        curl = curl_easy_init();
+        static_curl_address = curl;
+      } else {
+        curl = (CURL *) static_curl_address;
+      }
+      curl_singleton++;
     }
-    curl_singleton++;
-  }
 
-  ~curlWrap(){
-    curl_singleton--;
-    if (curl_singleton == 0) {
-      printf("Cleaning CURL instance\n");
-      curl_easy_cleanup(curl);
-      curl_global_cleanup();
+    ~curlWrap() {
+      curl_singleton--;
+      if (curl_singleton == 0) {
+        printf("Cleaning CURL instance\n");
+        curl_easy_cleanup(curl);
+        curl_global_cleanup();
+      }
     }
-  }
 
-  CURL* operator()(){
-    return curl;
-  }
-};
+    CURL *operator()() {
+      return curl;
+    }
+  };
+}
 
-static auto static_curl = curlWrap();
+static auto static_curl = curlSingleton::curlWrap();
 
 // This struct groups the returned CURL code and a payload in the form of splitted lines
 struct curlRet {
@@ -52,8 +54,8 @@ struct curlRet {
 };
 
 // This is the REST GET wrapper
-curlRet GET(const std::string& url, curlWrap curl = curlWrap());
+curlRet GET(const std::string& url);
 
-curlRet POST(const std::string& url, const std::string& thing_to_post, curlWrap curl = curlWrap());
+curlRet POST(const std::string& url, const std::string& thing_to_post);
 
 #endif //RUCIO_FUSE_CURL_REST_H

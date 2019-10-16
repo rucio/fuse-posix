@@ -15,18 +15,18 @@ size_t curl_append_string_to_vect_callback(void *contents, size_t size, size_t n
     return newLength;
 }
 
-curlRet GET(const std::string& url, curlWrap curl){
+curlRet GET(const std::string& url){
   curlRet ret;
 
-  curl_easy_setopt(curl(), CURLOPT_URL, url.c_str());
-  curl_easy_setopt(curl(), CURLOPT_SSL_VERIFYPEER, CURLOPT_FALSE); //only for https
-  curl_easy_setopt(curl(), CURLOPT_SSL_VERIFYHOST, CURLOPT_FALSE); //only for https
-  curl_easy_setopt(curl(), CURLOPT_WRITEFUNCTION, curl_append_string_to_vect_callback);
-  curl_easy_setopt(curl(), CURLOPT_WRITEDATA, &ret.payload);
-  curl_easy_setopt(curl(), CURLOPT_VERBOSE, CURLOPT_FALSE); //remove this to disable verbose output
+  curl_easy_setopt(static_curl(), CURLOPT_URL, url.c_str());
+  curl_easy_setopt(static_curl(), CURLOPT_SSL_VERIFYPEER, CURLOPT_FALSE); //only for https
+  curl_easy_setopt(static_curl(), CURLOPT_SSL_VERIFYHOST, CURLOPT_FALSE); //only for https
+  curl_easy_setopt(static_curl(), CURLOPT_WRITEFUNCTION, curl_append_string_to_vect_callback);
+  curl_easy_setopt(static_curl(), CURLOPT_WRITEDATA, &ret.payload);
+  curl_easy_setopt(static_curl(), CURLOPT_VERBOSE, CURLOPT_FALSE); //remove this to disable verbose output
 
   // Perform CURL request
-  ret.res = curl_easy_perform(curl());
+  ret.res = curl_easy_perform(static_curl());
 
   // Check return code to detect issues
   if(ret.res != CURLE_OK)
@@ -37,17 +37,17 @@ curlRet GET(const std::string& url, curlWrap curl){
   return ret;
 }
 
-curlRet POST(const std::string& url, const std::string& thing_to_post, curlWrap curl){
+curlRet POST(const std::string& url, const std::string& thing_to_post){
   curlRet ret;
 
-  curl_easy_setopt(curl(), CURLOPT_URL, url.c_str());
-  curl_easy_setopt(curl(), CURLOPT_POSTFIELDS, thing_to_post.c_str());
-  curl_easy_setopt(curl(), CURLOPT_SSL_VERIFYPEER, CURLOPT_FALSE); //only for https
-  curl_easy_setopt(curl(), CURLOPT_SSL_VERIFYHOST, CURLOPT_FALSE); //only for https
-  curl_easy_setopt(curl(), CURLOPT_VERBOSE, CURLOPT_TRUE); //remove this to disable verbose output
+  curl_easy_setopt(static_curl(), CURLOPT_URL, url.c_str());
+  curl_easy_setopt(static_curl(), CURLOPT_POSTFIELDS, thing_to_post.c_str());
+  curl_easy_setopt(static_curl(), CURLOPT_SSL_VERIFYPEER, CURLOPT_FALSE); //only for https
+  curl_easy_setopt(static_curl(), CURLOPT_SSL_VERIFYHOST, CURLOPT_FALSE); //only for https
+  curl_easy_setopt(static_curl(), CURLOPT_VERBOSE, CURLOPT_TRUE); //remove this to disable verbose output
 
   // Perform CURL request
-  ret.res = curl_easy_perform(curl());
+  ret.res = curl_easy_perform(static_curl());
 
   // Check return code to detect issues
   if(ret.res != CURLE_OK)
