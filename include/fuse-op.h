@@ -7,21 +7,8 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "REST-API.h"
-
-// Returns true if and only if path is root path
-bool is_root_path(const char *path);
-
-// This function returns -1 if path contains no token
-// 0 if path is root
-// POSIX format depth in other cases
-int path_depth(const char *path, char token = '/');
-
-// This function returns true is the depth is 1 (e.g. /scope1 or /scope1/)
-bool is_main_scope(const char *path);
-
-// Returns true if did is container of dataset, false otherwise (for files)
-bool rucio_is_container(const std::string& path);
+#include <REST-API.h>
+#include <utils.h>
 
 // This is where the rucio-compliant logic branching happens
 static int rucio_getattr (const char *path, struct stat *st){
