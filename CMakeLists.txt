@@ -1,5 +1,14 @@
+# Created by Gabriele Gaetano Fronzé on 2019-10-16.
+
 cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
-project(fuse-example VERSION 0.0.1 LANGUAGES C)
+project(RUCIO_FUSE C CXX)
+
+set(CMAKE_BUILD_TYPE DEBUG)
+set(CMAKE_C_FLAGS "-O0 -ggdb")
+set(CMAKE_C_FLAGS_DEBUG "-O0 -ggdb")
+set(CMAKE_C_FLAGS_RELEASE "-O0 -ggdb")
+
+set(CMAKE_CXX_FLAGS "-std=c++11")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_FILE_OFFSET_BITS=64 -D FUSE_USE_VERSION=26")
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wall --pedantic -g")
