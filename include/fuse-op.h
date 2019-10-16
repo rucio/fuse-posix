@@ -20,17 +20,26 @@ int path_depth(const char *path, char token = '/');
 // This function returns true is the depth is 1 (e.g. /scope1 or /scope1/)
 bool is_main_scope(const char *path);
 
+// Returns true if did is container of dataset, false otherwise (for files)
+bool rucio_is_container(const std::string& path);
+
+// This is where the rucio-compliant logic branching happens
 static int rucio_getattr (const char *path, struct stat *st){
   printf("rucio_getattr called");
+  // If at root list the available scopes
   if (is_root_path(path)){
     auto scopes = rucio_list_scopes();
     // TODO: Handle the scopes...
   } else {
+    // If is one of the top level scopes list the dids inside
     if (is_main_scope(path)){
       auto dids = rucio_list_dids(""); //TODO: extract the scope from the path
       //TODO: Handle the dids
+    // Otherwise, if a container (or a dataset), list its dids
     } else if (rucio_is_container(path)){
       auto container_dids = rucio_list_container_dids("",""); //TODO: extract the scope and the name from path
+      //TODO: Handle dids taking care of loops!
+    // If it's a file just create the inode
     } else {
       //TODO: crete the did inode
     }
