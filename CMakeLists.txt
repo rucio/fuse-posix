@@ -22,11 +22,17 @@ find_package(FUSE REQUIRED)
 
 include_directories(${FUSE_INCLUDE_DIR})
 
-include_directories(include)
+set(CURL_LIBRARY "-lcurl")
+find_package(CURL REQUIRED)
+include_directories(${CURL_INCLUDE_DIR})
 
-add_executable(rucio-posix
+include_directories(include source)
+
+add_executable(rucio-fuse
+        include/curl-REST.h
+        source/curl-REST.cpp
         include/conn-par.h
         include/fuse-op.h
         main.c
         )
-target_link_libraries(rucio-posix ${FUSE_LIBRARIES})
+target_link_libraries(rucio-fuse ${FUSE_LIBRARIES} ${CURL_LIBRARIES})
