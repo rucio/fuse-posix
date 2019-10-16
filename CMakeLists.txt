@@ -40,3 +40,5 @@ add_executable(rucio-fuse
         main.cxx
         )
 target_link_libraries(rucio-fuse ${FUSE_LIBRARIES} ${CURL_LIBRARIES})
+
+add_subdirectory(tests)
