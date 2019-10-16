@@ -13,7 +13,7 @@ bool is_root_path(const char *path){
 // This function returns -1 if path contains no token
 // 0 if path is root
 // POSIX format depth in other cases
-size_t path_depth(const char *path, const char token){
+int path_depth(const char *path, const char token){
   // If path is root return depth=0 immediately
   if(strcmp(path, &token) != 0) return 0;
   // Otherwise compute depth

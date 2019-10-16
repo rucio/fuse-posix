@@ -15,7 +15,7 @@ bool is_root_path(const char *path);
 // This function returns -1 if path contains no token
 // 0 if path is root
 // POSIX format depth in other cases
-size_t path_depth(const char *path, char token = '/');
+int path_depth(const char *path, char token = '/');
 
 // This function returns true is the depth is 1 (e.g. /scope1 or /scope1/)
 bool is_main_scope(const char *path);
