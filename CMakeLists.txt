@@ -32,6 +32,8 @@ add_executable(rucio-fuse
         include/curl-REST.h
         source/curl-REST.cpp
         include/conn-par.h
+        include/REST-API.h
+        source/REST-API.cpp
         include/fuse-op.h
         main.c
         )
