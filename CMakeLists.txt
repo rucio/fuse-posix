@@ -1,7 +1,7 @@
 # Created by Gabriele Gaetano Fronzé on 2019-10-16.
 
 cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
-project(rucio_fuse CXX)
+project(rucio-fuse-posix CXX)
 
 set (CMAKE_BUILD_TYPE DEBUG)
 set (CMAKE_CXX_STANDARD 11)
@@ -32,20 +32,32 @@ include_directories(${CURL_INCLUDE_DIR})
 
 include_directories(include source)
 
-add_library(rucio-fuse-lib
-        include/curl-REST.h
-        include/REST-API.h
+add_library(utils
         include/utils.h
-        include/fuse-op.h
-        source/curl-REST.cpp
-        source/REST-API.cpp
         source/utils.cpp
-        source/fuse-op.cpp)
-target_link_libraries(rucio-fuse-lib ${FUSE_LIBRARIES} ${CURL_LIBRARIES})
+        )
 
-add_executable(rucio-fuse
+add_library(curl-wrapper
+        include/curl-REST.h
+        source/curl-REST.cpp
+        )
+target_link_libraries(curl-wrapper utils ${CURL_LIBRARIES})
+
+add_library(rucio-rest-api-wrapper
+        include/REST-API.h
+        source/REST-API.cpp
+        )
+target_link_libraries(rucio-rest-api-wrapper curl-wrapper utils)
+
+add_library(rucio-fuse
+        include/fuse-op.h
+        source/fuse-op.cpp
+        )
+target_link_libraries(rucio-fuse utils rucio-rest-api-wrapper ${FUSE_LIBRARIES})
+
+add_executable(rucio-fuse-main
         main.cxx
         )
-target_link_libraries(rucio-fuse rucio-fuse-lib)
+target_link_libraries(rucio-fuse-main rucio-fuse)
 
 add_subdirectory(tests)
