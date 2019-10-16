@@ -35,6 +35,10 @@ bool is_main_scope(const char *path){
   return path_depth(path) == 1;
 }
 
+bool rucio_is_container(const std::string& path){
+  return false;
+}
+
 //static int rucio_readdir (const char *path, void *buff, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fi){
 //  printf("rucio_readdir called");
 //  return 0;
