@@ -16,9 +16,7 @@ std::vector<std::string> rucio_get_auth_token_userpass(){
 
   auto xRucioAccount = "X-Rucio-Account: "+rucio_account_name;
   auto xRucioUsername = "X-Rucio-Username: "+rucio_user_name;
-
-  sha1(rucio_password.c_str()).print_base64(base64);
-  auto xRucioPwd = "X-Rucio-Password: "+to_string(base64, SHA1_BASE64_SIZE);
+  auto xRucioPwd = "X-Rucio-Password: "+rucio_password;
 
   headers= curl_slist_append(headers, xRucioAccount.c_str());
   headers= curl_slist_append(headers, xRucioUsername.c_str());
