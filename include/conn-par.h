@@ -9,7 +9,7 @@
 #include <string>
 #include <chrono>
 
-static std::string rucio_server_url = "rucio-server";
+static std::string rucio_server_url = "https://rucio-server";
 
 static std::string rucio_account_name = "root";
 static std::string rucio_user_name = "dmlab";
