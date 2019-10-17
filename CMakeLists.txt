@@ -23,14 +23,14 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
 find_package(FUSE REQUIRED)
-
 include_directories(${FUSE_INCLUDE_DIR})
 
 set(CURL_LIBRARY "-lcurl")
 find_package(CURL REQUIRED)
 include_directories(${CURL_INCLUDE_DIR})
 
-include_directories(include source)
+add_subdirectory(submodules)
+include_directories(include source submodules/SHA1)
 
 add_library(utils
         include/utils.h
@@ -43,11 +43,12 @@ add_library(curl-wrapper
         )
 target_link_libraries(curl-wrapper utils ${CURL_LIBRARIES})
 
+
 add_library(rucio-rest-api-wrapper
         include/REST-API.h
         source/REST-API.cpp
         )
-target_link_libraries(rucio-rest-api-wrapper curl-wrapper utils)
+target_link_libraries(rucio-rest-api-wrapper curl-wrapper utils sha1)
 
 add_library(rucio-fuse
         include/fuse-op.h

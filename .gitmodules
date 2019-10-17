@@ -1,0 +1,3 @@
+[submodule "submodules/SHA1"]
+	path = submodules/SHA1
+	url = https://github.com/983/SHA1.git
