@@ -26,5 +26,13 @@ int main(){
   std::cout << "--- Testing: /a/b/c/d/e/f -> " << path_depth("/a/b/c/d/e/f",'/') << " expected 6\n";
   std::cout << "--- Testing: /a/b/c/d/e/f/ -> " << path_depth("/a/b/c/d/e/f/",'/') << " expected 6\n";
 
+  printf("\nTesting tokenize_python_list:\n");
+  std::vector<std::string> expected_scopes = {"a","b","c","d"};
+  std::vector<std::string> scopes;
+  tokenize_python_list(R"(["a","b","c","d"])", scopes);
+  size_t i = 0;
+  for(auto const& scope : scopes)
+    std::cout << scope << " expected " << expected_scopes[i++] << std::endl;
+
   return 0;
 }
