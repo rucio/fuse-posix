@@ -9,8 +9,9 @@
 #include <string>
 #include <sha1.hpp>
 #include <utils.h>
+#include <iostream>
 
-std::vector<std::string> rucio_get_auth_token_userpass(){
+void rucio_get_auth_token_userpass(){
   struct curl_slist *headers = NULL;
   char base64[SHA1_BASE64_SIZE];
 
@@ -26,7 +27,19 @@ std::vector<std::string> rucio_get_auth_token_userpass(){
 
   curl_slist_free_all(headers);
 
-  return curl_res.payload;
+  std::string token;
+
+  for(const auto& line : curl_res.payload){
+    if (line.rfind(rucio_token_prefix,0)) {
+      token = line;
+      token.erase(0, rucio_token_prefix_size);
+    }
+  }
+
+  token = (strlen(token.c_str())>0) ? token : ">>>---invalid-token---<<<";
+  std::cout << token <<std::endl;
+
+  rucio_conn_token = token;
 }
 
 std::vector<std::string> rucio_list_scopes(){
