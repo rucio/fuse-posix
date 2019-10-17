@@ -10,6 +10,7 @@
 #include <sha1.hpp>
 #include <utils.h>
 #include <iostream>
+#include <time.h>
 
 void rucio_get_auth_token_userpass(){
   struct curl_slist *headers = NULL;
@@ -26,16 +27,27 @@ void rucio_get_auth_token_userpass(){
 
   curl_slist_free_all(headers);
 
-  std::string token;
+  std::string token = "";
+  std::string expire_time_string = "";
 
-  for(const auto& line : curl_res.payload){
+  for(auto& line : curl_res.payload){
     if (line.find(rucio_token_prefix) != std::string::npos) {
       token = line;
       token.erase(0, rucio_token_prefix_size);
     }
+
+    if (line.find(rucio_token_duration_prefix) != std::string::npos) {
+      expire_time_string = line;
+      expire_time_string.erase(0, rucio_token_duration_prefix_size);
+    }
   }
 
   rucio_conn_token = (strlen(token.c_str())>0) ? token : rucio_invalid_token;
+
+  expire_time_string = (strlen(expire_time_string.c_str())>0) ? expire_time_string : rucio_default_exp;
+  std::cout << expire_time_string << std::endl;
+  strptime(expire_time_string.c_str(),"%a, %d %b %Y %H:%M:%S",&rucio_conn_token_exp);
+  rucio_conn_token_exp_epoch = mktime(&rucio_conn_token_exp);
 }
 
 std::vector<std::string> rucio_list_scopes(){
