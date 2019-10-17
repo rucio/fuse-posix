@@ -4,7 +4,7 @@
 
 #include <REST-API.h>
 #include <curl-REST.h>
-#include <conn-par.h>
+#include <globals.h>
 #include <vector>
 #include <string>
 #include <sha1.hpp>

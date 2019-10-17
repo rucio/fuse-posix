@@ -32,6 +32,11 @@ include_directories(${CURL_INCLUDE_DIR})
 add_subdirectory(submodules)
 include_directories(include source submodules/SHA1)
 
+add_library(globals
+        include/globals.h
+        source/globals.cpp
+        )
+
 add_library(utils
         include/utils.h
         source/utils.cpp
