@@ -10,7 +10,7 @@
 #include <sha1.hpp>
 #include <utils.h>
 
-std::string rucio_get_auth_token_userpass(){
+std::vector<std::string> rucio_get_auth_token_userpass(){
   struct curl_slist *headers = NULL;
   char base64[SHA1_BASE64_SIZE];
 
@@ -24,8 +24,11 @@ std::string rucio_get_auth_token_userpass(){
   headers= curl_slist_append(headers, xRucioUsername.c_str());
   headers= curl_slist_append(headers, xRucioPwd.c_str());
 
-  auto curl_res = GET(rucio_server_url+"/auth/userpass", headers);
-  return "";
+  auto curl_res = GET(rucio_server_url+"/auth/userpass", headers, true);
+
+  curl_slist_free_all(headers);
+
+  return curl_res.payload;
 }
 
 std::vector<std::string> rucio_list_scopes(){

@@ -8,7 +8,7 @@
 #include <vector>
 #include <string>
 
-std::string rucio_get_auth_token_userpass();
+std::vector<std::string> rucio_get_auth_token_userpass();
 
 std::vector<std::string> rucio_list_scopes();
 
