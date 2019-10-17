@@ -18,17 +18,26 @@ The Rucio file catalog is much flatter than that of a usual `POSIX` filesystems 
 - container and dataset DiDs will appear as directories;
 - datasets and containers might include already represented DiDs: a routine to handle such loops should be present.
 
+## DONEs
+- Curl-REST wrapper based on `libcurl` has been implemented in the form of `GET` and `POST` methods, for the moment. The `GET` method has been tested widely and appears to be consistent with the output of the `curl` CLI.
+- The curl-REST wrapper uses a singleton-equipped `curl` instance to limit memory fingerprint.
+- Rucio-API wrappers, based on Rucio's RESTFul interface, are being developed. At the moment access token retrieval through userpass authentication and scopes listing are implemented and tested.
+
+
 ## TODOs
+- implement rucio-API wrappers
 - implement `getattr`, `readdir` and `read` methods
-- write tests of the code written up to now
 - surely a lot more...
 
 ## How to build
 To build the software please run:
 
 ```[shell]
-/path/to/cmake --build /build --target rucio-fuse -- -j 4
+./build.sh
 ```
+
+This has been tested on CentOS7 and Mac OS X Mojave 10.14.6 .
 
 To complete the build `libcurl` and `libfuse` must be present:
 `cmake` will try to locate them for you and trigger some build messages if unable to do so.
+Please note that `cmake` version 3 or greater is needed.
