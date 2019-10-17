@@ -63,7 +63,7 @@ std::vector<std::string> rucio_list_scopes(){
 
   headers= curl_slist_append(headers, xRucioToken.c_str());
 
-  auto curl_res = GET(rucio_server_url+"/scopes", headers);
+  auto curl_res = GET(rucio_server_url+"/scopes/", headers);
 
   curl_slist_free_all(headers);
 
