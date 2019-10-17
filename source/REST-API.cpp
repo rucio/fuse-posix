@@ -35,9 +35,7 @@ void rucio_get_auth_token_userpass(){
     }
   }
 
-  token = (strlen(token.c_str())>0) ? token : ">>>---invalid-token---<<<";
-
-  rucio_conn_token = token;
+  rucio_conn_token = (strlen(token.c_str())>0) ? token : rucio_invalid_token;
 }
 
 std::vector<std::string> rucio_list_scopes(){
