@@ -13,7 +13,7 @@
 #include <time.h>
 
 void rucio_get_auth_token_userpass(){
-  struct curl_slist *headers = NULL;
+  struct curl_slist *headers = nullptr;
 
   auto xRucioAccount = "X-Rucio-Account: "+rucio_account_name;
   auto xRucioUsername = "X-Rucio-Username: "+rucio_user_name;
@@ -55,7 +55,18 @@ bool rucio_is_token_valid(){
 }
 
 std::vector<std::string> rucio_list_scopes(){
-  auto curl_res = GET(rucio_server_url+"/scopes");
+  if(not rucio_is_token_valid()) rucio_get_auth_token_userpass();
+
+  struct curl_slist *headers = nullptr;
+
+  auto xRucioToken = "X-Rucio-Auth-Token: "+rucio_conn_token;
+
+  headers= curl_slist_append(headers, xRucioToken.c_str());
+
+  auto curl_res = GET(rucio_server_url+"/scopes", headers);
+
+  curl_slist_free_all(headers);
+
   return curl_res.payload;
 }
 
