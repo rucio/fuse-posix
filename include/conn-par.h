@@ -9,12 +9,11 @@
 #include <string>
 #include <chrono>
 
-static std::string rucio_server_url = "";
-static int rucio_server_port = 80;
+static std::string rucio_server_url = "rucio-server";
 
-static std::string rucio_account_name = "";
-static std::string rucio_user_name = "";
-static std::string rucio_password = "";
+static std::string rucio_account_name = "root";
+static std::string rucio_user_name = "dmlab";
+static std::string rucio_password = "secret";
 
 static std::string rucio_conn_token_header = "";
 std::chrono::steady_clock::time_point rucio_conn_token_exp;
