@@ -6,8 +6,6 @@
 #include <string>
 #include <string.h>
 #include <iostream>
-#include <sstream>
-#include <algorithm>
 
 
 std::string to_string(char* contents, size_t size){
@@ -57,20 +55,4 @@ int path_depth(const char *path, const char token){
 // This function returns true is the depth is 1 (e.g. /scope1 or /scope1/)
 bool is_main_scope(const char *path){
   return path_depth(path) == 1;
-}
-
-template<class T>
-void tokenize_python_list(const std::string list, std::vector<T>& target, char separator, const std::array<char, 2> unwanted_chars){
-  std::string list_copy = list;
-  std::string element;
-
-  list_copy.erase(0, 1);
-  list_copy.erase(list_copy.size() - 1);
-  std::stringstream stream(list_copy.c_str());
-  while (getline(stream, element, separator)) {
-    for(const auto& ch : unwanted_chars){
-      element.erase(std::remove(element.begin(), element.end(), ch), element.end());
-    }
-    target.emplace_back(element);
-  }
 }

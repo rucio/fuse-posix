@@ -6,7 +6,10 @@
 #define RUCIO_FUSE_UTILS_H
 
 #include <string>
+#include <vector>
 #include <array>
+#include <sstream>
+#include <algorithm>
 
 std::string to_string(char* contents, size_t size);
 
@@ -22,6 +25,18 @@ int path_depth(const char *path, char token = '/');
 bool is_main_scope(const char *path);
 
 template<class T>
-void tokenize_python_list(std::string list, std::vector<T>& target, char separator = ',', std::array<char,2> unwanted_chars = {'"', ' '});
+void tokenize_python_list(std::string list, std::vector<T>& target, char separator = ',', std::array<char,2> unwanted_chars = {'"', ' '}){
+  std::string list_copy = list;
+  std::string element;
 
+  list_copy.erase(0, 1);
+  list_copy.erase(list_copy.size() - 1);
+  std::stringstream stream(list_copy.c_str());
+  while (getline(stream, element, separator)) {
+    for(const auto& ch : unwanted_chars){
+      element.erase(std::remove(element.begin(), element.end(), ch), element.end());
+    }
+    target.emplace_back((T)element);
+  }
+}
 #endif //RUCIO_FUSE_UTILS_H
