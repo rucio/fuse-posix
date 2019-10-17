@@ -16,8 +16,8 @@ extern std::string rucio_account_name;
 extern std::string rucio_user_name;
 extern std::string rucio_password;
 
-extern const std::string rucio_token_prefix;
-extern const size_t rucio_token_prefix_size;
+static const std::string rucio_token_prefix = "X-Rucio-Auth-Token: ";
+static const size_t rucio_token_prefix_size = strlen(rucio_token_prefix.c_str());
 
 extern std::string rucio_conn_token;
 extern std::chrono::steady_clock::time_point rucio_conn_token_exp;

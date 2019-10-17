@@ -13,7 +13,6 @@
 
 void rucio_get_auth_token_userpass(){
   struct curl_slist *headers = NULL;
-  char base64[SHA1_BASE64_SIZE];
 
   auto xRucioAccount = "X-Rucio-Account: "+rucio_account_name;
   auto xRucioUsername = "X-Rucio-Username: "+rucio_user_name;
@@ -29,8 +28,12 @@ void rucio_get_auth_token_userpass(){
 
   std::string token;
 
+  std::cout << "Token prefix: " << rucio_token_prefix << std::endl;
+  std::cout << "Token size: " << rucio_token_prefix_size << std::endl;
+
   for(const auto& line : curl_res.payload){
     if (line.rfind(rucio_token_prefix,0)) {
+      std::cout << "Found!" << std::endl;
       token = line;
       token.erase(0, rucio_token_prefix_size);
     }
