@@ -12,7 +12,7 @@
 static std::string rucio_server_url = "https://rucio-server";
 
 static std::string rucio_account_name = "root";
-static std::string rucio_user_name = "dmlab";
+static std::string rucio_user_name = "ddmlab";
 static std::string rucio_password = "secret";
 
 static std::string rucio_conn_token_header = "";
