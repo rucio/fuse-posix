@@ -3,11 +3,13 @@
 //
 
 #include <REST-API.h>
+#include <globals.h>
 #include <iostream>
 
 int main(){
 
-  for(auto const& line : rucio_get_auth_token_userpass()) printf("%s", line.c_str());
-  std::cout << std::endl;
+  rucio_get_auth_token_userpass();
+  printf("Got the following token: %s\n", rucio_conn_token.c_str());
+
   return 0;
 }
