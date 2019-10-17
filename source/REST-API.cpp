@@ -28,19 +28,14 @@ void rucio_get_auth_token_userpass(){
 
   std::string token;
 
-  std::cout << "Token prefix: " << rucio_token_prefix << std::endl;
-  std::cout << "Token size: " << rucio_token_prefix_size << std::endl;
-
   for(const auto& line : curl_res.payload){
-    if (line.rfind(rucio_token_prefix,0)) {
-      std::cout << "Found!" << std::endl;
+    if (line.find(rucio_token_prefix) != std::string::npos) {
       token = line;
       token.erase(0, rucio_token_prefix_size);
     }
   }
 
   token = (strlen(token.c_str())>0) ? token : ">>>---invalid-token---<<<";
-  std::cout << token <<std::endl;
 
   rucio_conn_token = token;
 }
