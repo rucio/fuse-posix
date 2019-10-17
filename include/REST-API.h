@@ -10,6 +10,8 @@
 
 void rucio_get_auth_token_userpass();
 
+bool rucio_is_token_valid();
+
 std::vector<std::string> rucio_list_scopes();
 
 std::vector<std::string> rucio_list_dids(const std::string& scope);

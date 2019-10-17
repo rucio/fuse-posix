@@ -50,6 +50,10 @@ void rucio_get_auth_token_userpass(){
   rucio_conn_token_exp_epoch = mktime(&rucio_conn_token_exp);
 }
 
+bool rucio_is_token_valid(){
+  return rucio_conn_token_exp_epoch >= time(0);
+}
+
 std::vector<std::string> rucio_list_scopes(){
   auto curl_res = GET(rucio_server_url+"/scopes");
   return curl_res.payload;
