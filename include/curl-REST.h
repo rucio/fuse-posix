@@ -54,7 +54,7 @@ struct curlRet {
 };
 
 // This is the REST GET wrapper
-curlRet GET(const std::string& url, const struct curl_slist * headers = nullptr);
+curlRet GET(const std::string& url, const struct curl_slist * headers = nullptr, bool include_headers = false);
 
 curlRet POST(const std::string& url, const std::string& thing_to_post);
 

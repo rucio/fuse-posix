@@ -15,7 +15,7 @@ size_t curl_append_string_to_vect_callback(void *contents, size_t size, size_t n
     return newLength;
 }
 
-curlRet GET(const std::string& url, const struct curl_slist* headers){
+curlRet GET(const std::string& url, const struct curl_slist* headers, bool include_headers){
   curlRet ret;
 
   curl_easy_setopt(static_curl(), CURLOPT_URL, url.c_str());
@@ -25,7 +25,12 @@ curlRet GET(const std::string& url, const struct curl_slist* headers){
   curl_easy_setopt(static_curl(), CURLOPT_WRITEDATA, &ret.payload);
   curl_easy_setopt(static_curl(), CURLOPT_VERBOSE, CURLOPT_FALSE); //remove this to disable verbose output
 
-  // Add headers if present
+  // Include reply headers in CURLOPT_WRITEFUNCTION
+  if(include_headers) {
+    curl_easy_setopt(static_curl(), CURLOPT_HEADER, CURLOPT_TRUE);
+  }
+
+  // Add headers to request if present
   if(headers){
     curl_easy_setopt(static_curl(), CURLOPT_HTTPHEADER, headers);
   }
