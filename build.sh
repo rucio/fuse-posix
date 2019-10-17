@@ -24,8 +24,8 @@ else
     echo -e "\
     Please note that this requires
            - cmake>=3
-           - libcurl
-           - libfuse
+           - libcurl (yum install libcurl-devel)
+           - libfuse (yum install fuse-devel)
 
     To install them please run the following command:
 
