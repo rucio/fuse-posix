@@ -76,12 +76,12 @@ std::vector<std::string> rucio_list_scopes(){
 }
 
 std::vector<std::string> rucio_list_dids(const std::string& scope){
-  auto curl_res = GET(rucio_server_url+"/dids/"+scope);
+  auto curl_res = GET(rucio_server_url+"/dids/"+scope+"/");
   return curl_res.payload;
 }
 
 std::vector<std::string> rucio_list_container_dids(const std::string& scope, const std::string& container_name){
-  auto curl_res = GET(rucio_server_url+"/dids/"+scope+"/"+container_name); //????? Just guessing, not right!
+  auto curl_res = GET(rucio_server_url+"/dids/"+scope+"/"+container_name+"/"); //????? Just guessing, not right!
   return curl_res.payload;
 }
 
