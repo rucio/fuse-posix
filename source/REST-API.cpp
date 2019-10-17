@@ -11,6 +11,7 @@
 #include <utils.h>
 #include <iostream>
 #include <time.h>
+#include <sstream>
 
 void rucio_get_auth_token_userpass(){
   struct curl_slist *headers = nullptr;
@@ -67,7 +68,19 @@ std::vector<std::string> rucio_list_scopes(){
 
   curl_slist_free_all(headers);
 
-  return curl_res.payload;
+  std::vector<std::string> scopes;
+  std::string scope;
+
+  for(auto& line : curl_res.payload){
+    line.erase(0,1);
+    line.erase(line.size() -1);
+    std::stringstream stream(line.c_str());
+    while(getline(stream, scope, ',')){
+      scopes.emplace_back(scope);
+    }
+  }
+
+  return scopes;
 }
 
 std::vector<std::string> rucio_list_dids(const std::string& scope){
