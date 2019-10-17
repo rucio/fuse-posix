@@ -11,7 +11,7 @@ int main(){
     rucio_get_auth_token_userpass();
     printf("Got the following token: %s\n", rucio_conn_token.c_str());
 
-    if (not rucio_is_token_valid) {
+    if (not rucio_is_token_valid()) {
       std::cout << "Token not valid!" << std::endl;
     } else {
       char buffer[100];
@@ -23,9 +23,11 @@ int main(){
   {
     auto ret = rucio_list_scopes();
 
+    printf("\nDetected scopes:\n");
     for(const auto& line : ret){
       printf("%s\n", line.c_str());
     }
+    std::cout << std::endl;
   }
 
   return 0;
