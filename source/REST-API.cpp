@@ -11,8 +11,6 @@
 #include <utils.h>
 #include <iostream>
 #include <time.h>
-#include <sstream>
-#include <algorithm>
 
 void rucio_get_auth_token_userpass(){
   struct curl_slist *headers = nullptr;
@@ -47,7 +45,6 @@ void rucio_get_auth_token_userpass(){
   rucio_conn_token = (strlen(token.c_str())>0) ? token : rucio_invalid_token;
 
   expire_time_string = (strlen(expire_time_string.c_str())>0) ? expire_time_string : rucio_default_exp;
-  std::cout << expire_time_string << std::endl;
   strptime(expire_time_string.c_str(),"%a, %d %b %Y %H:%M:%S",&rucio_conn_token_exp);
   rucio_conn_token_exp_epoch = mktime(&rucio_conn_token_exp);
 }
@@ -70,17 +67,9 @@ std::vector<std::string> rucio_list_scopes(){
   curl_slist_free_all(headers);
 
   std::vector<std::string> scopes;
-  std::string scope;
 
   for(auto& line : curl_res.payload){
-    line.erase(0,1);
-    line.erase(line.size() -1);
-    std::stringstream stream(line.c_str());
-    while(getline(stream, scope, ',')){
-      scope.erase(std::remove(scope.begin(), scope.end(), '"'), scope.end());
-      scope.erase(std::remove(scope.begin(), scope.end(), ' '), scope.end());
-      scopes.emplace_back(scope);
-    }
+    tokenize_python_list(line, scopes);
   }
 
   return scopes;
