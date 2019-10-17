@@ -44,6 +44,16 @@ curlRet GET(const std::string& url, const struct curl_slist* headers, bool inclu
       fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(ret.res));
   }
 
+  // Reset headers
+  if(headers){
+    curl_easy_setopt(static_curl(), CURLOPT_HTTPHEADER, nullptr);
+  }
+
+  // Reset behavior
+  if(include_headers) {
+    curl_easy_setopt(static_curl(), CURLOPT_HEADER, CURLOPT_FALSE);
+  }
+
   return ret;
 }
 
