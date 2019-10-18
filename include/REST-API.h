@@ -14,6 +14,8 @@ bool rucio_is_token_valid(std::string short_server_name);
 
 std::string rucio_server_from_path(const std::string& path);
 
+std::vector<std::string> rucio_list_servers();
+
 std::vector<std::string> rucio_list_scopes(std::string short_server_name);
 
 std::vector<std::string> rucio_list_dids(const std::string& scope, std::string short_server_name);

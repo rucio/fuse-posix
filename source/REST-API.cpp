@@ -79,6 +79,16 @@ std::string rucio_server_from_path(const std::string& path){
   return "";
 }
 
+std::vector<std::string> rucio_list_servers(){
+  std::vector<std::string> servers;
+  servers.reserve(rucio_server_map.size());
+
+  for(auto const& server: rucio_server_map)
+      servers.push_back(server.first);
+
+  return servers;
+}
+
 std::vector<std::string> rucio_list_scopes(std::string short_server_name){
   if(not rucio_is_token_valid(short_server_name)) rucio_get_auth_token_userpass(short_server_name);
 
@@ -87,7 +97,7 @@ std::vector<std::string> rucio_list_scopes(std::string short_server_name){
   auto conn_params = get_server_params(short_server_name);
   auto token_info = get_server_token(short_server_name);
 
-    if(not token_info || not conn_params){
+  if(not token_info || not conn_params){
     printf("Server not found. Aborting!");
     return {""};
   }
