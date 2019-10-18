@@ -7,21 +7,27 @@
 #include <iostream>
 
 int main(){
-  {
-    rucio_get_auth_token_userpass();
-    printf("Got the following token: %s\n", rucio_token_info.conn_token.c_str());
+  std::string server_short_name = "rucio-server";
 
-    if (not rucio_is_token_valid()) {
+  {
+
+    rucio_get_auth_token_userpass(server_short_name);
+
+    auto token = get_server_token(server_short_name);
+
+    printf("Got the following token: %s\n", token->conn_token.c_str());
+
+    if (not rucio_is_token_valid("rucio-server")) {
       std::cout << "Token not valid!" << std::endl;
     } else {
       char buffer[100];
-      strftime(buffer, 100, "%a, %d %b %Y %H:%M:%S %Z", &rucio_token_info.conn_token_exp);
+      strftime(buffer, 100, "%a, %d %b %Y %H:%M:%S %Z", &token->conn_token_exp);
       printf("Token will be valid until %s\n", buffer);
     }
   }
 
   {
-    auto ret = rucio_list_scopes();
+    auto ret = rucio_list_scopes(server_short_name);
 
     printf("\nDetected scopes:\n");
     for(const auto& line : ret){

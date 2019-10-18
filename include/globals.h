@@ -10,6 +10,7 @@
 #include <string>
 #include <string.h>
 #include <time.h>
+#include <unordered_map>
 
 // Connection parameters struct definition
 struct connection_parameters{
@@ -28,9 +29,6 @@ struct connection_parameters{
                         password(password){}
 };
 
-// Shared connection parameters
-extern connection_parameters rucio_connection_parameters;
-
 // Token info struct definition
 struct token_info{
   std::string conn_token = rucio_invalid_token;
@@ -38,7 +36,35 @@ struct token_info{
   time_t conn_token_exp_epoch = 0;
 };
 
+// Rucio server descriptor
+struct rucio_server{
+  connection_parameters rucio_conn_params;
+  token_info rucio_token_info;
+
+  rucio_server():rucio_conn_params("","","",""), rucio_token_info(){};
+
+  rucio_server(std::string server_url,
+               std::string account_name,
+               std::string user_name,
+               std::string password):
+               rucio_conn_params(server_url,
+                                 account_name,
+                                 user_name,
+                                 password),
+               rucio_token_info(){}
+
+  connection_parameters* get_params(){ return &rucio_conn_params; };
+  token_info* get_token(){ return &rucio_token_info; };
+};
+
 // Shared token parameters
-extern token_info rucio_token_info;
+extern std::unordered_map<std::string, rucio_server> rucio_server_map;
+
+// Utility functions
+bool key_exists(std::string key);
+
+connection_parameters* get_server_params(std::string server_name);
+
+token_info* get_server_token(std::string server_name);
 
 #endif //RUCIO_FUSE_CONNNECTION_PARAMETERS_H

@@ -8,15 +8,17 @@
 #include <vector>
 #include <string>
 
-void rucio_get_auth_token_userpass();
+void rucio_get_auth_token_userpass(std::string short_server_name);
 
-bool rucio_is_token_valid();
+bool rucio_is_token_valid(std::string short_server_name);
 
-std::vector<std::string> rucio_list_scopes();
+std::string rucio_server_from_path(const std::string& path);
 
-std::vector<std::string> rucio_list_dids(const std::string& scope);
+std::vector<std::string> rucio_list_scopes(std::string short_server_name);
 
-std::vector<std::string> rucio_list_container_dids(const std::string& scope, const std::string& container_name);
+std::vector<std::string> rucio_list_dids(const std::string& scope, std::string short_server_name);
+
+std::vector<std::string> rucio_list_container_dids(const std::string& scope, const std::string& container_name, std::string short_server_name);
 
 // Returns true if did is container of dataset, false otherwise (for files)
 bool rucio_is_container(const std::string& path);

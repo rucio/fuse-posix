@@ -4,7 +4,16 @@
 
 #include <globals.h>
 
-connection_parameters rucio_connection_parameters("https://rucio-server", "root", "ddmlab", "secret");
+std::unordered_map<std::string, rucio_server> rucio_server_map = {{"rucio-server", rucio_server("https://rucio-server", "root", "ddmlab", "secret")}};
 
+bool key_exists(std::string key){
+  return rucio_server_map.count(key)>0;
+}
 
-token_info rucio_token_info;
+connection_parameters* get_server_params(std::string server_name){
+  return (key_exists(server_name)) ? rucio_server_map[server_name].get_params() : nullptr;
+}
+
+token_info* get_server_token(std::string server_name){
+  return (key_exists(server_name)) ? rucio_server_map[server_name].get_token() : nullptr;
+}
