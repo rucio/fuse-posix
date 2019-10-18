@@ -21,7 +21,10 @@ bool is_root_path(const char *path);
 // POSIX format depth in other cases
 int path_depth(const char *path, char token = '/');
 
-// This function returns true is the depth is 1 (e.g. /scope1 or /scope1/)
+// Returns true if the path is in the form /rucio/server1 or /rucio/server1/
+bool is_server_mountpoint(const char *path);
+
+// This function returns true is the depth is 2 (e.g. /rucio/server1/scope1 or /rucio/server1/scope1/)
 bool is_main_scope(const char *path);
 
 template<class T>
