@@ -9,13 +9,13 @@
 int main(){
   {
     rucio_get_auth_token_userpass();
-    printf("Got the following token: %s\n", rucio_conn_token.c_str());
+    printf("Got the following token: %s\n", rucio_token_info.conn_token.c_str());
 
     if (not rucio_is_token_valid()) {
       std::cout << "Token not valid!" << std::endl;
     } else {
       char buffer[100];
-      strftime(buffer, 100, "%a, %d %b %Y %H:%M:%S %Z", &rucio_conn_token_exp);
+      strftime(buffer, 100, "%a, %d %b %Y %H:%M:%S %Z", &rucio_token_info.conn_token_exp);
       printf("Token will be valid until %s\n", buffer);
     }
   }

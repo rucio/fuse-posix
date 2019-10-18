@@ -15,15 +15,15 @@
 void rucio_get_auth_token_userpass(){
   struct curl_slist *headers = nullptr;
 
-  auto xRucioAccount = "X-Rucio-Account: "+rucio_account_name;
-  auto xRucioUsername = "X-Rucio-Username: "+rucio_user_name;
-  auto xRucioPwd = "X-Rucio-Password: "+rucio_password;
+  auto xRucioAccount = "X-Rucio-Account: "+rucio_connection_parameters.account_name;
+  auto xRucioUsername = "X-Rucio-Username: "+rucio_connection_parameters.user_name;
+  auto xRucioPwd = "X-Rucio-Password: "+rucio_connection_parameters.password;
 
   headers= curl_slist_append(headers, xRucioAccount.c_str());
   headers= curl_slist_append(headers, xRucioUsername.c_str());
   headers= curl_slist_append(headers, xRucioPwd.c_str());
 
-  auto curl_res = GET(rucio_server_url+"/auth/userpass", headers, true);
+  auto curl_res = GET(rucio_connection_parameters.server_url+"/auth/userpass", headers, true);
 
   curl_slist_free_all(headers);
 
@@ -42,15 +42,15 @@ void rucio_get_auth_token_userpass(){
     }
   }
 
-  rucio_conn_token = (strlen(token.c_str())>0) ? token : rucio_invalid_token;
+  rucio_token_info.conn_token = (strlen(token.c_str())>0) ? token : rucio_invalid_token;
 
   expire_time_string = (strlen(expire_time_string.c_str())>0) ? expire_time_string : rucio_default_exp;
-  strptime(expire_time_string.c_str(),"%a, %d %b %Y %H:%M:%S",&rucio_conn_token_exp);
-  rucio_conn_token_exp_epoch = mktime(&rucio_conn_token_exp);
+  strptime(expire_time_string.c_str(),"%a, %d %b %Y %H:%M:%S",&rucio_token_info.conn_token_exp);
+  rucio_token_info.conn_token_exp_epoch = mktime(&rucio_token_info.conn_token_exp);
 }
 
 bool rucio_is_token_valid(){
-  return rucio_conn_token_exp_epoch >= time(0);
+  return rucio_token_info.conn_token_exp_epoch >= time(0);
 }
 
 std::vector<std::string> rucio_list_scopes(){
@@ -58,11 +58,11 @@ std::vector<std::string> rucio_list_scopes(){
 
   struct curl_slist *headers = nullptr;
 
-  auto xRucioToken = "X-Rucio-Auth-Token: "+rucio_conn_token;
+  auto xRucioToken = "X-Rucio-Auth-Token: "+rucio_token_info.conn_token;
 
   headers= curl_slist_append(headers, xRucioToken.c_str());
 
-  auto curl_res = GET(rucio_server_url+"/scopes/", headers);
+  auto curl_res = GET(rucio_connection_parameters.server_url+"/scopes/", headers);
 
   curl_slist_free_all(headers);
 
@@ -76,12 +76,12 @@ std::vector<std::string> rucio_list_scopes(){
 }
 
 std::vector<std::string> rucio_list_dids(const std::string& scope){
-  auto curl_res = GET(rucio_server_url+"/dids/"+scope+"/");
+  auto curl_res = GET(rucio_connection_parameters.server_url+"/dids/"+scope+"/");
   return curl_res.payload;
 }
 
 std::vector<std::string> rucio_list_container_dids(const std::string& scope, const std::string& container_name){
-  auto curl_res = GET(rucio_server_url+"/dids/"+scope+"/"+container_name+"/"); //????? Just guessing, not right!
+  auto curl_res = GET(rucio_connection_parameters.server_url+"/dids/"+scope+"/"+container_name+"/"); //????? Just guessing, not right!
   return curl_res.payload;
 }
 

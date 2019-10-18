@@ -10,12 +10,27 @@
 #include <string.h>
 #include <time.h>
 
-extern std::string rucio_server_url;
+// Connection parameters struct definition
+struct connection_parameters{
+  std::string server_url;
+  std::string account_name;
+  std::string user_name;
+  std::string password;
 
-extern std::string rucio_account_name;
-extern std::string rucio_user_name;
-extern std::string rucio_password;
+  connection_parameters(std::string server_url,
+                        std::string account_name,
+                        std::string user_name,
+                        std::string password):
+                        server_url(server_url),
+                        account_name(account_name),
+                        user_name(user_name),
+                        password(password){}
+};
 
+// Shared connection parameters
+extern connection_parameters rucio_connection_parameters;
+
+// Token parsing constants
 static const std::string rucio_token_prefix = "X-Rucio-Auth-Token: ";
 static const size_t rucio_token_prefix_size = strlen(rucio_token_prefix.c_str());
 static const std::string rucio_invalid_token = ">>>---invalid-token---<<<";
@@ -24,8 +39,14 @@ static const std::string rucio_token_duration_prefix = "X-Rucio-Auth-Token-Expir
 static const size_t rucio_token_duration_prefix_size = strlen(rucio_token_duration_prefix.c_str());
 static const std::string rucio_default_exp = "Thu, 1 Jan 1970 01:02:03 UTC";
 
-extern std::string rucio_conn_token;
-extern tm rucio_conn_token_exp;
-extern time_t rucio_conn_token_exp_epoch;
+// Token info struct definition
+struct token_info{
+  std::string conn_token = rucio_invalid_token;
+  tm conn_token_exp;
+  time_t conn_token_exp_epoch = 0;
+};
+
+// Shared token parameters
+extern token_info rucio_token_info;
 
 #endif //RUCIO_FUSE_CONNNECTION_PARAMETERS_H

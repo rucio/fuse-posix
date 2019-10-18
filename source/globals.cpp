@@ -4,12 +4,7 @@
 
 #include <globals.h>
 
-std::string rucio_server_url = "https://rucio-server";
+connection_parameters rucio_connection_parameters("https://rucio-server", "root", "ddmlab", "secret");
 
-std::string rucio_account_name = "root";
-std::string rucio_user_name = "ddmlab";
-std::string rucio_password = "secret";
 
-std::string rucio_conn_token = rucio_invalid_token;
-tm rucio_conn_token_exp;
-time_t rucio_conn_token_exp_epoch = 0;
+token_info rucio_token_info;
