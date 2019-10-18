@@ -5,6 +5,7 @@
 #ifndef RUCIO_FUSE_CONNNECTION_PARAMETERS_H
 #define RUCIO_FUSE_CONNNECTION_PARAMETERS_H
 
+#include <constants.h>
 #include <curl/curl.h>
 #include <string>
 #include <string.h>
@@ -29,15 +30,6 @@ struct connection_parameters{
 
 // Shared connection parameters
 extern connection_parameters rucio_connection_parameters;
-
-// Token parsing constants
-static const std::string rucio_token_prefix = "X-Rucio-Auth-Token: ";
-static const size_t rucio_token_prefix_size = strlen(rucio_token_prefix.c_str());
-static const std::string rucio_invalid_token = ">>>---invalid-token---<<<";
-
-static const std::string rucio_token_duration_prefix = "X-Rucio-Auth-Token-Expires: ";
-static const size_t rucio_token_duration_prefix_size = strlen(rucio_token_duration_prefix.c_str());
-static const std::string rucio_default_exp = "Thu, 1 Jan 1970 01:02:03 UTC";
 
 // Token info struct definition
 struct token_info{
