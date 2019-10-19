@@ -5,8 +5,6 @@
 #include <REST-API.h>
 #include <curl-REST.h>
 #include <globals.h>
-#include <vector>
-#include <string>
 #include <sha1.hpp>
 #include <utils.h>
 #include <iostream>
@@ -90,10 +88,6 @@ std::vector<std::string> rucio_list_servers(){
 }
 
 std::vector<std::string> rucio_list_scopes(std::string short_server_name){
-  if(not rucio_is_token_valid(short_server_name)) rucio_get_auth_token_userpass(short_server_name);
-
-  struct curl_slist *headers = nullptr;
-
   auto conn_params = get_server_params(short_server_name);
   auto token_info = get_server_token(short_server_name);
 
@@ -102,7 +96,11 @@ std::vector<std::string> rucio_list_scopes(std::string short_server_name){
     return {""};
   }
 
+  if(not rucio_is_token_valid(short_server_name)) rucio_get_auth_token_userpass(short_server_name);
+
   auto xRucioToken = "X-Rucio-Auth-Token: "+token_info->conn_token;
+
+  struct curl_slist *headers = nullptr;
 
   headers= curl_slist_append(headers, xRucioToken.c_str());
 
@@ -119,16 +117,35 @@ std::vector<std::string> rucio_list_scopes(std::string short_server_name){
   return scopes;
 }
 
-std::vector<std::string> rucio_list_dids(const std::string& scope, std::string short_server_name){
+std::vector<rucio_did> rucio_list_dids(const std::string& scope, std::string short_server_name){
   auto conn_params = get_server_params(short_server_name);
+  auto token_info = get_server_token(short_server_name);
 
-  if(not conn_params){
+
+  if(not token_info || not conn_params){
     printf("Server not found. Aborting!");
-    return {""};
+    return {};
   }
 
-  auto curl_res = GET(conn_params->server_url+"/dids/"+scope+"/");
-  return curl_res.payload;
+  if(not rucio_is_token_valid(short_server_name)) rucio_get_auth_token_userpass(short_server_name);
+
+  auto xRucioToken = "X-Rucio-Auth-Token: "+token_info->conn_token;
+
+  struct curl_slist *headers = nullptr;
+
+  headers= curl_slist_append(headers, xRucioToken.c_str());
+
+  auto curl_res = GET(conn_params->server_url+"/dids/"+scope+"/", headers);
+
+  curl_slist_free_all(headers);
+
+  std::vector<rucio_did> dids;
+
+  for(auto& line : curl_res.payload){
+    structurize_did(line, dids);
+  }
+
+  return dids;
 }
 
 std::vector<std::string> rucio_list_container_dids(const std::string& scope, const std::string& container_name, std::string short_server_name){

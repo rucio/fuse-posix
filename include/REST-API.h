@@ -7,6 +7,8 @@
 
 #include <vector>
 #include <string>
+#include <map>
+#include <utils.h>
 
 void rucio_get_auth_token_userpass(std::string short_server_name);
 
@@ -18,7 +20,7 @@ std::vector<std::string> rucio_list_servers();
 
 std::vector<std::string> rucio_list_scopes(std::string short_server_name);
 
-std::vector<std::string> rucio_list_dids(const std::string& scope, std::string short_server_name);
+std::vector<rucio_did> rucio_list_dids(const std::string& scope, std::string short_server_name);
 
 std::vector<std::string> rucio_list_container_dids(const std::string& scope, const std::string& container_name, std::string short_server_name);
 
