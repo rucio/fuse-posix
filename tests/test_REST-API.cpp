@@ -7,9 +7,10 @@
 #include <iostream>
 
 void test_server_connection(std::string server_short_name){
-  printf("-------------------------------------------------------\n"
+  printf("--------------------------------------------------------------------------------------------------------\n"
          "Testing server %s\n"
-         "-------------------------------------------------------\n\n", server_short_name.c_str());
+         "--------------------------------------------------------------------------------------------------------\n\n",
+         server_short_name.c_str());
   std::cout<<std::flush;
 
   {
@@ -30,9 +31,10 @@ void test_server_connection(std::string server_short_name){
 }
 
 void test_server_scopes(std::string server_short_name){
-  printf("-------------------------------------------------------\n"
+  printf("--------------------------------------------------------------------------------------------------------\n"
          "Retrieving scopes from server %s\n"
-         "-------------------------------------------------------\n\n", server_short_name.c_str());
+         "--------------------------------------------------------------------------------------------------------\n\n",
+         server_short_name.c_str());
   std::cout<<std::flush;
 
   {
@@ -47,9 +49,9 @@ void test_server_scopes(std::string server_short_name){
 }
 
 void test_scope_dids(std::string server_short_name, std::string scope_name){
-  printf("-------------------------------------------------------\n"
+  printf("--------------------------------------------------------------------------------------------------------\n"
          "Retrieving dids from server %s and scope %s\n"
-         "-------------------------------------------------------\n\n",
+         "--------------------------------------------------------------------------------------------------------\n\n",
          server_short_name.c_str(),
          scope_name.c_str());
   std::cout<<std::flush;
