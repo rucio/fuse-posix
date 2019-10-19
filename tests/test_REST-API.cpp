@@ -24,7 +24,7 @@ void test_server_connection(std::string server_short_name){
     } else {
       char buffer[100];
       strftime(buffer, 100, "%a, %d %b %Y %H:%M:%S %Z", &token->conn_token_exp);
-      printf("Token will be valid until %s\n", buffer);
+      printf("Token will be valid until %s\n\n", buffer);
     }
   }
 }
@@ -74,10 +74,12 @@ int main(){
   auto scopes = rucio_list_scopes("rucio-server");
 
   if(not scopes.empty()){
-    test_scope_dids("rucio-server", scopes[0]);
+    for(const auto& scope : scopes){
+      test_scope_dids("rucio-server", scope);
+    }
   } else {
     std::cout << "No scope found.\n";
   }
-  
+
   return 0;
 }
