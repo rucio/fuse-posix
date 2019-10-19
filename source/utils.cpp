@@ -5,6 +5,7 @@
 #include <utils.h>
 #include <string>
 #include <string.h>
+#include <stdlib.h>
 #include <iostream>
 #include <constants.h>
 
@@ -59,4 +60,45 @@ bool is_server_mountpoint(const char *path){
 // This function returns true is the depth is 1 (e.g. /scope1 or /scope1/)
 bool is_main_scope(const char *path){
   return path_depth(path) == 2;
+}
+
+std::vector<std::string> split(const std::string &s, char delim) {
+    std::vector<std::string> elems;
+    std::stringstream ss(s);
+    std::string key_or_value;
+    while(std::getline(ss, key_or_value, delim)) {
+      elems.emplace_back(key_or_value);
+    }
+    return elems;
+}
+
+void structurize_did(const std::string& did_str,
+                     std::vector<rucio_did>& target){
+  std::string list_copy = did_str;
+
+  for(const auto& ch : {' ','}','{','"'}){
+    list_copy.erase(std::remove(list_copy.begin(), list_copy.end(), ch), list_copy.end());
+  }
+
+  std::replace(list_copy.begin(), list_copy.end(), ':', ' ');
+  std::replace(list_copy.begin(), list_copy.end(), ',', ' ');
+
+  auto key_values = split(list_copy, ' ');
+  rucio_did did;
+
+  did.scope = key_values[1];
+
+  if(key_values[3] == "FILE"){
+    did.type = rucio_data_type::rucio_file;
+  }else if(key_values[3] == "CONTAINER"){
+    did.type = rucio_data_type::rucio_container;
+  }else if(key_values[3] == "DATASET"){
+    did.type = rucio_data_type::rucio_dataset;
+  }
+
+  did.name = key_values[5];
+  did.parent = key_values[7];
+  did.level = std::atoi(key_values[9].c_str());
+
+  target.emplace_back(did);
 }

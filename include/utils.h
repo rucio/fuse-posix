@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include <array>
+#include <map>
 #include <sstream>
 #include <algorithm>
 
@@ -42,4 +43,20 @@ void tokenize_python_list(std::string list, std::vector<T>& target, char separat
     target.emplace_back((T)element);
   }
 }
+
+enum rucio_data_type{
+  rucio_file,
+  rucio_container,
+  rucio_dataset
+};
+
+struct rucio_did{
+  std::string scope;
+  rucio_data_type type;
+  std::string name;
+  std::string parent;
+  int level;
+};
+
+void structurize_did(const std::string& did_str, std::vector<rucio_did>& target);
 #endif //RUCIO_FUSE_UTILS_H

@@ -46,5 +46,14 @@ int main(){
   for(auto const& scope : scopes)
     std::cout << scope << " expected " << expected_scopes[i++] << std::endl;
 
+  printf("\nTesting structurize_did:\n");
+  std::string test_did = R"({"scope": "user.root", "type": "FILE", "name": "test-19102019.txt", "parent": null, "level": 0})";
+  std::vector<rucio_did> didv;
+  structurize_did(test_did, didv);
+  std::cout << didv[0].scope << std::endl;
+  std::cout << didv[0].type << std::endl;
+  std::cout << didv[0].name << std::endl;
+  std::cout << didv[0].parent << std::endl;
+  std::cout << didv[0].level << std::endl;
   return 0;
 }
