@@ -10,22 +10,22 @@
 #include <map>
 #include <utils.h>
 
-void rucio_get_auth_token_userpass(std::string short_server_name);
+void rucio_get_auth_token_userpass(const std::string& short_server_name);
 
-bool rucio_is_token_valid(std::string short_server_name);
+bool rucio_is_token_valid(const std::string& short_server_name);
 
 std::string rucio_server_from_path(const std::string& path);
 
 std::vector<std::string> rucio_list_servers();
 
-std::vector<std::string> rucio_list_scopes(std::string short_server_name);
+std::vector<std::string> rucio_list_scopes(const std::string& short_server_name);
 
-std::vector<rucio_did> rucio_list_dids(const std::string& scope, std::string short_server_name);
+std::vector<rucio_did> rucio_list_dids(const std::string& scope, const std::string& short_server_name);
 
-std::vector<std::string> rucio_list_container_dids(const std::string& scope, const std::string& container_name, std::string short_server_name);
+std::vector<rucio_did> rucio_list_container_dids(const std::string& scope, const std::string& container_name, const std::string& short_server_name);
 
 // Returns true if did is container of dataset, false otherwise (for files)
-bool rucio_is_container(const std::string& path);
+bool rucio_is_container(const rucio_did& did);
 
 void rucio_create_inode();
 

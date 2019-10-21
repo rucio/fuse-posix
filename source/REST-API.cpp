@@ -10,7 +10,7 @@
 #include <iostream>
 #include <time.h>
 
-void rucio_get_auth_token_userpass(std::string short_server_name){
+void rucio_get_auth_token_userpass(const std::string& short_server_name){
   struct curl_slist *headers = nullptr;
 
   auto conn_params = get_server_params(short_server_name);
@@ -61,7 +61,7 @@ void rucio_get_auth_token_userpass(std::string short_server_name){
   token_info->conn_token_exp_epoch = mktime(&token_info->conn_token_exp);
 }
 
-bool rucio_is_token_valid(std::string short_server_name){
+bool rucio_is_token_valid(const std::string& short_server_name){
   auto token_info = get_server_token(short_server_name);
 
   if(not token_info){
@@ -87,7 +87,7 @@ std::vector<std::string> rucio_list_servers(){
   return servers;
 }
 
-std::vector<std::string> rucio_list_scopes(std::string short_server_name){
+std::vector<std::string> rucio_list_scopes(const std::string& short_server_name){
   auto conn_params = get_server_params(short_server_name);
   auto token_info = get_server_token(short_server_name);
 
@@ -117,14 +117,13 @@ std::vector<std::string> rucio_list_scopes(std::string short_server_name){
   return scopes;
 }
 
-std::vector<rucio_did> rucio_list_dids(const std::string& scope, std::string short_server_name){
+curl_slist* get_auth_headers(const std::string& short_server_name){
   auto conn_params = get_server_params(short_server_name);
   auto token_info = get_server_token(short_server_name);
 
-
   if(not token_info || not conn_params){
     printf("Server not found. Aborting!");
-    return {};
+    return nullptr;
   }
 
   if(not rucio_is_token_valid(short_server_name)) rucio_get_auth_token_userpass(short_server_name);
@@ -135,7 +134,18 @@ std::vector<rucio_did> rucio_list_dids(const std::string& scope, std::string sho
 
   headers= curl_slist_append(headers, xRucioToken.c_str());
 
-  auto curl_res = GET(conn_params->server_url+"/dids/"+scope+"/", headers);
+  return headers;
+}
+
+std::vector<rucio_did> rucio_list_dids(const std::string& scope, const std::string& short_server_name){
+  auto headers= get_auth_headers(short_server_name);
+
+  if(not headers){
+    printf("Server not found. Aborting!");
+    return {};
+  }
+
+  auto curl_res = GET(get_server_params(short_server_name)->server_url+"/dids/"+scope+"/", headers);
 
   curl_slist_free_all(headers);
 
@@ -148,18 +158,27 @@ std::vector<rucio_did> rucio_list_dids(const std::string& scope, std::string sho
   return dids;
 }
 
-std::vector<std::string> rucio_list_container_dids(const std::string& scope, const std::string& container_name, std::string short_server_name){
-  auto conn_params = get_server_params(short_server_name);
+std::vector<rucio_did> rucio_list_container_dids(const std::string& scope, const std::string& container_name, const std::string& short_server_name){
+  auto headers= get_auth_headers(short_server_name);
 
-  if(not conn_params){
+  if(not headers){
     printf("Server not found. Aborting!");
-    return {""};
+    return {};
   }
 
-  auto curl_res = GET(conn_params->server_url+"/dids/"+scope+"/"+container_name+"/"); //????? Just guessing, not right!
-  return curl_res.payload;
+  auto curl_res = GET(get_server_params(short_server_name)->server_url+"/dids/"+scope+"/"+container_name+"/dids", headers);
+
+  curl_slist_free_all(headers);
+
+  std::vector<rucio_did> dids;
+
+  for(auto& line : curl_res.payload){
+    structurize_did(line, dids);
+  }
+
+  return dids;
 }
 
-bool rucio_is_container(const std::string& path){
-  return false;
+bool rucio_is_container(const rucio_did& did){
+  return did.type != rucio_data_type::rucio_file;
 }
