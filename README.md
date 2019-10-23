@@ -23,9 +23,7 @@ The Rucio file catalog is much flatter than that of a usual `POSIX` filesystems 
 - The curl-REST wrapper uses a singleton-equipped `curl` instance to limit memory fingerprint.
 - Rucio-API wrappers, based on Rucio's RESTFul interface, are being developed. At the moment access token retrieval through userpass authentication and scopes listing are implemented and tested.
 
-
 ## TODOs
-- implement rucio-API wrappers
 - implement `getattr`, `readdir` and `read` methods
 - surely a lot more...
 
