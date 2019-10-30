@@ -72,6 +72,82 @@ std::vector<std::string> split(const std::string &s, char delim) {
     return elems;
 }
 
+void remove_trailing_token(std::string& path, std::string token){
+  if(path.substr(path.length()-1) == token){
+    path.pop_back();
+  }
+}
+
+std::string remove_substring(const std::string& path, const std::string& subs){
+  auto path_copy = path;
+
+  // Search for the rucio root path with trailing "/"
+	size_t pos = path_copy.find(subs);
+
+	if (pos != std::string::npos)
+	{
+    // Erase root path from string
+		path_copy.erase(pos, subs.length());
+	} else return "";
+
+	return path_copy;
+}
+
+std::string remove_root_path(const std::string& path){
+  return remove_substring(path, rucio_root_path+'/');
+}
+
+std::string extract_server_name(const std::string& path){
+  auto path_copy = remove_root_path(path);
+  remove_trailing_token(path_copy);
+
+	// Find position of first "/"
+	size_t pos = path_copy.find('/');
+
+  if (pos != std::string::npos)
+	{
+    // Erase everything after the first "/"
+		path_copy.erase(pos, path_copy.length());
+	} else return "";
+
+  return std::move(path_copy);
+}
+
+std::string extract_scope(const std::string& path){
+  auto path_copy = remove_root_path(path);
+  remove_trailing_token(path_copy);
+  path_copy = remove_substring(path_copy, extract_server_name(path)+'/');
+
+  size_t pos = path_copy.find('/');
+
+  if (pos != std::string::npos)
+	{
+    // Erase everything after the first "/"
+		path_copy.erase(pos, path_copy.length());
+	} else return "";
+
+  return std::move(path_copy);
+}
+
+std::string extract_name(const std::string& path){
+  auto path_copy = remove_root_path(path);
+  remove_trailing_token(path_copy);
+
+  size_t pos = path_copy.find_last_of('/');
+
+  if (pos != std::string::npos)
+	{
+    // Erase everything after the first "/"
+		path_copy.erase(0, pos+1);
+	} else return "";
+
+  return std::move(path_copy);
+}
+
+std::string get_did(const std::string& path){
+  return extract_scope(path)+":"+extract_name(path);
+}
+
 void structurize_did(const std::string& did_str,
                      std::vector<rucio_did>& target){
   std::string list_copy = did_str;

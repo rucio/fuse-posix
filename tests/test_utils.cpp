@@ -44,16 +44,30 @@ int main(){
   tokenize_python_list(R"(["a","b","c","d"])", scopes);
   size_t i = 0;
   for(auto const& scope : scopes)
-    std::cout << scope << " expected " << expected_scopes[i++] << std::endl;
+    std::cout << "--- " << scope << " expected " << expected_scopes[i++] << std::endl;
 
   printf("\nTesting structurize_did:\n");
   std::string test_did = R"({"scope": "user.root", "type": "FILE", "name": "test-19102019.txt", "parent": null, "level": 0})";
   std::vector<rucio_did> didv;
   structurize_did(test_did, didv);
-  std::cout << didv[0].scope << std::endl;
-  std::cout << didv[0].type << std::endl;
-  std::cout << didv[0].name << std::endl;
-  std::cout << didv[0].parent << std::endl;
-  std::cout << didv[0].level << std::endl;
+  std::cout << "--- " << didv[0].scope << std::endl;
+  std::cout << "--- " << didv[0].type << std::endl;
+  std::cout << "--- " << didv[0].name << std::endl;
+  std::cout << "--- " << didv[0].parent << std::endl;
+  std::cout << "--- " << didv[0].level << std::endl;
+
+  printf("\nTesting string manipulation:\n");
+  std::string test_string = "/rucio/server/scope/container/dataset/filename/";
+  std::cout << "--- Test string: ";
+  std::cout << test_string << "->";
+  remove_trailing_token(test_string);
+  std::cout << test_string << std::endl;
+
+  std::cout << "--- Server name: " << extract_server_name(test_string) << std::endl;
+  std::cout << "--- Scope: " << extract_scope(test_string) << std::endl;
+  std::cout << "--- File name: " << extract_name(test_string) << std::endl;
+  std::cout << "--- DiD name: " << get_did(test_string) << std::endl;
+
+
   return 0;
 }

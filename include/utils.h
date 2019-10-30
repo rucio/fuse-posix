@@ -44,6 +44,14 @@ void tokenize_python_list(std::string list, std::vector<T>& target, char separat
   }
 }
 
+void remove_trailing_token(std::string& path, std::string token = "/");
+std::string remove_substring(const std::string& path, const std::string& subs);
+std::string remove_root_path(const std::string& path);
+std::string extract_server_name(const std::string& path);
+std::string extract_scope(const std::string& path);
+std::string extract_name(const std::string& path);
+std::string get_did(const std::string& path);
+
 enum rucio_data_type{
   rucio_file,
   rucio_container,
