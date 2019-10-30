@@ -26,6 +26,7 @@ std::vector<rucio_did> rucio_list_container_dids(const std::string& scope, const
 
 // Returns true if did is container of dataset, false otherwise (for files)
 bool rucio_is_container(const rucio_did& did);
+bool rucio_is_container(const std::string& path);
 
 void rucio_create_inode();
 

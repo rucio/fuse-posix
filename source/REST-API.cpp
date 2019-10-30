@@ -182,3 +182,22 @@ std::vector<rucio_did> rucio_list_container_dids(const std::string& scope, const
 bool rucio_is_container(const rucio_did& did){
   return did.type != rucio_data_type::rucio_file;
 }
+
+bool rucio_is_container(const std::string& path){
+  auto short_server_name = extract_server_name(path);
+  auto scope = extract_scope(path);
+  auto name = extract_name(path);
+
+  auto headers= get_auth_headers(short_server_name);
+
+  if(not headers){
+    printf("Server not found. Aborting!");
+    return {};
+  }
+
+  auto curl_res = GET(get_server_params(short_server_name)->server_url+"/dids/"+scope+name+"/did_type", headers); //TODO: ???
+
+  curl_slist_free_all(headers);
+
+  return curl_res.payload[0] == "CONTAINER" or curl_res.payload[0] == "DATASET";
+}
