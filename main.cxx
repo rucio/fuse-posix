@@ -13,5 +13,6 @@ static struct fuse_operations operations = {
 
 int main( int argc, char *argv[] )
 {
+  //TODO: parse parameters from json or similar
 	return fuse_main( argc, argv, &operations, NULL );
 }
