@@ -22,8 +22,8 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
-#find_package(FUSE REQUIRED)
-#include_directories(${FUSE_INCLUDE_DIR})
+find_package(FUSE REQUIRED)
+include_directories(${FUSE_INCLUDE_DIR})
 
 set(CURL_LIBRARY "-lcurl")
 find_package(CURL REQUIRED)
@@ -55,15 +55,15 @@ add_library(rucio-rest-api-wrapper
         )
 target_link_libraries(rucio-rest-api-wrapper curl-wrapper utils sha1)
 
-#add_library(rucio-fuse
-#        include/fuse-op.h
-#        source/fuse-op.cpp
-#        )
-#target_link_libraries(rucio-fuse utils rucio-rest-api-wrapper ${FUSE_LIBRARIES})
-#
-#add_executable(rucio-fuse-main
-#        main.cxx
-#        )
-#target_link_libraries(rucio-fuse-main rucio-fuse)
+add_library(rucio-fuse
+        include/fuse-op.h
+        source/fuse-op.cpp
+        )
+target_link_libraries(rucio-fuse utils rucio-rest-api-wrapper ${FUSE_LIBRARIES})
+
+add_executable(rucio-fuse-main
+        main.cxx
+        )
+target_link_libraries(rucio-fuse-main rucio-fuse globals)
 
 add_subdirectory(tests)
