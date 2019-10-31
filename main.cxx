@@ -5,7 +5,7 @@
 #include <fuse.h>
 #include <fuse-op.h>
 
-struct fuse_operations operations;
+static struct fuse_operations operations = {0};
 
 int main( int argc, char *argv[] )
 {
@@ -15,5 +15,5 @@ int main( int argc, char *argv[] )
 
   //TODO: parse parameters from json or similar
   
-	return fuse_main( argc, argv, &operations, NULL );
+	return fuse_main(argc, argv, &operations, NULL );
 }
