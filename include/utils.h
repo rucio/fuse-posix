@@ -45,6 +45,7 @@ void tokenize_python_list(std::string list, std::vector<T>& target, char separat
 }
 
 void remove_trailing_token(std::string& path, std::string token = "/");
+void remove_leading_token(std::string& path, std::string token = "/");
 std::string remove_substring(const std::string& path, const std::string& subs);
 std::string remove_root_path(const std::string& path);
 std::string extract_server_name(const std::string& path);

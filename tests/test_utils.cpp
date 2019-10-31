@@ -57,7 +57,7 @@ int main(){
   std::cout << "--- " << didv[0].level << std::endl;
 
   printf("\nTesting string manipulation:\n");
-  std::string test_string = "/rucio/server/scope/container/dataset/filename/";
+  std::string test_string = "/server/scope/container/dataset/filename/";
   std::cout << "--- Test string: ";
   std::cout << test_string << "->";
   remove_trailing_token(test_string);
