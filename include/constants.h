@@ -10,7 +10,7 @@
 #include <cstddef>
 
 // FS structure constants
-static const std::string rucio_root_path = "/rucio";
+static const std::string rucio_root_path = "/";
 
 // Token parsing constants
 static const std::string rucio_token_prefix = "X-Rucio-Auth-Token: ";
