@@ -101,7 +101,7 @@ std::string remove_root_path(const std::string& path){
 }
 
 std::string extract_server_name(const std::string& path){
-  auto path_copy = remove_root_path(path);
+  auto path_copy = path;
   remove_trailing_token(path_copy);
 
 	// Find position of first "/"
@@ -117,7 +117,7 @@ std::string extract_server_name(const std::string& path){
 }
 
 std::string extract_scope(const std::string& path){
-  auto path_copy = remove_root_path(path);
+  auto path_copy = path;
   remove_trailing_token(path_copy);
   path_copy = remove_substring(path_copy, extract_server_name(path)+'/');
 
@@ -133,7 +133,7 @@ std::string extract_scope(const std::string& path){
 }
 
 std::string extract_name(const std::string& path){
-  auto path_copy = remove_root_path(path);
+  auto path_copy = path;
   remove_trailing_token(path_copy);
 
   size_t pos = path_copy.find_last_of('/');
