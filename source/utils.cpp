@@ -119,6 +119,8 @@ std::string extract_server_name(const std::string& path){
 		path_copy.erase(pos, path_copy.length());
 	} else return "";
 
+  std::cout << "Server name: " << path_copy << std::endl;
+
   return std::move(path_copy);
 }
 
