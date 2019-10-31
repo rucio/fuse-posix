@@ -18,8 +18,7 @@ int main( int argc, char *argv[] )
   char* fuse_argv[3];
   fuse_argv[0] = argv[0];
   sprintf(fuse_argv[1],"-f");
-  system("mkdir /ruciofs");
   sprintf(fuse_argv[2],"/ruciofs");
 
-	return fuse_main(3, fuse_argv, &operations, NULL );
+	return fuse_main(3, fuse_argv, &operations, nullptr);
 }
