@@ -32,7 +32,7 @@ static int rucio_getattr (const char *path, struct stat *st){
 	}
 	else
 	{
-	  std::string server_short_name = rucio_server_from_path(path);
+	  std::string server_short_name = extract_server_name(path);
 
 	  if (is_server_mountpoint(path)) {
 	    std::cout << "handling server path\n";
@@ -71,6 +71,7 @@ static int rucio_getattr (const char *path, struct stat *st){
 static int rucio_readdir(const char *path, void *buffer, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fi)
 {
   std::cout << "rucio_readdir called\n";
+  std::cout << "Handling this path: " << path <<std::endl;
 
   filler(buffer, ".", nullptr, 0 );
   filler(buffer, "..", nullptr, 0 );
@@ -83,7 +84,7 @@ static int rucio_readdir(const char *path, void *buffer, fuse_fill_dir_t filler,
       filler(buffer, server.data(), nullptr, 0 );
     }
 	}	else {
-	  std::string server_short_name = rucio_server_from_path(path);
+	  std::string server_short_name = extract_server_name(path);
 
 	  if (is_server_mountpoint(path)) {
 	    std::cout << "handling server path\n";
@@ -119,6 +120,7 @@ static int rucio_readdir(const char *path, void *buffer, fuse_fill_dir_t filler,
 static int rucio_read(const char *path, char *buffer, size_t size, off_t offset, struct fuse_file_info *fi)
 {
   std::cout << "rucio_read called\n";
+  std::cout << "Handling this path: " << path <<std::endl;
 
   if(not is_server_mountpoint(path) and not is_main_scope(path) and not rucio_is_container(path)){
     //TODO: download file through Rucio
