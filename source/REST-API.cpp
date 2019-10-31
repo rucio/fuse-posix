@@ -175,7 +175,6 @@ std::vector<rucio_did> rucio_list_container_dids(const std::string& scope, const
   std::vector<rucio_did> dids;
 
   for(auto& line : curl_res.payload){
-    std::cout << line << std::endl;
     structurize_container_did(line, dids);
   }
 
