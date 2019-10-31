@@ -20,7 +20,7 @@ FIND_PATH (FUSE_INCLUDE_DIR fuse.h
 if (APPLE)
     SET(FUSE_NAMES libosxfuse.dylib fuse)
 else (APPLE)
-    SET(FUSE_NAMES fuse)
+    SET(FUSE_NAMES libfuse.so fuse)
 endif (APPLE)
 FIND_LIBRARY(FUSE_LIBRARIES
         NAMES ${FUSE_NAMES}
