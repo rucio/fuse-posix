@@ -198,7 +198,7 @@ bool rucio_is_container(const std::string& path){
     return {};
   }
 
-  auto curl_res = GET(get_server_params(short_server_name)->server_url+"/dids/"+scope+name+"/did_type", headers); //TODO: ???
+  auto curl_res = GET(get_server_params(short_server_name)->server_url+"/dids/"+scope+"/"+name, headers); //TODO: ???
 
   curl_slist_free_all(headers);
 
