@@ -87,8 +87,8 @@ int main(){
      "Testing is_container\n"
      "--------------------------------------------------------------------------------------------------------\n\n");
 
-  std::cout << "Container at /rucio-server/user.root/test-ds" << rucio_is_container("/rucio-server/user.root/test-ds") << " -> expected True\n";
-  std::cout << "Container at /rucio-server/user.root/test2.txt" << rucio_is_container("/rucio-server/user.root/test2.txt") << " -> expected False\n";
+  std::cout << "Container at /rucio-server/user.root/test-ds " << rucio_is_container("/rucio-server/user.root/test-ds") << " -> expected True\n";
+  std::cout << "Container at /rucio-server/user.root/test2.txt " << rucio_is_container("/rucio-server/user.root/test2.txt") << " -> expected False\n";
 
   printf("--------------------------------------------------------------------------------------------------------\n"
        "Retrieving dids from server %s, scope %s and name %s\n"
