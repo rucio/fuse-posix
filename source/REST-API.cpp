@@ -198,11 +198,11 @@ bool rucio_is_container(const std::string& path){
     return {};
   }
 
-  auto curl_res = GET(get_server_params(short_server_name)->server_url+"/dids/"+scope+name+"/did_type", headers); //TODO: ???
+  auto curl_res = GET(get_server_params(short_server_name)->server_url+"/dids/"+scope+"/"+name, headers); //TODO: ???
 
   curl_slist_free_all(headers);
 
   std::cout << curl_res.payload[0] << std::endl;
 
-  return ((curl_res.payload[0].find("DATASET") != curl_res.payload[0].length()) or (curl_res.payload[0].find("CONTAINER") != curl_res.payload[0].length()));
+  return curl_res.payload[0].find("\"type\": \"FILE\",") == std::string::npos;
 }
