@@ -11,9 +11,10 @@
 #include <REST-API.h>
 #include <utils.h>
 #include <string.h>
+#include <iostream>
 
 static int rucio_getattr (const char *path, struct stat *st){
-  printf("rucio_getattr called");
+  std::cout << "rucio_getattr called\n";
 
   st->st_uid = getuid();
 	st->st_gid = getgid();
@@ -63,6 +64,8 @@ static int rucio_getattr (const char *path, struct stat *st){
 
 static int rucio_readdir(const char *path, void *buffer, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fi)
 {
+  std::cout << "rucio_readdir called\n";
+
   filler(buffer, ".", nullptr, 0 );
   filler(buffer, "..", nullptr, 0 );
 
@@ -105,6 +108,8 @@ static int rucio_readdir(const char *path, void *buffer, fuse_fill_dir_t filler,
 
 static int rucio_read(const char *path, char *buffer, size_t size, off_t offset, struct fuse_file_info *fi)
 {
+  std::cout << "rucio_read called\n";
+
   if(not is_server_mountpoint(path) and not is_main_scope(path) and not rucio_is_container(path)){
     //TODO: download file through Rucio
     char *fileContent = nullptr;
