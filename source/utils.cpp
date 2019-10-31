@@ -100,7 +100,7 @@ std::string remove_substring(const std::string& path, const std::string& subs){
 	{
     // Erase root path from string
 		path_copy.erase(pos, subs.length());
-	} else return "";
+	}
 
 	return path_copy;
 }
@@ -118,9 +118,7 @@ std::string extract_server_name(const std::string& path){
 	{
     // Erase everything after the first "/"
 		path_copy.erase(pos, path_copy.length());
-	} else return "";
-
-  std::cout << "Server name: " << path_copy << std::endl;
+	}
 
   return std::move(path_copy);
 }
@@ -136,7 +134,7 @@ std::string extract_scope(const std::string& path){
 	{
     // Erase everything after the first "/"
 		path_copy.erase(pos, path_copy.length());
-	} else return "";
+	}
 
   return std::move(path_copy);
 }
@@ -151,7 +149,7 @@ std::string extract_name(const std::string& path){
 	{
     // Erase everything after the first "/"
 		path_copy.erase(0, pos+1);
-	} else return "";
+	}
 
   return std::move(path_copy);
 }
