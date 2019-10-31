@@ -204,5 +204,8 @@ bool rucio_is_container(const std::string& path){
 
   std::cout << curl_res.payload[0] << std::endl;
 
-  return ((curl_res.payload[0].find("DATASET") != curl_res.payload[0].length()) or (curl_res.payload[0].find("CONTAINER") != curl_res.payload[0].length()));
+  std::vector<rucio_did> dids;
+  structurize_container_did(curl_res.payload[0], dids);
+
+  return rucio_is_container(dids[0]);
 }
