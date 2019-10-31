@@ -15,6 +15,7 @@
 
 static int rucio_getattr (const char *path, struct stat *st){
   std::cout << "rucio_getattr called\n";
+  std::cout << "Handling this path: " << path <<std::endl;
 
   st->st_uid = getuid();
 	st->st_gid = getgid();
