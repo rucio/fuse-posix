@@ -80,6 +80,15 @@ void remove_trailing_token(std::string& path, std::string token){
   }
 }
 
+void remove_leading_token(std::string& path, std::string token){
+//  std::cout << "received: " << path <<std::endl;
+  if(path.length() > 0) {
+    if (path.substr(1) == token) {
+      path.erase(path.begin());
+    }
+  }
+}
+
 std::string remove_substring(const std::string& path, const std::string& subs){
   auto path_copy = path;
 
@@ -96,15 +105,13 @@ std::string remove_substring(const std::string& path, const std::string& subs){
 }
 
 std::string remove_root_path(const std::string& path){
-  return remove_substring(path, rucio_root_path+'/');
+  return remove_substring(path, rucio_root_path);
 }
 
 std::string extract_server_name(const std::string& path){
-  auto path_copy = path;
-  remove_trailing_token(path_copy);
+  auto path_copy = remove_root_path(path);
 
-	// Find position of first "/"
-	size_t pos = path_copy.find('/');
+  size_t pos = path_copy.find('/');
 
   if (pos != std::string::npos)
 	{
@@ -116,7 +123,7 @@ std::string extract_server_name(const std::string& path){
 }
 
 std::string extract_scope(const std::string& path){
-  auto path_copy = path;
+  auto path_copy = remove_root_path(path);
   remove_trailing_token(path_copy);
   path_copy = remove_substring(path_copy, extract_server_name(path)+'/');
 
