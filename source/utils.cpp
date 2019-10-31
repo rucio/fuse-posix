@@ -49,7 +49,7 @@ int path_depth(const char *path, const char token){
     // '/scope1' and '/scope1/' should behave the same
     if(path[size-1] == token) i--;
     // Returns depth
-    return i-1;
+    return i;
   }
 }
 
