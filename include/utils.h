@@ -68,4 +68,5 @@ struct rucio_did{
 };
 
 void structurize_did(const std::string& did_str, std::vector<rucio_did>& target);
+void structurize_container_did(const std::string& did_str, std::vector<rucio_did>& target);
 #endif //RUCIO_FUSE_UTILS_H

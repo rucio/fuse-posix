@@ -188,3 +188,34 @@ void structurize_did(const std::string& did_str,
 
   target.emplace_back(did);
 }
+
+void structurize_container_did(const std::string& did_str,
+                     std::vector<rucio_did>& target){
+  std::string list_copy = did_str;
+
+  for(const auto& ch : {' ','}','{','"'}){
+    list_copy.erase(std::remove(list_copy.begin(), list_copy.end(), ch), list_copy.end());
+  }
+
+  std::replace(list_copy.begin(), list_copy.end(), ':', ' ');
+  std::replace(list_copy.begin(), list_copy.end(), ',', ' ');
+
+  auto key_values = split(list_copy, ' ');
+  rucio_did did;
+
+  did.scope = key_values[7];
+
+  if(key_values[9] == "FILE"){
+    did.type = rucio_data_type::rucio_file;
+  }else if(key_values[9] == "CONTAINER"){
+    did.type = rucio_data_type::rucio_container;
+  }else if(key_values[9] == "DATASET"){
+    did.type = rucio_data_type::rucio_dataset;
+  }
+
+  did.name = key_values[3];
+  did.parent = "";
+  did.level = 0;
+
+  target.emplace_back(did);
+}
