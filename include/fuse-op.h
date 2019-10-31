@@ -14,7 +14,7 @@
 #include <iostream>
 
 static int rucio_getattr (const char *path, struct stat *st){
-  std::cout << "rucio_getattr called\n";
+//  std::cout << "rucio_getattr called\n";
 //  std::cout << "Handling this path: " << path <<std::endl;
 
   st->st_uid = getuid();
@@ -56,9 +56,12 @@ static int rucio_getattr (const char *path, struct stat *st){
         auto container_dids = rucio_list_container_dids(extract_scope(path), extract_name(path), server_short_name);
 
         std::cout << "DiDs: " << container_dids.size() << std::endl;
+        auto nFiles = std::count_if(container_dids.begin(),container_dids.end(),[](const rucio_did& did){ return did.type == rucio_data_type::rucio_file; });
+        std::cout << "Files: " << nFiles << std::endl;
+        std::cout << "Containers/datasets: " << container_dids.size() - nFiles <<std::endl;
 
         st->st_mode = S_IFDIR | 0755;
-		    st->st_nlink = 2 + container_dids.size();
+		    st->st_nlink = 2 + container_dids.size() - nFiles;
       // If it's a file just create the inode
       } else {
         std::cout << "handling file path\n";
@@ -74,7 +77,7 @@ static int rucio_getattr (const char *path, struct stat *st){
 
 static int rucio_readdir(const char *path, void *buffer, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fi)
 {
-  std::cout << "rucio_readdir called\n";
+//  std::cout << "rucio_readdir called\n";
 //  std::cout << "Handling this path: " << path <<std::endl;
 
   filler(buffer, ".", nullptr, 0 );
