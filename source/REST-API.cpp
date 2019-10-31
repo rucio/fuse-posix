@@ -88,7 +88,7 @@ std::vector<std::string> rucio_list_scopes(const std::string& short_server_name)
 
   if(not token_info || not conn_params){
     printf("Server not found. Aborting!");
-    return {""};
+    return {};
   }
 
   if(not rucio_is_token_valid(short_server_name)) rucio_get_auth_token_userpass(short_server_name);
