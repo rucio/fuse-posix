@@ -202,7 +202,5 @@ bool rucio_is_container(const std::string& path){
 
   curl_slist_free_all(headers);
 
-  std::cout << curl_res.payload[0] << std::endl;
-
   return curl_res.payload[0].find("\"type\": \"FILE\",") == std::string::npos;
 }

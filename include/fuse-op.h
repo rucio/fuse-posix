@@ -51,20 +51,20 @@ static int rucio_getattr (const char *path, struct stat *st){
 		    st->st_nlink = 2 + dids.size();
       // Otherwise, if a container (or a dataset), list its dids
       } else if (rucio_is_container(path)) {
-        std::cout << "handling container path\n";
+//        std::cout << "handling container path\n";
         std::string server_short_name = extract_server_name(path);
         auto container_dids = rucio_list_container_dids(extract_scope(path), extract_name(path), server_short_name);
 
-        std::cout << "DiDs: " << container_dids.size() << std::endl;
+//        std::cout << "DiDs: " << container_dids.size() << std::endl;
         auto nFiles = std::count_if(container_dids.begin(),container_dids.end(),[](const rucio_did& did){ return did.type == rucio_data_type::rucio_file; });
-        std::cout << "Files: " << nFiles << std::endl;
-        std::cout << "Containers/datasets: " << container_dids.size() - nFiles <<std::endl;
+//        std::cout << "Files: " << nFiles << std::endl;
+//        std::cout << "Containers/datasets: " << container_dids.size() - nFiles <<std::endl;
 
         st->st_mode = S_IFDIR | 0755;
 		    st->st_nlink = 2 + container_dids.size() - nFiles;
       // If it's a file just create the inode
       } else {
-        std::cout << "handling file path\n";
+//        std::cout << "handling file path\n";
         st->st_mode = S_IFREG | 0644;
         st->st_nlink = 1;
         st->st_size = 1024;
@@ -111,12 +111,12 @@ static int rucio_readdir(const char *path, void *buffer, fuse_fill_dir_t filler,
         }
       // Otherwise, if a container (or a dataset), list its dids
       } else if (rucio_is_container(path)) {
-        std::cout << "handling container path\n";
+//        std::cout << "handling container path\n";
         auto container_dids = rucio_list_container_dids(extract_scope(path), extract_name(path), server_short_name);
 
         //TODO: Handle dids taking care of loops!
         for(auto const& did : container_dids){
-          std::cout << did.name << std::endl;
+//          std::cout << did.name << std::endl;
           filler(buffer, did.name.data(), nullptr, 0 );
         }
       }
