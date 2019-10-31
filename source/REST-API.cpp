@@ -72,11 +72,6 @@ bool rucio_is_token_valid(const std::string& short_server_name){
   return token_info->conn_token_exp_epoch >= time(0);
 }
 
-std::string rucio_server_from_path(const std::string& path){
-  //TODO: extract path from string
-  return "";
-}
-
 std::vector<std::string> rucio_list_servers(){
   std::vector<std::string> servers;
   servers.reserve(rucio_server_map.size());
