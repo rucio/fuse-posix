@@ -36,6 +36,6 @@ To build the software please run:
 
 This has been tested on CentOS7 and Mac OS X Mojave 10.14.6 .
 
-To complete the build `libcurl` and `libfuse` must be present:
+To complete the build `libcurl-devel`, `fuse-libs` and `fuse-devel` packages (or equivalent) must be present:
 `cmake` will try to locate them for you and trigger some build messages if unable to do so.
 Please note that `cmake` version 3 or greater is needed.
