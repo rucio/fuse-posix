@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <REST-API.h>
 #include <utils.h>
+#include <string.h>
 
 static int rucio_getattr (const char *path, struct stat *st){
   printf("rucio_getattr called");
