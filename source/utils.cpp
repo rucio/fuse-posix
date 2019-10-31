@@ -73,11 +73,11 @@ std::vector<std::string> split(const std::string &s, char delim) {
 }
 
 void remove_trailing_token(std::string& path, std::string token){
-//  if(path.length() - 1 >= 0) {
-//    if (path.substr(path.length() - 1) == token) {
-//      path.pop_back();
-//    }
-//  }
+  if(path.length() - 1 > 0) {
+    if (path.substr(path.length() - 1) == token) {
+      path.pop_back();
+    }
+  }
 }
 
 std::string remove_substring(const std::string& path, const std::string& subs){
