@@ -32,10 +32,9 @@ static int rucio_getattr (const char *path, struct stat *st){
 	}
 	else
 	{
-	  std::string server_short_name = extract_server_name(path);
-
 	  if (is_server_mountpoint(path)) {
 	    std::cout << "handling server path\n";
+	    std::string server_short_name = extract_server_name(path);
 	    auto scopes = rucio_list_scopes(server_short_name);
 
       st->st_mode = S_IFDIR | 0755;
@@ -44,6 +43,8 @@ static int rucio_getattr (const char *path, struct stat *st){
 	    std::cout << "handling scope path\n";
       // If is one of the top level scopes list the dids inside
       if (is_main_scope(path)) {
+        std::cout << "handling scope path\n";
+        std::string server_short_name = extract_server_name(path);
         auto dids = rucio_list_dids(extract_scope(path), server_short_name);
 
         st->st_mode = S_IFDIR | 0755;
@@ -51,6 +52,7 @@ static int rucio_getattr (const char *path, struct stat *st){
       // Otherwise, if a container (or a dataset), list its dids
       } else if (rucio_is_container(path)) {
         std::cout << "handling container path\n";
+        std::string server_short_name = extract_server_name(path);
         auto container_dids = rucio_list_container_dids(extract_scope(path), extract_name(path), server_short_name);
 
         st->st_mode = S_IFDIR | 0755;
