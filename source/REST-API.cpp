@@ -202,5 +202,5 @@ bool rucio_is_container(const std::string& path){
 
   curl_slist_free_all(headers);
 
-  return curl_res.payload[0] == "CONTAINER" or curl_res.payload[0] == "DATASET";
+  return ((curl_res.payload[0].find("DATASET") != curl_res.payload[0].length()) or (curl_res.payload[0].find("CONTAINER") != curl_res.payload[0].length()));
 }
