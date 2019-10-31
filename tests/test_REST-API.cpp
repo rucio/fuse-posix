@@ -83,5 +83,16 @@ int main(){
     std::cout << "No scope found.\n";
   }
 
+  printf("--------------------------------------------------------------------------------------------------------\n"
+       "Retrieving dids from server %s, scope %s and name %s\n"
+       "--------------------------------------------------------------------------------------------------------\n\n",
+       "rucio-server",
+       "user.root",
+       "test-ds");
+  auto ret = rucio_list_container_dids("user.root", "test-ds", "rucio-server");
+  for(const auto& did : ret){
+    std::cout << did.name << std::endl;
+  }
+
   return 0;
 }
