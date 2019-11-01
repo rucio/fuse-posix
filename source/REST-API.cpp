@@ -33,8 +33,8 @@ void rucio_get_auth_token_userpass(const std::string& short_server_name){
 
   curl_slist_free_all(headers);
 
-  std::string token = "";
-  std::string expire_time_string = "";
+  std::string token;
+  std::string expire_time_string;
 
   for(auto& line : curl_res.payload){
     if (line.find(rucio_token_prefix) != std::string::npos) {
@@ -198,9 +198,9 @@ bool rucio_is_container(const std::string& path){
     return {};
   }
 
-  auto curl_res = GET(get_server_params(short_server_name)->server_url+"/dids/"+scope+"/"+name, headers); //TODO: ???
+  auto curl_res = GET(get_server_params(short_server_name)->server_url+"/dids/"+scope+"/"+name, headers);
 
   curl_slist_free_all(headers);
 
-  return curl_res.payload[0].find("\"type\": \"FILE\",") == std::string::npos;
+  return curl_res.payload[0].find(R"("type": "FILE",)") == std::string::npos;
 }
