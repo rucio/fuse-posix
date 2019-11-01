@@ -17,6 +17,7 @@ size_t curl_append_string_to_vect_callback(void *contents, size_t size, size_t n
 
 curlRet GET(const std::string& url, const struct curl_slist* headers, bool include_headers){
   curlRet ret;
+  auto static_curl = curlSingleton::curlWrap();
 
   curl_easy_setopt(static_curl(), CURLOPT_URL, url.c_str());
   curl_easy_setopt(static_curl(), CURLOPT_SSL_VERIFYPEER, CURLOPT_FALSE); //only for https
@@ -62,6 +63,7 @@ curlRet GET(const std::string& url, const struct curl_slist* headers, bool inclu
 
 curlRet POST(const std::string& url, const std::string& thing_to_post){
   curlRet ret;
+  auto static_curl = curlSingleton::curlWrap();
 
   curl_easy_setopt(static_curl(), CURLOPT_URL, url.c_str());
   curl_easy_setopt(static_curl(), CURLOPT_POSTFIELDS, thing_to_post.c_str());

@@ -45,7 +45,7 @@ namespace curlSingleton {
   };
 }
 
-static auto static_curl = curlSingleton::curlWrap();
+//static auto static_curl = curlSingleton::curlWrap();
 
 // This struct groups the returned CURL code and a payload in the form of splitted lines
 struct curlRet {
