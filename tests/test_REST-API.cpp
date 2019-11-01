@@ -68,16 +68,16 @@ void test_scope_dids(std::string server_short_name, std::string scope_name){
 }
 
 int main(){
-  test_server_connection("rucio-server");
-  test_server_connection("rucio-server-clone");
+  test_server_connection("rucio-server-torino");
+  test_server_connection("rucio-server-ligo");
 
-  test_server_scopes("rucio-server");
+  test_server_scopes("rucio-server-ligo");
 
-  auto scopes = rucio_list_scopes("rucio-server");
+  auto scopes = rucio_list_scopes("rucio-server-ligo");
 
   if(not scopes.empty()){
     for(const auto& scope : scopes){
-      test_scope_dids("rucio-server", scope);
+      test_scope_dids("rucio-server-ligo", scope);
     }
   } else {
     std::cout << "No scope found.\n";
@@ -87,16 +87,16 @@ int main(){
      "Testing is_container\n"
      "--------------------------------------------------------------------------------------------------------\n\n");
 
-  std::cout << "Container at /rucio-server/user.root/test-ds " << rucio_is_container("/rucio-server/user.root/test-ds") << " -> expected True\n";
-  std::cout << "Container at /rucio-server/user.root/test2.txt " << rucio_is_container("/rucio-server/user.root/test2.txt") << " -> expected False\n";
+  std::cout << "Container at /rucio-server-torino/user.root/test-ds " << rucio_is_container("/rucio-server-torino/user.root/test-ds") << " -> expected True\n";
+  std::cout << "Container at /rucio-server-torino/user.root/test2.txt " << rucio_is_container("/rucio-server-torino/user.root/test2.txt") << " -> expected False\n";
 
   printf("--------------------------------------------------------------------------------------------------------\n"
        "Retrieving dids from server %s, scope %s and name %s\n"
        "--------------------------------------------------------------------------------------------------------\n\n",
-       "rucio-server",
+       "rucio-server-torino",
        "user.root",
        "test-ds");
-  auto ret = rucio_list_container_dids("user.root", "test-ds", "rucio-server");
+  auto ret = rucio_list_container_dids("user.root", "test-ds", "rucio-server-torino");
   for(const auto& did : ret){
     std::cout << did.name << std::endl;
   }

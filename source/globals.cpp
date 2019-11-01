@@ -6,14 +6,14 @@
 
 std::unordered_map<std::string, rucio_server> rucio_server_map = {
                                                                   {
-                                                                    "rucio-server",
+                                                                    "rucio-server-torino",
                                                                     rucio_server("https://rucio-server",
                                                                                  "root",
                                                                                  "ddmlab",
                                                                                  "secret")
                                                                   },
                                                                   {
-                                                                    "rucio-server-clone",
+                                                                    "rucio-server-ligo",
                                                                     rucio_server("https://rucio-server",
                                                                                  "root",
                                                                                  "ddmlab",
