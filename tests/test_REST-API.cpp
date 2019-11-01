@@ -20,7 +20,7 @@ void test_server_connection(std::string server_short_name){
 
     printf("Got the following token: %s\n", token->conn_token.c_str());
 
-    if (not rucio_is_token_valid("rucio-server")) {
+    if (not rucio_is_token_valid(server_short_name)) {
       std::cout << "Token not valid!" << std::endl;
     } else {
       char buffer[100];
