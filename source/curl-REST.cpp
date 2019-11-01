@@ -38,6 +38,9 @@ curlRet GET(const std::string& url, const struct curl_slist* headers, bool inclu
   // Perform CURL request
   ret.res = curl_easy_perform(static_curl());
 
+  curl_easy_setopt(static_curl(), CURLOPT_WRITEFUNCTION, nullptr);
+  curl_easy_setopt(static_curl(), CURLOPT_WRITEDATA, nullptr);
+
   // Check return code to detect issues
   if(ret.res != CURLE_OK)
   {
