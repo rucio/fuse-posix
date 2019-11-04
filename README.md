@@ -26,7 +26,7 @@ The Rucio file catalog is much flatter than that of a usual `POSIX` filesystems 
 - Rucio-API is now backed with cache, to reduce proactively the number of cURL operations.
 
 ## TODOs
-- Implement the read Fuse operation: *at the moment the file contents are dummy*!
+- Implement the read Fuse operation: ***at the moment the file contents are dummy***!
 - Introduce log-level based logging (with macros or templates to avoid code pollution in release mode).
 - Introduce runtime parsing of configuration file (`.json`?) to replace `globals.cpp`.
 - Surely a lot more...
