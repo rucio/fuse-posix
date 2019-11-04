@@ -76,44 +76,52 @@ bool rucio_is_token_valid(const std::string& short_server_name){
 }
 
 std::vector<std::string> rucio_list_servers(){
-  std::vector<std::string> servers;
-  servers.reserve(rucio_server_map.size());
+  if(servers_cache.empty()){
+    servers_cache.reserve(rucio_server_map.size());
 
-  for(auto const& server: rucio_server_map)
-      servers.push_back(server.first);
+    for (auto const &server: rucio_server_map)
+      servers_cache.emplace_back(server.first);
+  }
 
-  return servers;
+  return servers_cache;
 }
 
 std::vector<std::string> rucio_list_scopes(const std::string& short_server_name){
-  auto conn_params = get_server_params(short_server_name);
-  auto token_info = get_server_token(short_server_name);
+  auto found = scopes_cache.find(short_server_name);
+  if(found == scopes_cache.end()) {
+    auto conn_params = get_server_params(short_server_name);
+    auto token_info = get_server_token(short_server_name);
 
-  if(not token_info || not conn_params){
-    std::cout << "Server not found. Aborting!\n";
-    std::cout << short_server_name << std::endl;
-    return {};
+    if (not token_info || not conn_params) {
+      std::cout << "Server not found. Aborting!\n";
+      std::cout << short_server_name << std::endl;
+      return {};
+    }
+
+    if (not rucio_is_token_valid(short_server_name)) rucio_get_auth_token_userpass(short_server_name);
+
+    auto xRucioToken = "X-Rucio-Auth-Token: " + token_info->conn_token;
+
+    struct curl_slist *headers = nullptr;
+
+    headers = curl_slist_append(headers, xRucioToken.c_str());
+
+    auto curl_res = GET(conn_params->server_url + "/scopes/", headers);
+
+    curl_slist_free_all(headers);
+
+    std::vector<std::string> scopes;
+
+    for (auto &line : curl_res.payload) {
+      tokenize_python_list(line, scopes);
+    }
+
+    scopes_cache[short_server_name] = std::move(scopes);
+    return scopes_cache[short_server_name];
+  } else {
+    std::cout << "USING CACHE" << std::endl;
+    return found->second;
   }
-
-  if(not rucio_is_token_valid(short_server_name)) rucio_get_auth_token_userpass(short_server_name);
-
-  auto xRucioToken = "X-Rucio-Auth-Token: "+token_info->conn_token;
-
-  struct curl_slist *headers = nullptr;
-
-  headers= curl_slist_append(headers, xRucioToken.c_str());
-
-  auto curl_res = GET(conn_params->server_url+"/scopes/", headers);
-
-  curl_slist_free_all(headers);
-
-  std::vector<std::string> scopes;
-
-  for(auto& line : curl_res.payload){
-    tokenize_python_list(line, scopes);
-  }
-
-  return scopes;
 }
 
 curl_slist* get_auth_headers(const std::string& short_server_name){
@@ -138,47 +146,75 @@ curl_slist* get_auth_headers(const std::string& short_server_name){
 }
 
 std::vector<rucio_did> rucio_list_dids(const std::string& scope, const std::string& short_server_name){
-  auto headers= get_auth_headers(short_server_name);
+  auto key = short_server_name+scope;
+  auto found = dids_cache.find(key);
+  if(found == dids_cache.end()) {
+    auto headers = get_auth_headers(short_server_name);
 
-  if(not headers){
-    std::cout << "Server not found. Aborting!\n";
-    std::cout << short_server_name << std::endl;
-    return {};
+    if (not headers) {
+      std::cout << "Server not found. Aborting!\n";
+      std::cout << short_server_name << std::endl;
+      return {};
+    }
+
+    auto curl_res = GET(get_server_params(short_server_name)->server_url + "/dids/" + scope + "/", headers);
+
+    curl_slist_free_all(headers);
+
+    std::vector<rucio_did> dids;
+
+    for (auto &line : curl_res.payload) {
+      structurize_did(line, dids);
+    }
+
+    for(const auto& did : dids){
+      is_container_cache[short_server_name+scope+did.name] = did.type != rucio_data_type::rucio_file;
+    }
+
+    dids_cache[key] = std::move(dids);
+    return dids_cache[key];
+  } else {
+    std::cout << "USING CACHE" << std::endl;
+    return found->second;
   }
-
-  auto curl_res = GET(get_server_params(short_server_name)->server_url+"/dids/"+scope+"/", headers);
-
-  curl_slist_free_all(headers);
-
-  std::vector<rucio_did> dids;
-
-  for(auto& line : curl_res.payload){
-    structurize_did(line, dids);
-  }
-
-  return dids;
 }
 
 std::vector<rucio_did> rucio_list_container_dids(const std::string& scope, const std::string& container_name, const std::string& short_server_name){
-  auto headers= get_auth_headers(short_server_name);
+  auto key = short_server_name+scope+container_name;
+  auto found = container_dids_cache.find(key);
+  if(found == container_dids_cache.end()) {
 
-  if(not headers){
-    std::cout << "Server not found. Aborting!\n";
-    std::cout << short_server_name << std::endl;
-    return {};
+    auto headers = get_auth_headers(short_server_name);
+
+    if (not headers) {
+      std::cout << "Server not found. Aborting!\n";
+      std::cout << short_server_name << std::endl;
+      return {};
+    }
+
+    auto curl_res = GET(
+            get_server_params(short_server_name)->server_url + "/dids/" + scope + "/" + container_name + "/dids",
+            headers);
+
+    curl_slist_free_all(headers);
+
+    std::vector<rucio_did> dids;
+
+    for (auto &line : curl_res.payload) {
+      structurize_container_did(line, dids);
+    }
+
+    for(const auto& did : dids){
+      is_container_cache[short_server_name+scope+did.name] = did.type != rucio_data_type::rucio_file;
+      std::cout << short_server_name+scope+did.name << " -> " << is_container_cache[short_server_name+scope+did.name] << std::endl;
+    }
+
+    container_dids_cache[key] = std::move(dids);
+    return container_dids_cache[key];
+  } else {
+    std::cout << "USING CACHE" << std::endl;
+    return found->second;
   }
-
-  auto curl_res = GET(get_server_params(short_server_name)->server_url+"/dids/"+scope+"/"+container_name+"/dids", headers);
-
-  curl_slist_free_all(headers);
-
-  std::vector<rucio_did> dids;
-
-  for(auto& line : curl_res.payload){
-    structurize_container_did(line, dids);
-  }
-
-  return dids;
 }
 
 bool rucio_is_container(const rucio_did& did){
@@ -189,18 +225,26 @@ bool rucio_is_container(const std::string& path){
   auto short_server_name = extract_server_name(path);
   auto scope = extract_scope(path);
   auto name = extract_name(path);
+  auto found = is_container_cache.find(short_server_name+scope+name);
 
-  auto headers= get_auth_headers(short_server_name);
+  if(found == is_container_cache.end()) {
+    auto headers = get_auth_headers(short_server_name);
 
-  if(not headers){
-    std::cout << "Server not found. Aborting!\n";
-    std::cout << short_server_name << std::endl;
-    return {};
+    if (not headers) {
+      std::cout << "Server not found. Aborting!\n";
+      std::cout << short_server_name << std::endl;
+      return {};
+    }
+
+    auto curl_res = GET(get_server_params(short_server_name)->server_url + "/dids/" + scope + "/" + name, headers);
+
+    curl_slist_free_all(headers);
+
+    is_container_cache[path] = curl_res.payload.front().find(R"("type": "FILE",)") == std::string::npos;
+    return is_container_cache[path];
+  } else {
+    std::cout << "USING CACHE" << std::endl;
+    std::cout << short_server_name+scope+name << " -> " << is_container_cache[short_server_name+scope+name] << std::endl;
+    return found->second;
   }
-
-  auto curl_res = GET(get_server_params(short_server_name)->server_url+"/dids/"+scope+"/"+name, headers);
-
-  curl_slist_free_all(headers);
-
-  return curl_res.payload.front().find(R"("type": "FILE",)") == std::string::npos;
 }
