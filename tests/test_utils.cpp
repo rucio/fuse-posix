@@ -68,6 +68,14 @@ int main(){
   std::cout << "--- File name: " << extract_name(test_string) << std::endl;
   std::cout << "--- DiD name: " << get_did(test_string) << std::endl;
 
+  printf("\nTesting did string concatenation:\n");
+  std::string test_dids_string = R"({"adler32": "f907738a", "name": "H-H1_HOFT_C00-1126346752-4096.gwf", "bytes": 458416223, "scope": "ER8", "type": "FILE", "md5": "8b50ad882ea5813f2b8b17dccfba2d26"}
+{"adler32": "0a6ec5ac", "name": "H-H1_HOFT_C00-1126350848-4096.gwf", "bytes": 45)";
+  std::string test_dids_string2 = R"(8425803, "scope": "ER8", "type": "FILE", "md5": "f1d70565a33fc075feb62f4a5c2e3b9f"}
+{"adler32": "b76bd851", "name": "H-H1_HOFT_C00-1126354944-4096.gwf", "bytes": 456326199, "scope": "ER8", "type": "FILE", "md5": "088509c189b893dedf397eadf79cb980"})";
+  std::vector<std::string> did_strings_vect;
+  split_dids(test_dids_string, did_strings_vect);
+  split_dids(test_dids_string2, did_strings_vect);
 
   return 0;
 }

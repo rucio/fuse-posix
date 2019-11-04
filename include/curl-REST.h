@@ -21,7 +21,7 @@ namespace curlSingleton {
     curlWrap() {
       if (curl_singleton == 0) {
         printf("Creating CURL instance\n");
-        curl_global_init(CURL_GLOBAL_DEFAULT);
+        curl_global_init(CURL_GLOBAL_ALL);
         curl = curl_easy_init();
         static_curl_address = curl;
       } else {
@@ -45,7 +45,7 @@ namespace curlSingleton {
   };
 }
 
-//static auto static_curl = curlSingleton::curlWrap();
+//static curlSingleton::curlWrap static_curl;
 
 // This struct groups the returned CURL code and a payload in the form of splitted lines
 struct curlRet {
