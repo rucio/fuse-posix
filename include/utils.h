@@ -53,6 +53,11 @@ std::string extract_scope(const std::string& path);
 std::string extract_name(const std::string& path);
 std::string get_did(const std::string& path);
 
+void split_dids(const std::string &line, std::vector<std::string>& did_strings);
+
+static std::string did_string_remainder;
+void coherentize_dids(std::string &did_string);
+
 enum rucio_data_type{
   rucio_file,
   rucio_container,

@@ -2,205 +2,251 @@
 // Created by Gabriele Gaetano Fronzé on 2019-10-16.
 //
 
-#include <REST-API.h>
-#include <curl-REST.h>
-#include <globals.h>
-#include <sha1.hpp>
 #include <utils.h>
+#include <string>
+#include <string.h>
+#include <stdlib.h>
 #include <iostream>
-#include <time.h>
+#include <constants.h>
 
-void rucio_get_auth_token_userpass(const std::string& short_server_name){
-  struct curl_slist *headers = nullptr;
 
-  auto conn_params = get_server_params(short_server_name);
+std::string to_string(char* contents, size_t size){
+    std::string s;
+    for (size_t i = 0; i < size; i++) {
+        s = s + contents[i];
+    }
+    return s;
+}
 
-  if(not conn_params){
-    std::cout << "Server not found. Aborting!\n";
-    std::cout << short_server_name << std::endl;
-    return;
+// Returns true if and only if path is root path
+bool is_root_path(const char *path){
+  return (strcmp(path, rucio_root_path.c_str()) == 0 || strcmp(path, (rucio_root_path+"/").c_str()) == 0);
+}
+
+
+
+// This function returns -1 if path contains no token
+// 0 if path is root
+// POSIX format depth in other cases
+int path_depth(const char *path, const char token){
+  // If path is root return depth=0 immediately
+  if(is_root_path(path)) {
+    return 0;
   }
-
-  auto xRucioAccount = "X-Rucio-Account: "+conn_params->account_name;
-  auto xRucioUsername = "X-Rucio-Username: "+conn_params->user_name;
-  auto xRucioPwd = "X-Rucio-Password: "+conn_params->password;
-
-  headers= curl_slist_append(headers, xRucioAccount.c_str());
-  headers= curl_slist_append(headers, xRucioUsername.c_str());
-  headers= curl_slist_append(headers, xRucioPwd.c_str());
-
-  auto curl_res = GET(conn_params->server_url+"/auth/userpass", headers, true);
-
-  curl_slist_free_all(headers);
-
-  std::string token = "";
-  std::string expire_time_string = "";
-
-  for(auto& line : curl_res.payload){
-    if (line.find(rucio_token_prefix) != std::string::npos) {
-      token = line;
-      token.erase(0, rucio_token_prefix_size);
+  // Otherwise compute depth
+  else {
+    // Count token occurrences
+    auto s = path;
+    int16_t i = 0;
+    size_t size = 0;
+    for (i = 0; s[i];){
+      size++;
+      if(s[i] == token) i++;
+      else s++;
     }
 
-    if (line.find(rucio_token_duration_prefix) != std::string::npos) {
-      expire_time_string = line;
-      expire_time_string.erase(0, rucio_token_duration_prefix_size);
+    // Remove one to count if just the last char is equal to token (spurious token)
+    // '/scope1' and '/scope1/' should behave the same
+    if(path[size-1] == token) i--;
+    // Returns depth
+    return i;
+  }
+}
+
+bool is_server_mountpoint(const char *path){
+  return path_depth(path) == 1;
+};
+
+// This function returns true is the depth is 1 (e.g. /scope1 or /scope1/)
+bool is_main_scope(const char *path){
+  return path_depth(path) == 2;
+}
+
+std::vector<std::string> split(const std::string &s, char delim) {
+    std::vector<std::string> elems;
+    std::stringstream ss(s);
+    std::string key_or_value;
+    while(std::getline(ss, key_or_value, delim)) {
+      elems.emplace_back(key_or_value);
+    }
+    return elems;
+}
+
+void remove_trailing_token(std::string& path, std::string token){
+  if(path.length() - 1 > 0) {
+    if (path.substr(path.length() - 1) == token) {
+      path.pop_back();
     }
   }
-
-  auto token_info = get_server_token(short_server_name);
-
-  if(not token_info){
-    std::cout << "Server not found. Aborting!\n";
-    std::cout << short_server_name << std::endl;
-    return;
-  }
-
-  token_info->conn_token = (strlen(token.c_str())>0) ? token : rucio_invalid_token;
-
-  expire_time_string = (strlen(expire_time_string.c_str())>0) ? expire_time_string : rucio_default_exp;
-  strptime(expire_time_string.c_str(),"%a, %d %b %Y %H:%M:%S",&token_info->conn_token_exp);
-  token_info->conn_token_exp_epoch = mktime(&token_info->conn_token_exp);
 }
 
-bool rucio_is_token_valid(const std::string& short_server_name){
-  auto token_info = get_server_token(short_server_name);
-
-  if(not token_info){
-    std::cout << "Server not found. Aborting!\n";
-    std::cout << short_server_name << std::endl;
-    return false;
+void remove_leading_token(std::string& path, std::string token){
+//  std::cout << "received: " << path <<std::endl;
+  if(path.length() > 0) {
+    if (path.substr(1) == token) {
+      path.erase(path.begin());
+    }
   }
-
-  return token_info->conn_token_exp_epoch >= time(0);
 }
 
-std::vector<std::string> rucio_list_servers(){
-  std::vector<std::string> servers;
-  servers.reserve(rucio_server_map.size());
+std::string remove_substring(const std::string& path, const std::string& subs){
+  auto path_copy = path;
 
-  for(auto const& server: rucio_server_map)
-      servers.push_back(server.first);
+  // Search for the rucio root path with trailing "/"
+	size_t pos = path_copy.find(subs);
 
-  return servers;
+	if (pos != std::string::npos)
+	{
+    // Erase root path from string
+		path_copy.erase(pos, subs.length());
+	}
+
+	return path_copy;
 }
 
-std::vector<std::string> rucio_list_scopes(const std::string& short_server_name){
-  auto conn_params = get_server_params(short_server_name);
-  auto token_info = get_server_token(short_server_name);
-
-  if(not token_info || not conn_params){
-    std::cout << "Server not found. Aborting!\n";
-    std::cout << short_server_name << std::endl;
-    return {};
-  }
-
-  if(not rucio_is_token_valid(short_server_name)) rucio_get_auth_token_userpass(short_server_name);
-
-  auto xRucioToken = "X-Rucio-Auth-Token: "+token_info->conn_token;
-
-  struct curl_slist *headers = nullptr;
-
-  headers= curl_slist_append(headers, xRucioToken.c_str());
-
-  auto curl_res = GET(conn_params->server_url+"/scopes/", headers);
-
-  curl_slist_free_all(headers);
-
-  std::vector<std::string> scopes;
-
-  for(auto& line : curl_res.payload){
-    tokenize_python_list(line, scopes);
-  }
-
-  return scopes;
+std::string remove_root_path(const std::string& path){
+  return remove_substring(path, rucio_root_path);
 }
 
-curl_slist* get_auth_headers(const std::string& short_server_name){
-  auto conn_params = get_server_params(short_server_name);
-  auto token_info = get_server_token(short_server_name);
+std::string extract_server_name(const std::string& path){
+  auto path_copy = remove_root_path(path);
 
-  if(not token_info || not conn_params){
-    std::cout << "Server not found. Aborting!\n";
-    std::cout << short_server_name << std::endl;
-    return nullptr;
-  }
+  size_t pos = path_copy.find('/');
 
-  if(not rucio_is_token_valid(short_server_name)) rucio_get_auth_token_userpass(short_server_name);
+  if (pos != std::string::npos)
+	{
+    // Erase everything after the first "/"
+		path_copy.erase(pos, path_copy.length());
+	}
 
-  auto xRucioToken = "X-Rucio-Auth-Token: "+token_info->conn_token;
-
-  struct curl_slist *headers = nullptr;
-
-  headers= curl_slist_append(headers, xRucioToken.c_str());
-
-  return headers;
+  return std::move(path_copy);
 }
 
-std::vector<rucio_did> rucio_list_dids(const std::string& scope, const std::string& short_server_name){
-  auto headers= get_auth_headers(short_server_name);
+std::string extract_scope(const std::string& path){
+  auto path_copy = remove_root_path(path);
+  remove_trailing_token(path_copy);
+  path_copy = remove_substring(path_copy, extract_server_name(path)+'/');
 
-  if(not headers){
-    std::cout << "Server not found. Aborting!\n";
-    std::cout << short_server_name << std::endl;
-    return {};
-  }
+  size_t pos = path_copy.find('/');
 
-  auto curl_res = GET(get_server_params(short_server_name)->server_url+"/dids/"+scope+"/", headers);
+  if (pos != std::string::npos)
+	{
+    // Erase everything after the first "/"
+		path_copy.erase(pos, path_copy.length());
+	}
 
-  curl_slist_free_all(headers);
-
-  std::vector<rucio_did> dids;
-
-  for(auto& line : curl_res.payload){
-    structurize_did(line, dids);
-  }
-
-  return dids;
+  return std::move(path_copy);
 }
 
-std::vector<rucio_did> rucio_list_container_dids(const std::string& scope, const std::string& container_name, const std::string& short_server_name){
-  auto headers= get_auth_headers(short_server_name);
+std::string extract_name(const std::string& path){
+  auto path_copy = path;
+  remove_trailing_token(path_copy);
 
-  if(not headers){
-    std::cout << "Server not found. Aborting!\n";
-    std::cout << short_server_name << std::endl;
-    return {};
-  }
+  size_t pos = path_copy.find_last_of('/');
 
-  auto curl_res = GET(get_server_params(short_server_name)->server_url+"/dids/"+scope+"/"+container_name+"/dids", headers);
+  if (pos != std::string::npos)
+	{
+    // Erase everything after the first "/"
+		path_copy.erase(0, pos+1);
+	}
 
-  curl_slist_free_all(headers);
-
-  std::vector<rucio_did> dids;
-
-  for(auto& line : curl_res.payload){
-    structurize_container_did(line, dids);
-  }
-
-  return dids;
+  return std::move(path_copy);
 }
 
-bool rucio_is_container(const rucio_did& did){
-  return did.type != rucio_data_type::rucio_file;
+std::string get_did(const std::string& path){
+  return extract_scope(path)+":"+extract_name(path);
 }
 
-bool rucio_is_container(const std::string& path){
-  auto short_server_name = extract_server_name(path);
-  auto scope = extract_scope(path);
-  auto name = extract_name(path);
+void split_dids(const std::string &line, std::vector<std::string>& did_strings){
+  did_strings.reserve(std::count(line.begin(), line.end(), '{'));
 
-  auto headers= get_auth_headers(short_server_name);
-
-  if(not headers){
-    std::cout << "Server not found. Aborting!\n";
-    std::cout << short_server_name << std::endl;
-    return {};
+  std::stringstream stream(line);
+  std::string buffer;
+  while(getline(stream, buffer, '\n')){
+    coherentize_dids(buffer);
+    if(not buffer.empty()) {
+      did_strings.emplace_back(std::move(buffer));
+    }
   }
+}
 
-  auto curl_res = GET(get_server_params(short_server_name)->server_url+"/dids/"+scope+"/"+name, headers); //TODO: ???
+void coherentize_dids(std::string &did_string){
+  if(did_string.back() != '}'){
+    if(did_string_remainder.empty()) {
+      did_string_remainder = std::move(did_string);
+    } else {
+      did_string_remainder.append(std::move(did_string));
+    }
+    did_string = "";
+  }else if(did_string.front() != '{'){
+    did_string = did_string_remainder + did_string;
+    did_string_remainder = "";
+  }
+}
 
-  curl_slist_free_all(headers);
+void structurize_did(const std::string& did_str, std::vector<rucio_did>& target) {
+  std::vector<std::string> did_strings_vect;
+  split_dids(did_str, did_strings_vect);
 
-  return curl_res.payload[0].find("\"type\": \"FILE\",") == std::string::npos;
+  for (auto &sdid : did_strings_vect) {
+
+    for (const auto &ch : {' ', '}', '{', '"'}) {
+      sdid.erase(std::remove(sdid.begin(), sdid.end(), ch), sdid.end());
+    }
+
+    std::replace(sdid.begin(), sdid.end(), ':', ' ');
+    std::replace(sdid.begin(), sdid.end(), ',', ' ');
+
+    auto key_values = split(sdid, ' ');
+    rucio_did did;
+
+    did.scope = key_values[1];
+
+    if (key_values[3] == "FILE") {
+      did.type = rucio_data_type::rucio_file;
+    } else if (key_values[3] == "CONTAINER") {
+      did.type = rucio_data_type::rucio_container;
+    } else if (key_values[3] == "DATASET") {
+      did.type = rucio_data_type::rucio_dataset;
+    }
+
+    did.name = key_values[5];
+    did.parent = key_values[7];
+    did.level = std::atoi(key_values[9].c_str());
+
+    target.emplace_back(did);
+  }
+}
+
+void structurize_container_did(const std::string& did_str, std::vector<rucio_did>& target){
+  std::vector<std::string> did_strings_vect;
+  split_dids(did_str, did_strings_vect);
+
+  for (auto &sdid : did_strings_vect) {
+    for (const auto &ch : {' ', '}', '{', '"'}) {
+      sdid.erase(std::remove(sdid.begin(), sdid.end(), ch), sdid.end());
+    }
+
+    std::replace(sdid.begin(), sdid.end(), ':', ' ');
+    std::replace(sdid.begin(), sdid.end(), ',', ' ');
+
+    auto key_values = split(sdid, ' ');
+    rucio_did did;
+
+    did.scope = key_values[7];
+
+    if (key_values[9] == "FILE") {
+      did.type = rucio_data_type::rucio_file;
+    } else if (key_values[9] == "CONTAINER") {
+      did.type = rucio_data_type::rucio_container;
+    } else if (key_values[9] == "DATASET") {
+      did.type = rucio_data_type::rucio_dataset;
+    }
+
+    did.name = key_values[3];
+    did.parent = "";
+    did.level = 0;
+
+    target.emplace_back(did);
+  }
 }

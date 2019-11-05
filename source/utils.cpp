@@ -73,7 +73,6 @@ std::vector<std::string> split(const std::string &s, char delim) {
 }
 
 void remove_trailing_token(std::string& path, std::string token){
-//  std::cout << "received: " << path <<std::endl;
   if(path.length() - 1 > 0) {
     if (path.substr(path.length() - 1) == token) {
       path.pop_back();
@@ -158,35 +157,98 @@ std::string get_did(const std::string& path){
   return extract_scope(path)+":"+extract_name(path);
 }
 
-void structurize_did(const std::string& did_str,
-                     std::vector<rucio_did>& target){
-  std::string list_copy = did_str;
+void split_dids(const std::string &line, std::vector<std::string>& did_strings){
+  did_strings.reserve(std::count(line.begin(), line.end(), '{'));
 
-  for(const auto& ch : {' ','}','{','"'}){
-    list_copy.erase(std::remove(list_copy.begin(), list_copy.end(), ch), list_copy.end());
+  std::stringstream stream(line);
+  std::string buffer;
+  while(getline(stream, buffer, '\n')){
+    coherentize_dids(buffer);
+    if(not buffer.empty()) {
+      did_strings.emplace_back(std::move(buffer));
+    }
   }
+}
 
-  std::replace(list_copy.begin(), list_copy.end(), ':', ' ');
-  std::replace(list_copy.begin(), list_copy.end(), ',', ' ');
-
-  auto key_values = split(list_copy, ' ');
-  rucio_did did;
-
-  did.scope = key_values[1];
-
-  if(key_values[3] == "FILE"){
-    did.type = rucio_data_type::rucio_file;
-  }else if(key_values[3] == "CONTAINER"){
-    did.type = rucio_data_type::rucio_container;
-  }else if(key_values[3] == "DATASET"){
-    did.type = rucio_data_type::rucio_dataset;
+void coherentize_dids(std::string &did_string){
+  if(did_string.back() != '}'){
+    if(did_string_remainder.empty()) {
+      did_string_remainder = std::move(did_string);
+    } else {
+      did_string_remainder.append(std::move(did_string));
+    }
+    did_string = "";
+  }else if(did_string.front() != '{'){
+    did_string = did_string_remainder + did_string;
+    did_string_remainder = "";
   }
+}
 
-  did.name = key_values[5];
-  did.parent = key_values[7];
-  did.level = std::atoi(key_values[9].c_str());
+void structurize_did(const std::string& did_str, std::vector<rucio_did>& target) {
+  std::vector<std::string> did_strings_vect;
+  split_dids(did_str, did_strings_vect);
 
-  target.emplace_back(did);
+  for (auto &sdid : did_strings_vect) {
+
+    for (const auto &ch : {' ', '}', '{', '"'}) {
+      sdid.erase(std::remove(sdid.begin(), sdid.end(), ch), sdid.end());
+    }
+
+    std::replace(sdid.begin(), sdid.end(), ':', ' ');
+    std::replace(sdid.begin(), sdid.end(), ',', ' ');
+
+    auto key_values = split(sdid, ' ');
+    rucio_did did;
+
+    did.scope = key_values[1];
+
+    if (key_values[3] == "FILE") {
+      did.type = rucio_data_type::rucio_file;
+    } else if (key_values[3] == "CONTAINER") {
+      did.type = rucio_data_type::rucio_container;
+    } else if (key_values[3] == "DATASET") {
+      did.type = rucio_data_type::rucio_dataset;
+    }
+
+    did.name = key_values[5];
+    did.parent = key_values[7];
+    did.level = std::atoi(key_values[9].c_str());
+
+    target.emplace_back(did);
+  }
+}
+
+void structurize_container_did(const std::string& did_str, std::vector<rucio_did>& target){
+  std::vector<std::string> did_strings_vect;
+  split_dids(did_str, did_strings_vect);
+
+  for (auto &sdid : did_strings_vect) {
+    for (const auto &ch : {' ', '}', '{', '"'}) {
+      sdid.erase(std::remove(sdid.begin(), sdid.end(), ch), sdid.end());
+    }
+
+    std::replace(sdid.begin(), sdid.end(), ':', ' ');
+    std::replace(sdid.begin(), sdid.end(), ',', ' ');
+
+    auto key_values = split(sdid, ' ');
+    rucio_did did;
+
+    did.scope = key_values[7];
+
+    if (key_values[9] == "FILE") {
+      did.type = rucio_data_type::rucio_file;
+    } else if (key_values[9] == "CONTAINER") {
+      did.type = rucio_data_type::rucio_container;
+    } else if (key_values[9] == "DATASET") {
+      did.type = rucio_data_type::rucio_dataset;
+    }
+
+    did.name = key_values[3];
+    did.parent = "";
+    did.level = 0;
+
+    target.emplace_back(did);
+  }
 }
 
 void structurize_container_did(const std::string& did_str,
