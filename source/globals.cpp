@@ -4,22 +4,7 @@
 
 #include <globals.h>
 
-std::unordered_map<std::string, rucio_server> rucio_server_map = {
-                                                                  {
-                                                                    "rucio-server-torino",
-                                                                    rucio_server("https://rucio-server",
-                                                                                 "root",
-                                                                                 "ddmlab",
-                                                                                 "secret")
-                                                                  },
-                                                                  {
-                                                                    "rucio-server-ligo",
-                                                                    rucio_server("https://rucio-server",
-                                                                                 "root",
-                                                                                 "ddmlab",
-                                                                                 "secret")
-                                                                  }
-                                                                 };
+std::unordered_map<std::string, rucio_server> rucio_server_map = {};
 
 bool key_exists(std::string key){
   return rucio_server_map.count(key)>0;
