@@ -30,7 +30,7 @@ find_package(CURL REQUIRED)
 include_directories(${CURL_INCLUDE_DIR})
 
 add_subdirectory(submodules)
-include_directories(include source submodules/SHA1)
+include_directories(include source submodules/SHA1 submodules/nlohmann_json/single_include/nlohmann)
 
 add_library(globals
         include/globals.h
@@ -64,6 +64,6 @@ target_link_libraries(rucio-fuse utils rucio-rest-api-wrapper ${FUSE_LIBRARIES})
 add_executable(rucio-fuse-main
         main.cxx
         )
-target_link_libraries(rucio-fuse-main rucio-fuse globals)
+target_link_libraries(rucio-fuse-main rucio-fuse globals nlohmann_json)
 
 add_subdirectory(tests)
