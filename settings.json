@@ -1,0 +1,19 @@
+{
+  "servers":
+  [
+      {
+        "name" : "rucio-server-torino",
+        "url": "https://rucio-server",
+        "account" : "root",
+        "username": "ddmlab",
+        "password": "secret"
+      },
+      {
+        "name": "rucio-server-ligo",
+        "url": "https://rucio-server",
+        "account" : "root",
+        "username": "ddmlab",
+        "password": "secret"
+      }
+  ]
+}
