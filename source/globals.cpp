@@ -32,7 +32,7 @@ void parse_settings(){
   if(ruciofs_settings_filename.empty())
     ruciofs_settings_filename = "./settings.json";
 
-  fastlog(INFO,"Settings file at: %s", ruciofs_settings_filename.data());
+  fastlog(INFO,"\nSettings file at: %s", ruciofs_settings_filename.data());
 
   settings_file.open (ruciofs_settings_filename, std::ifstream::in);
   auto json_settings = json::parse(settings_file);
@@ -42,14 +42,21 @@ void parse_settings(){
   for (auto& server : json_settings["servers"].items()){
     auto values = server.value();
     auto srv = rucio_server(values["url"], values["account"],values["username"],values["password"]);
+    std::string srv_name = values["name"];
 
-    fastlog(INFO,"\tServer %d:\n\t\turl = %s\n\t\taccount = %s\n\t\tusername = %s\n\t\tpassword = %s",
+    fastlog(INFO,"\n"
+                 "\tServer %d -> %s:\n"
+                 "\t\turl = %s\n"
+                 "\t\taccount = %s\n"
+                 "\t\tusername = %s\n"
+                 "\t\tpassword = %s",
             i_srv++,
+            srv_name.data(),
             srv.rucio_conn_params.server_url.data(),
             srv.rucio_conn_params.account_name.data(),
             srv.rucio_conn_params.user_name.data(),
             srv.rucio_conn_params.password.data());
 
-    rucio_server_map.emplace(std::make_pair(values["name"],srv));
+    rucio_server_map.emplace(std::make_pair(srv_name,srv));
   }
 }
