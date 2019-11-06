@@ -24,11 +24,11 @@ The Rucio file catalog is much flatter than that of a usual `POSIX` filesystems 
 - Rucio-API wrappers, based on Rucio's RESTFul interface, are being developed. At the moment access token retrieval through userpass authentication and scopes listing are implemented and tested.
 - Fuse mounting works!
 - Rucio-API is now backed with cache, to reduce proactively the number of cURL operations.
+- Introduced runtime parsing of configuration file (`settings.json`?) to replace `globals.cpp`. The syntax is clear from the included example file.
 
 ## TODOs
 - Implement the read Fuse operation: ***at the moment the file contents are dummy***!
 - Introduce log-level based logging (with macros or templates to avoid code pollution in release mode).
-- Introduce runtime parsing of configuration file (`.json`?) to replace `globals.cpp`.
 - Surely a lot more...
 
 ## How to build
