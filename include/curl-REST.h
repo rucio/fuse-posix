@@ -8,6 +8,7 @@
 #include <vector>
 #include <string>
 #include <curl/curl.h>
+#include <fastlog.h>
 
 namespace curlSingleton {
   static short curl_singleton = 0;

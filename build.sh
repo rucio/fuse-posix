@@ -36,8 +36,8 @@ else
 
     echo
     echo -e "\033[1;33m-> Updating git submodules \033[0m"
-    (cd ${DIR}; git submodule init)
-    (cd ${DIR}; git submodule update)
+    (cd ${DIR}; git submodule update --init --recursive)
+    (cd ${DIR}; git submodule update --recursive --remote)
 
     echo
     echo -e "\033[1;33m-> Creating build directory: $DIR/cmake-build-debug \033[0m"
