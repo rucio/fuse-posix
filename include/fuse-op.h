@@ -18,7 +18,7 @@ using namespace fastlog;
 
 static int rucio_getattr (const char *path, struct stat *st){
   fastlog(DEBUG,"rucio_getattr called");
-  fastlog(DEBUG,"Handling this path: %s", path);
+  fastlog(INFO,"Handling this path: %s", path);
 
   st->st_uid = getuid();
 	st->st_gid = getgid();
@@ -80,7 +80,7 @@ static int rucio_getattr (const char *path, struct stat *st){
 static int rucio_readdir(const char *path, void *buffer, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fi)
 {
   fastlog(DEBUG,"rucio_readdir called");
-  fastlog(DEBUG,"Handling this path: %s", path);
+  fastlog(INFO,"Handling this path: %s", path);
 
   filler(buffer, ".", nullptr, 0 );
   filler(buffer, "..", nullptr, 0 );
