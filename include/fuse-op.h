@@ -123,7 +123,6 @@ static int rucio_readdir(const char *path, void *buffer, fuse_fill_dir_t filler,
 
         //TODO: Handle dids taking care of loops!
         for(auto const& did : container_dids){
-          std::cout << did.name << std::endl;
           filler(buffer, did.name.data(), nullptr, 0 );
         }
       }
