@@ -41,7 +41,7 @@ enum auth_method{
   userpass,
   x509,
   none
-};
+} auth_method;
 
 // Rucio server descriptor
 struct rucio_server{

@@ -53,10 +53,10 @@ void rucio_get_auth_token_userpass(const std::string& short_server_name){
 
       target_url = conn_params->server_url + "/auth/x509";
     }
-    default:{
-      fastlog(ERROR, "Unsupported auth method!");
-      return;
-    }
+//    default:{
+//      fastlog(ERROR, "Unsupported auth method!");
+//      return;
+//    }
   }
 
   auto curl_res = GET(target_url, headers, true);
