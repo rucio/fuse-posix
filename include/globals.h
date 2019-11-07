@@ -37,22 +37,31 @@ struct token_info{
   time_t conn_token_exp_epoch = 0;
 };
 
+enum auth_method{
+  userpass,
+  x509,
+  none
+};
+
 // Rucio server descriptor
 struct rucio_server{
   connection_parameters rucio_conn_params;
   token_info rucio_token_info;
+  auth_method auth;
 
-  rucio_server():rucio_conn_params("","","",""), rucio_token_info(){};
+  rucio_server():rucio_conn_params("","","",""), rucio_token_info(), auth(auth_method::none){};
 
   rucio_server(std::string server_url,
                std::string account_name,
                std::string user_name,
-               std::string password):
-               rucio_conn_params(server_url,
-                                 account_name,
-                                 user_name,
-                                 password),
-               rucio_token_info(){}
+               std::string password,
+               auth_method method):
+               rucio_conn_params(std::move(server_url),
+                                 std::move(account_name),
+                                 std::move(user_name),
+                                 std::move(password)),
+               rucio_token_info(),
+               auth(method){}
 
   connection_parameters* get_params(){ return &rucio_conn_params; };
   token_info* get_token(){ return &rucio_token_info; };
@@ -64,6 +73,8 @@ extern std::vector<std::string> rucio_server_names;
 
 // Utility functions
 bool key_exists(std::string key);
+
+rucio_server* get_server(std::string server_name);
 
 connection_parameters* get_server_params(std::string server_name);
 

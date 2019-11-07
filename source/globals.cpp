@@ -15,6 +15,10 @@ bool key_exists(std::string key){
   return rucio_server_map.count(key)>0;
 }
 
+rucio_server* get_server(std::string server_name){
+  return (key_exists(server_name)) ? &rucio_server_map[server_name] : nullptr;
+}
+
 connection_parameters* get_server_params(std::string server_name){
   return (key_exists(server_name)) ? rucio_server_map[server_name].get_params() : nullptr;
 }
@@ -46,7 +50,7 @@ void parse_settings(){
     auto values = server.value();
 
     if(values["auth-method"] == "userpass") {
-      auto srv = rucio_server(values["url"], values["account"], values["username"], values["password"]);
+      auto srv = rucio_server(values["url"], values["account"], values["username"], values["password"], auth_method::userpass);
 
       if (not rucio_ping(srv.rucio_conn_params.server_url)) {
         fastlog(ERROR, "Server %s not reachable, skipping connection.", srv.rucio_conn_params.server_url.data());
