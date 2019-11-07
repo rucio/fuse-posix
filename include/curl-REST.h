@@ -10,6 +10,8 @@
 #include <curl/curl.h>
 #include <fastlog.h>
 
+using namespace fastlog;
+
 namespace curlSingleton {
   static short curl_singleton = 0;
   static void *static_curl_address = nullptr;
@@ -21,7 +23,7 @@ namespace curlSingleton {
 
     curlWrap() {
       if (curl_singleton == 0) {
-        printf("Creating CURL instance\n");
+        fastlog(DEBUG,"Creating CURL instance\n");
         curl_global_init(CURL_GLOBAL_ALL);
         curl = curl_easy_init();
         static_curl_address = curl;
@@ -34,7 +36,7 @@ namespace curlSingleton {
     ~curlWrap() {
       curl_singleton--;
       if (curl_singleton == 0) {
-        printf("Cleaning CURL instance\n");
+        fastlog(DEBUG,"Cleaning CURL instance\n");
         curl_easy_cleanup(curl);
         curl_global_cleanup();
       }
