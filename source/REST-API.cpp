@@ -29,9 +29,10 @@ void rucio_get_auth_token_userpass(const std::string& short_server_name){
   auto conn_params = &(srv->rucio_conn_params);
   std::string target_url;
 
-  std::cout << srv->auth <<std::endl;
+  std::cout << (srv->auth == auth_method::userpass) <<std::endl;
 
-  switch (auth_method(srv->auth)){
+  switch (auth_method(srv->auth))
+  {
     case auth_method::userpass:{
       auto xRucioAccount = "X-Rucio-Account: " + conn_params->account_name;
       auto xRucioUsername = "X-Rucio-Username: " + conn_params->user_name;
@@ -53,10 +54,10 @@ void rucio_get_auth_token_userpass(const std::string& short_server_name){
 
       target_url = conn_params->server_url + "/auth/x509";
     }
-//    default:{
-//      fastlog(ERROR, "Unsupported auth method!");
-//      return;
-//    }
+    default:{
+      fastlog(ERROR, "Unsupported auth method!");
+      return;
+    }
   }
 
   auto curl_res = GET(target_url, headers, true);
