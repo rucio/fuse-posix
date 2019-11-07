@@ -10,6 +10,7 @@
 #include <map>
 #include <utils.h>
 #include <unordered_map>
+#include <fastlog.h>
 
 void rucio_get_auth_token_userpass(const std::string& short_server_name);
 bool rucio_is_token_valid(const std::string& short_server_name);

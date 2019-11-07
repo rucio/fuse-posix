@@ -10,7 +10,6 @@ set (CMAKE_C_FLAGS "-O0 -ggdb")
 set (CMAKE_C_FLAGS_DEBUG "-O0 -ggdb")
 set (CMAKE_C_FLAGS_RELEASE "-O0 -ggdb")
 
-set(CMAKE_CXX_FLAGS "-std=c++11")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_FILE_OFFSET_BITS=64 -D FUSE_USE_VERSION=26")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_FILE_OFFSET_BITS=64 -D FUSE_USE_VERSION=26")
@@ -36,6 +35,7 @@ add_library(globals
         include/globals.h
         source/globals.cpp
         )
+target_link_libraries(globals fastlog nlohmann_json)
 
 add_library(utils
         include/utils.h
@@ -46,7 +46,7 @@ add_library(curl-wrapper
         include/curl-REST.h
         source/curl-REST.cpp
         )
-target_link_libraries(curl-wrapper utils ${CURL_LIBRARIES})
+target_link_libraries(curl-wrapper utils fastlog ${CURL_LIBRARIES})
 
 
 add_library(rucio-rest-api-wrapper
@@ -59,11 +59,11 @@ add_library(rucio-fuse
         include/fuse-op.h
         source/fuse-op.cpp
         )
-target_link_libraries(rucio-fuse utils rucio-rest-api-wrapper ${FUSE_LIBRARIES})
+target_link_libraries(rucio-fuse utils rucio-rest-api-wrapper fastlog ${FUSE_LIBRARIES})
 
 add_executable(rucio-fuse-main
         main.cxx
         )
-target_link_libraries(rucio-fuse-main rucio-fuse globals nlohmann_json)
+target_link_libraries(rucio-fuse-main rucio-fuse globals)
 
 add_subdirectory(tests)

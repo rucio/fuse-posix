@@ -10,14 +10,15 @@
 #include <iostream>
 #include <time.h>
 
+using namespace fastlog;
+
 void rucio_get_auth_token_userpass(const std::string& short_server_name){
   struct curl_slist *headers = nullptr;
 
   auto conn_params = get_server_params(short_server_name);
 
   if(not conn_params){
-    std::cout << "Server not found. Aborting!\n";
-    std::cout << short_server_name << std::endl;
+    fastlog(ERROR,"Server %s not found. Aborting!", short_server_name.data());
     return;
   }
 
@@ -51,8 +52,7 @@ void rucio_get_auth_token_userpass(const std::string& short_server_name){
   auto token_info = get_server_token(short_server_name);
 
   if(not token_info){
-    std::cout << "Server not found. Aborting!\n";
-    std::cout << short_server_name << std::endl;
+    fastlog(ERROR,"Server %s not found. Aborting!", short_server_name.data());
     return;
   }
 
@@ -67,12 +67,11 @@ bool rucio_is_token_valid(const std::string& short_server_name){
   auto token_info = get_server_token(short_server_name);
 
   if(not token_info){
-    std::cout << "Server not found. Aborting!\n";
-    std::cout << short_server_name << std::endl;
+    fastlog(ERROR,"Server %s not found. Aborting!", short_server_name.data());
     return false;
   }
 
-  return token_info->conn_token_exp_epoch >= time(0);
+  return token_info->conn_token_exp_epoch >= time(nullptr);
 }
 
 std::vector<std::string> rucio_list_servers(){
@@ -93,8 +92,7 @@ std::vector<std::string> rucio_list_scopes(const std::string& short_server_name)
     auto token_info = get_server_token(short_server_name);
 
     if (not token_info || not conn_params) {
-      std::cout << "Server not found. Aborting!\n";
-      std::cout << short_server_name << std::endl;
+      fastlog(ERROR,"Server %s not found. Aborting!", short_server_name.data());
       return {};
     }
 
@@ -119,7 +117,7 @@ std::vector<std::string> rucio_list_scopes(const std::string& short_server_name)
     scopes_cache[short_server_name] = std::move(scopes);
     return scopes_cache[short_server_name];
   } else {
-    std::cout << "USING CACHE" << std::endl;
+    fastlog(DEBUG,"USING CACHE");
     return found->second;
   }
 }
@@ -129,8 +127,7 @@ curl_slist* get_auth_headers(const std::string& short_server_name){
   auto token_info = get_server_token(short_server_name);
 
   if(not token_info || not conn_params){
-    std::cout << "Server not found. Aborting!\n";
-    std::cout << short_server_name << std::endl;
+    fastlog(ERROR,"Server %s not found. Aborting!", short_server_name.data());
     return nullptr;
   }
 
@@ -152,8 +149,7 @@ std::vector<rucio_did> rucio_list_dids(const std::string& scope, const std::stri
     auto headers = get_auth_headers(short_server_name);
 
     if (not headers) {
-      std::cout << "Server not found. Aborting!\n";
-      std::cout << short_server_name << std::endl;
+      fastlog(ERROR,"Server %s not found. Aborting!", short_server_name.data());
       return {};
     }
 
@@ -174,7 +170,7 @@ std::vector<rucio_did> rucio_list_dids(const std::string& scope, const std::stri
     dids_cache[key] = std::move(dids);
     return dids_cache[key];
   } else {
-    std::cout << "USING CACHE" << std::endl;
+    fastlog(DEBUG,"USING CACHE");
     return found->second;
   }
 }
@@ -187,8 +183,7 @@ std::vector<rucio_did> rucio_list_container_dids(const std::string& scope, const
     auto headers = get_auth_headers(short_server_name);
 
     if (not headers) {
-      std::cout << "Server not found. Aborting!\n";
-      std::cout << short_server_name << std::endl;
+      fastlog(ERROR,"Server %s not found. Aborting!", short_server_name.data());
       return {};
     }
 
@@ -206,13 +201,14 @@ std::vector<rucio_did> rucio_list_container_dids(const std::string& scope, const
 
     for(const auto& did : dids){
       is_container_cache[short_server_name+scope+did.name] = did.type != rucio_data_type::rucio_file;
-      std::cout << short_server_name+scope+did.name << " -> " << is_container_cache[short_server_name+scope+did.name] << std::endl;
+      fastlog(DEBUG,"%s:%s:%s -> %s",short_server_name.data(), scope.data(), did.name.data(),
+              (is_container_cache[short_server_name+scope+did.name])?"true":"false");
     }
 
     container_dids_cache[key] = std::move(dids);
     return container_dids_cache[key];
   } else {
-    std::cout << "USING CACHE" << std::endl;
+    fastlog(DEBUG,"USING CACHE");
     return found->second;
   }
 }
@@ -231,8 +227,7 @@ bool rucio_is_container(const std::string& path){
     auto headers = get_auth_headers(short_server_name);
 
     if (not headers) {
-      std::cout << "Server not found. Aborting!\n";
-      std::cout << short_server_name << std::endl;
+      fastlog(ERROR,"Server %s not found. Aborting!", short_server_name.data());
       return {};
     }
 
@@ -243,8 +238,9 @@ bool rucio_is_container(const std::string& path){
     is_container_cache[path] = curl_res.payload.front().find(R"("type": "FILE",)") == std::string::npos;
     return is_container_cache[path];
   } else {
-    std::cout << "USING CACHE" << std::endl;
-    std::cout << short_server_name+scope+name << " -> " << is_container_cache[short_server_name+scope+name] << std::endl;
+    fastlog(DEBUG,"USING CACHE");
+    fastlog(DEBUG,"%s:%s:%s -> %s",short_server_name.data(), scope.data(), name.data(),
+              (is_container_cache[short_server_name+scope+name])?"true":"false");
     return found->second;
   }
 }

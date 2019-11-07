@@ -5,3 +5,7 @@
 [submodule "submodules/nlohmann_json"]
     path = submodules/nlohmann_json
     url = https://github.com/nlohmann/json.git
+
+[submodule "submodules/fastlog"]
+    path = submodules/fastlog
+    url = https://github.com/gabrielefronze/fastlog.git

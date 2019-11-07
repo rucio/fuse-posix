@@ -10,6 +10,8 @@
 #define CURLOPT_FALSE 0L
 #define CURLOPT_TRUE 1L
 
+using namespace fastlog;
+
 size_t curl_append_string_to_vect_callback(void *contents, size_t size, size_t nmemb, std::vector<std::string> &s)
 {
     size_t newLength = size*nmemb;
@@ -21,7 +23,7 @@ curlRet GET(const std::string& url, const struct curl_slist* headers, bool inclu
   curlRet ret;
   auto static_curl = curlSingleton::curlWrap();
 
-  std::cout << "GET " << url << std::endl;
+  fastlog(DEBUG,"GET %s",url.data());
 
   curl_easy_setopt(static_curl(), CURLOPT_URL, url.c_str());
   curl_easy_setopt(static_curl(), CURLOPT_SSL_VERIFYPEER, CURLOPT_FALSE); //only for https
@@ -68,6 +70,8 @@ curlRet GET(const std::string& url, const struct curl_slist* headers, bool inclu
 curlRet POST(const std::string& url, const std::string& thing_to_post){
   curlRet ret;
   auto static_curl = curlSingleton::curlWrap();
+
+  fastlog(DEBUG,"POST %s",url.data());
 
   curl_easy_setopt(static_curl(), CURLOPT_URL, url.c_str());
   curl_easy_setopt(static_curl(), CURLOPT_POSTFIELDS, thing_to_post.c_str());
