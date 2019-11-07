@@ -31,7 +31,7 @@ curlRet GET(const std::string& url, const struct curl_slist* headers, bool inclu
   curl_easy_setopt(static_curl(), CURLOPT_SSL_VERIFYHOST, ((url.find("https") != std::string::npos)?CURLOPT_TRUE:CURLOPT_FALSE)); //only for https
   curl_easy_setopt(static_curl(), CURLOPT_WRITEFUNCTION, curl_append_string_to_vect_callback);
   curl_easy_setopt(static_curl(), CURLOPT_WRITEDATA, &ret.payload);
-  curl_easy_setopt(static_curl(), CURLOPT_VERBOSE, CURLOPT_FALSE); //remove this to disable verbose output
+  curl_easy_setopt(static_curl(), CURLOPT_VERBOSE, CURLOPT_TRUE); //remove this to disable verbose output
 
   // Include reply headers in CURLOPT_WRITEFUNCTION
   if(include_headers) {
