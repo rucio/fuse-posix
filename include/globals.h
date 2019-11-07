@@ -38,9 +38,8 @@ struct token_info{
 };
 
 enum auth_method{
-  userpass,
-  x509,
-  none
+  userpass = 1,
+  x509 = 2
 } typedef auth_method;
 
 // Rucio server descriptor
@@ -49,7 +48,7 @@ struct rucio_server{
   token_info rucio_token_info;
   auth_method auth;
 
-  rucio_server():rucio_conn_params("","","",""), rucio_token_info(), auth(auth_method::none){};
+  rucio_server():rucio_conn_params("","","",""), rucio_token_info(), auth(auth_method::userpass){};
 
   rucio_server(std::string server_url,
                std::string account_name,
