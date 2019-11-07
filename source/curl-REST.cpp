@@ -64,6 +64,8 @@ curlRet GET(const std::string& url, const struct curl_slist* headers, bool inclu
     curl_easy_setopt(static_curl(), CURLOPT_HEADER, CURLOPT_FALSE);
   }
 
+  curl_easy_reset(static_curl());
+
   return ret;
 }
 
