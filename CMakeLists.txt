@@ -53,7 +53,7 @@ add_library(rucio-rest-api-wrapper
         include/REST-API.h
         source/REST-API.cpp
         )
-target_link_libraries(rucio-rest-api-wrapper curl-wrapper utils globals)
+target_link_libraries(rucio-rest-api-wrapper curl-wrapper utils globals fastlog)
 
 add_library(rucio-fuse
         include/fuse-op.h

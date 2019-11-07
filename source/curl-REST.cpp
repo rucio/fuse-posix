@@ -6,6 +6,7 @@
 #include <utils.h>
 #include <iostream>
 #include <unordered_map>
+#include <fastlog.h>
 
 #define CURLOPT_FALSE 0L
 #define CURLOPT_TRUE 1L
@@ -51,7 +52,7 @@ curlRet GET(const std::string& url, const struct curl_slist* headers, bool inclu
   // Check return code to detect issues
   if(ret.res != CURLE_OK)
   {
-      fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(ret.res));
+      fastlog(ERROR, "curl_easy_perform() failed: %s\n", curl_easy_strerror(ret.res));
   }
 
   // Reset headers
@@ -84,7 +85,7 @@ curlRet POST(const std::string& url, const std::string& thing_to_post){
 
   // Check return code to detect issues
   if(ret.res != CURLE_OK)
-    fprintf(stderr, "curl_easy_perform() failed: %s\n",
+    fastlog(ERROR, "curl_easy_perform() failed: %s\n",
             curl_easy_strerror(ret.res));
 
   return ret;
