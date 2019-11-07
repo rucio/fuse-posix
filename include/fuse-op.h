@@ -25,12 +25,14 @@ static int rucio_getattr (const char *path, struct stat *st){
 	st->st_atime = time( nullptr );
 	st->st_mtime = time( nullptr );
 
+	// If it is the root path list the connected servers
 	if ( is_root_path(path) ) {
 	  fastlog(DEBUG,"handling root path");
 	  auto servers = rucio_list_servers();
 
 		st->st_mode = S_IFDIR | 0755;
 		st->st_nlink = 2 + servers.size();
+  // If it is a server mountpoint render the inner scopes
 	} else if (is_server_mountpoint(path)) {
     fastlog(DEBUG,"handling server path");
     std::string server_short_name = extract_server_name(path);
