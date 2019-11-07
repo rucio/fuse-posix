@@ -74,6 +74,8 @@ void parse_settings(){
 
       rucio_server_names.emplace_back(srv_name);
       rucio_server_map.emplace(std::make_pair(srv_name, srv));
+
+      rucio_get_auth_token_userpass(srv_name);
     } else if(values["auth-method"] == "x509"){
       fastlog(ERROR, "x509 is not yet supported!");
     } else {

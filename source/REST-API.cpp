@@ -31,7 +31,7 @@ void rucio_get_auth_token_userpass(const std::string& short_server_name){
 
   std::cout << srv->auth <<std::endl;
 
-  switch (srv->auth){
+  switch (auth_method(srv->auth)){
     case auth_method::userpass:{
       auto xRucioAccount = "X-Rucio-Account: " + conn_params->account_name;
       auto xRucioUsername = "X-Rucio-Username: " + conn_params->user_name;
