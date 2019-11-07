@@ -11,6 +11,7 @@
 #include <string.h>
 #include <time.h>
 #include <unordered_map>
+#include <vector>
 
 // Connection parameters struct definition
 struct connection_parameters{
