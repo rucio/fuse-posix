@@ -18,31 +18,53 @@ bool rucio_ping(const std::string& server_url){
 }
 
 void rucio_get_auth_token_userpass(const std::string& short_server_name){
-  struct curl_slist *headers = nullptr;
+  auto srv = get_server(short_server_name);
 
-  auto conn_params = get_server_params(short_server_name);
-
-  if(not conn_params){
-    fastlog(ERROR,"Server %s not found. Aborting!", short_server_name.data());
+  if (not srv) {
+    fastlog(ERROR, "Server %s not found. Aborting!", short_server_name.data());
     return;
   }
 
-  auto xRucioAccount = "X-Rucio-Account: "+conn_params->account_name;
-  auto xRucioUsername = "X-Rucio-Username: "+conn_params->user_name;
-  auto xRucioPwd = "X-Rucio-Password: "+conn_params->password;
+  struct curl_slist *headers = nullptr;
+  auto conn_params = &(srv->rucio_conn_params);
+  std::string target_url;
 
-  headers= curl_slist_append(headers, xRucioAccount.c_str());
-  headers= curl_slist_append(headers, xRucioUsername.c_str());
-  headers= curl_slist_append(headers, xRucioPwd.c_str());
+  switch (srv->auth){
+    case auth_method::userpass:{
+      auto xRucioAccount = "X-Rucio-Account: " + conn_params->account_name;
+      auto xRucioUsername = "X-Rucio-Username: " + conn_params->user_name;
+      auto xRucioPwd = "X-Rucio-Password: " + conn_params->password;
 
-  auto curl_res = GET(conn_params->server_url+"/auth/userpass", headers, true);
+      headers = curl_slist_append(headers, xRucioAccount.c_str());
+      headers = curl_slist_append(headers, xRucioUsername.c_str());
+      headers = curl_slist_append(headers, xRucioPwd.c_str());
+
+      target_url = conn_params->server_url + "/auth/userpass";
+    }
+    case auth_method::x509:{
+      auto xRucioAccount = "X-Rucio-Account: " + conn_params->account_name;
+      //TODO: figure out what to put inside SSLStdEnv
+      auto SSLStdEnv = "SSLStdEnv: " + std::string();
+
+      headers = curl_slist_append(headers, xRucioAccount.c_str());
+      headers = curl_slist_append(headers, SSLStdEnv.c_str());
+
+      target_url = conn_params->server_url + "/auth/x509";
+    }
+    default:{
+      fastlog(ERROR, "Unsupported auth method!");
+      return;
+    }
+  }
+
+  auto curl_res = GET(target_url, headers, true);
 
   curl_slist_free_all(headers);
 
   std::string token;
   std::string expire_time_string;
 
-  for(auto& line : curl_res.payload){
+  for (auto &line : curl_res.payload) {
     if (line.find(rucio_token_prefix) != std::string::npos) {
       token = line;
       token.erase(0, rucio_token_prefix_size);
@@ -56,15 +78,15 @@ void rucio_get_auth_token_userpass(const std::string& short_server_name){
 
   auto token_info = get_server_token(short_server_name);
 
-  if(not token_info){
-    fastlog(ERROR,"Server %s not found. Aborting!", short_server_name.data());
+  if (not token_info) {
+    fastlog(ERROR, "Server %s not found. Aborting!", short_server_name.data());
     return;
   }
 
-  token_info->conn_token = (strlen(token.c_str())>0) ? token : rucio_invalid_token;
+  token_info->conn_token = (strlen(token.c_str()) > 0) ? token : rucio_invalid_token;
 
-  expire_time_string = (strlen(expire_time_string.c_str())>0) ? expire_time_string : rucio_default_exp;
-  strptime(expire_time_string.c_str(),"%a, %d %b %Y %H:%M:%S",&token_info->conn_token_exp);
+  expire_time_string = (strlen(expire_time_string.c_str()) > 0) ? expire_time_string : rucio_default_exp;
+  strptime(expire_time_string.c_str(), "%a, %d %b %Y %H:%M:%S", &token_info->conn_token_exp);
   token_info->conn_token_exp_epoch = mktime(&token_info->conn_token_exp);
 }
 
