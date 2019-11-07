@@ -4,6 +4,7 @@
       {
         "name" : "rucio-server-torino",
         "url": "https://rucio-server",
+        "auth-method" : "userpass",
         "account" : "root",
         "username": "ddmlab",
         "password": "secret"
@@ -11,6 +12,7 @@
       {
         "name": "rucio-server-ligo",
         "url": "https://rucio-server",
+        "auth-method" : "userpass",
         "account" : "root",
         "username": "ddmlab",
         "password": "secret"

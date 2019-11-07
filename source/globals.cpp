@@ -44,29 +44,36 @@ void parse_settings(){
   size_t i_srv = 0;
   for (auto& server : json_settings["servers"].items()){
     auto values = server.value();
-    auto srv = rucio_server(values["url"], values["account"],values["username"],values["password"]);
 
-    if(not rucio_ping(srv.rucio_conn_params.server_url)){
-      fastlog(ERROR, "Server %s not reachable, skipping connection.", srv.rucio_conn_params.server_url.data());
-      continue;
+    if(values["auth-method"] == "userpass") {
+      auto srv = rucio_server(values["url"], values["account"], values["username"], values["password"]);
+
+      if (not rucio_ping(srv.rucio_conn_params.server_url)) {
+        fastlog(ERROR, "Server %s not reachable, skipping connection.", srv.rucio_conn_params.server_url.data());
+        continue;
+      }
+
+      std::string srv_name = values["name"];
+
+      fastlog(INFO, "\n"
+                    "\tServer %d -> %s:\n"
+                    "\t\turl = %s\n"
+                    "\t\taccount = %s\n"
+                    "\t\tusername = %s\n"
+                    "\t\tpassword = %s",
+              i_srv++,
+              srv_name.data(),
+              srv.rucio_conn_params.server_url.data(),
+              srv.rucio_conn_params.account_name.data(),
+              srv.rucio_conn_params.user_name.data(),
+              srv.rucio_conn_params.password.data());
+
+      rucio_server_names.emplace_back(srv_name);
+      rucio_server_map.emplace(std::make_pair(srv_name, srv));
+    } else if(values["auth-method"] == "x509"){
+      fastlog(ERROR, "x509 is not yet supported!");
+    } else {
+      fastlog(ERROR, "auth-method not recognised or supported.");
     }
-
-    std::string srv_name = values["name"];
-
-    fastlog(INFO,"\n"
-                 "\tServer %d -> %s:\n"
-                 "\t\turl = %s\n"
-                 "\t\taccount = %s\n"
-                 "\t\tusername = %s\n"
-                 "\t\tpassword = %s",
-            i_srv++,
-            srv_name.data(),
-            srv.rucio_conn_params.server_url.data(),
-            srv.rucio_conn_params.account_name.data(),
-            srv.rucio_conn_params.user_name.data(),
-            srv.rucio_conn_params.password.data());
-
-    rucio_server_names.emplace_back(srv_name);
-    rucio_server_map.emplace(std::make_pair(srv_name,srv));
   }
 }
