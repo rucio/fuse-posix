@@ -25,10 +25,18 @@ The Rucio file catalog is much flatter than that of a usual `POSIX` filesystems 
 - Fuse mounting works!
 - Rucio-API is now backed with cache, to reduce proactively the number of cURL operations.
 - Introduced runtime parsing of configuration file (`settings.json`?) to replace `globals.cpp`. The syntax is clear from the included example file.
+- Introduced log-level based logging using submodule `fastlog`[link](https://github.com/gabrielefronze/fastlog).
+  As a side note three log levels (ERROR > INFO > DEBUG, in order of reversed gravity and direct verbosity) have been introduced and are usable at runtime:
+  
+  - `-v` = INFO
+  - `-vv` = DEBUG
+  - `<no opt>` = ERROR (default)
+  
+  For example `rucio-fuse-main -v` invokes the software with INFO log level, `rucio-fuse-main -vv` with DEBUG level and so on.
 
 ## TODOs
 - Implement the read Fuse operation: ***at the moment the file contents are dummy***!
-- Introduce log-level based logging (with macros or templates to avoid code pollution in release mode).
+- Introduce certificate-base authentication mechanism.
 - Surely a lot more...
 
 ## How to build
