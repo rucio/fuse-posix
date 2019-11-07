@@ -15,6 +15,7 @@ using namespace fastlog;
 
 size_t curl_append_string_to_vect_callback(void *contents, size_t size, size_t nmemb, std::vector<std::string> &s)
 {
+    fastlog(DEBUG, "%s", (char*)contents);
     size_t newLength = size*nmemb;
     s.emplace_back(to_string((char*)contents, newLength));
     return newLength;
