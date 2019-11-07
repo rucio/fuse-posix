@@ -27,10 +27,11 @@ using namespace fastlog;
 void parse_settings(){
   std::ifstream settings_file;
 
-  std::string ruciofs_settings_filename = getenv("RUCIOFS_SETTINGS_FILE");
+  std::string ruciofs_settings_filename;
 
-  if(ruciofs_settings_filename.empty())
-    ruciofs_settings_filename = "./settings.json";
+  if(getenv("RUCIOFS_SETTINGS_FILE") != NULL){
+    ruciofs_settings_filename = getenv("RUCIOFS_SETTINGS_FILE");
+  } else ruciofs_settings_filename = "./settings.json";
 
   fastlog(INFO,"\nSettings file at: %s", ruciofs_settings_filename.data());
 
