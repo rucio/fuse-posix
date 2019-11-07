@@ -18,7 +18,7 @@ void rucio_get_auth_token_userpass(const std::string& short_server_name);
 bool rucio_is_token_valid(const std::string& short_server_name);
 
 static std::vector<std::string> servers_cache;
-std::vector<std::string> rucio_list_servers();
+const std::vector<std::string>& rucio_list_servers();
 
 static std::unordered_map<std::string, std::vector<std::string>> scopes_cache;
 std::vector<std::string> rucio_list_scopes(const std::string& short_server_name);

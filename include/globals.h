@@ -59,6 +59,7 @@ struct rucio_server{
 
 // Shared token parameters
 extern std::unordered_map<std::string, rucio_server> rucio_server_map;
+extern std::vector<std::string> rucio_server_names;
 
 // Utility functions
 bool key_exists(std::string key);

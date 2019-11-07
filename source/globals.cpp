@@ -9,6 +9,7 @@
 #include <REST-API.h>
 
 std::unordered_map<std::string, rucio_server> rucio_server_map = {};
+std::vector<std::string> rucio_server_names;
 
 bool key_exists(std::string key){
   return rucio_server_map.count(key)>0;
@@ -65,6 +66,7 @@ void parse_settings(){
             srv.rucio_conn_params.user_name.data(),
             srv.rucio_conn_params.password.data());
 
+    rucio_server_names.emplace_back(srv_name);
     rucio_server_map.emplace(std::make_pair(srv_name,srv));
   }
 }

@@ -79,15 +79,8 @@ bool rucio_is_token_valid(const std::string& short_server_name){
   return token_info->conn_token_exp_epoch >= time(nullptr);
 }
 
-std::vector<std::string> rucio_list_servers(){
-  if(servers_cache.empty()){
-    servers_cache.reserve(rucio_server_map.size());
-
-    for (auto const &server: rucio_server_map)
-      servers_cache.emplace_back(server.first);
-  }
-
-  return servers_cache;
+const std::vector<std::string>& rucio_list_servers(){
+  return rucio_server_names;
 }
 
 std::vector<std::string> rucio_list_scopes(const std::string& short_server_name){
