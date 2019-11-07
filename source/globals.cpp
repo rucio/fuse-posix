@@ -6,6 +6,7 @@
 #include <json.hpp>
 #include <fstream>
 #include <fastlog.h>
+#include <REST-API.h>
 
 std::unordered_map<std::string, rucio_server> rucio_server_map = {};
 
@@ -43,6 +44,12 @@ void parse_settings(){
   for (auto& server : json_settings["servers"].items()){
     auto values = server.value();
     auto srv = rucio_server(values["url"], values["account"],values["username"],values["password"]);
+
+    if(not rucio_ping(srv.rucio_conn_params.server_url)){
+      fastlog(ERROR, "Server %s not reachable, skipping connection.", srv.rucio_conn_params.server_url.data());
+      continue;
+    }
+
     std::string srv_name = values["name"];
 
     fastlog(INFO,"\n"

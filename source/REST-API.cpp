@@ -12,6 +12,11 @@
 
 using namespace fastlog;
 
+bool rucio_ping(const std::string& server_url){
+  auto curl_res = GET(server_url+"/ping");
+  return curl_res.res == CURLE_OK;
+}
+
 void rucio_get_auth_token_userpass(const std::string& short_server_name){
   struct curl_slist *headers = nullptr;
 
