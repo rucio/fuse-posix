@@ -1,0 +1,14 @@
+{
+  "servers": [
+    {
+      "name": "rucio-server-x509",
+      "url": "https://rucio-server",
+      "auth-method": "x509",
+      "account": "root",
+      "pers-cert-path": "path-to-your-cert-or-proxy",
+      "CA-cert-path": "path-to-CA-cert",
+      "passphrase": "your-key-passphrase-if-any",
+      "key-path": "you-key-in-pem-format"
+    }
+  ]
+}
