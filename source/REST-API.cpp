@@ -29,8 +29,6 @@ void rucio_get_auth_token_userpass(const std::string& short_server_name){
   auto conn_params = &(srv->rucio_conn_params);
   std::string target_url;
 
-  std::cout << (srv->auth == auth_method::userpass) <<std::endl;
-
   switch (auth_method(srv->auth))
   {
     case auth_method::userpass:{
