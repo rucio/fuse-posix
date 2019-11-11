@@ -294,6 +294,11 @@ std::vector<std::string> rucio_get_replicas_metalinks(const std::string& path){
     beg_pfn = rses.find('[', end_rse + 1);
     end_pfn = rses.find(']', beg_pfn + 1);
 
+    std::cout << beg_rse << std::endl;
+    std::cout << end_rse << std::endl;
+    std::cout << beg_pfn << std::endl;
+    std::cout << end_pfn << std::endl;
+
     fastlog(DEBUG, "---> %s : %s", rse.data(), pfn.data());
   }
 
