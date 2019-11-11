@@ -258,6 +258,23 @@ std::vector<std::string> rucio_get_replicas_metalinks(const std::string& path){
 
   auto curl_res = GET(get_server_params(short_server_name)->server_url + "/replicas/" + scope + "/" + name, headers);
 
+  std::string merged_response;
+
+  for(const auto& line : curl_res.payload){
+    fastlog(DEBUG, "%s", line.data());
+    merged_response.append(line);
+  }
+
+  fastlog(DEBUG, "\n\nMerged:\n%s", merged_response.data());
+
+  auto rses_position = std::find(merged_response.begin(),merged_response.end(),"\"rses\": {");
+  auto rses_end = std::find(rses_position,merged_response.end(),"},");
+  auto rses = std::string(rses_position, rses_end);
+
+  fastlog(DEBUG, "\n\nRSES:\n%s", rses.data());
+
+  
+
   return std::move(curl_res.payload);
 }
 
