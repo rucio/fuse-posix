@@ -278,7 +278,7 @@ std::vector<std::string> rucio_get_replicas_metalinks(const std::string& path){
   auto end_pfn = rses.find(']');
 
   auto beg_rse = rses.find('"');
-  auto end_rse = rses.find('"', beg_rse);
+  auto end_rse = rses.find('"', beg_rse + 1);
   while(beg_pfn != std::string::npos && end_pfn != std::string::npos){
     auto rse = std::string(rses.begin() + beg_rse + 1, rses.begin() + end_rse - 1);
     auto pfn = std::string(rses.begin() + beg_pfn + 2, rses.begin() + end_pfn - 1);
