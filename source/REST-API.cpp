@@ -275,10 +275,15 @@ std::vector<std::string> rucio_get_replicas_metalinks(const std::string& path){
   fastlog(DEBUG, "\n\nRSES:\n%s\n\n", rses.data());
 
 
-  auto beg_rse = 0;
+  auto beg_rse = rses.find('"');
   auto end_rse = rses.find("\":", beg_rse + 1);
   auto beg_pfn = rses.find('[', end_rse + 1);
   auto end_pfn = rses.find(']', beg_pfn + 1);
+
+  std::cout << beg_rse << std::endl;
+  std::cout << end_rse << std::endl;
+  std::cout << beg_pfn << std::endl;
+  std::cout << end_pfn << std::endl;
 
   while(beg_pfn != std::string::npos && end_pfn != std::string::npos && beg_rse != std::string::npos && end_rse != std::string::npos){
     auto rse = std::string(rses.begin() + beg_rse, rses.begin() + end_rse);
