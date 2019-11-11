@@ -242,3 +242,26 @@ bool rucio_is_container(const std::string& path){
     return found->second;
   }
 }
+
+std::vector<std::string> rucio_get_replicas_metalinks(const std::string& path){
+  auto short_server_name = extract_server_name(path);
+  auto scope = extract_scope(path);
+  auto name = extract_name(path);
+
+  auto headers = get_auth_headers(short_server_name);
+
+  if (not headers) {
+    fastlog(ERROR,"Server %s not found. Aborting!", short_server_name.data());
+    return {};
+  }
+  headers= curl_slist_append(headers, "HTTP_ACCEPT: metalink4+xml");
+
+  auto curl_res = GET(get_server_params(short_server_name)->server_url + "/replicas/" + scope + "/" + name, headers);
+
+  for(const auto& line : curl_res.payload){
+    fastlog(DEBUG, "%s", line.data());
+  }
+
+  return std::move(curl_res.payload);
+}
+

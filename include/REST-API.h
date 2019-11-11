@@ -34,6 +34,6 @@ std::vector<rucio_did> rucio_list_container_dids(const std::string& scope, const
 bool rucio_is_container(const rucio_did& did);
 bool rucio_is_container(const std::string& path);
 
-void rucio_create_inode();
+std::vector<std::string> rucio_get_replicas_metalinks(const std::string& path);
 
 #endif //RUCIO_FUSE_REST_API_H
