@@ -258,10 +258,6 @@ std::vector<std::string> rucio_get_replicas_metalinks(const std::string& path){
 
   auto curl_res = GET(get_server_params(short_server_name)->server_url + "/replicas/" + scope + "/" + name, headers);
 
-  for(const auto& line : curl_res.payload){
-    fastlog(DEBUG, "%s", line.data());
-  }
-
   return std::move(curl_res.payload);
 }
 

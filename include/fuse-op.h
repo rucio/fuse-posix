@@ -141,9 +141,11 @@ static int rucio_read(const char *path, char *buffer, size_t size, off_t offset,
 
   if(not is_server_mountpoint(path) and not is_main_scope(path) and not rucio_is_container(path)){
     //TODO: download file through Rucio
-    char *fileContent = "Dummy file content placeholder";
-    memcpy(buffer, fileContent + offset, size);
-	  return strlen( fileContent ) - offset;
+    auto metalinks = rucio_get_replicas_metalinks(path);
+
+    for(const auto& line : metalinks){
+      fastlog(DEBUG, "%s", line.data());
+    }
   }
 
   return -1;
