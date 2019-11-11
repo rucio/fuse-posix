@@ -274,7 +274,13 @@ std::vector<std::string> rucio_get_replicas_metalinks(const std::string& path){
 
   fastlog(DEBUG, "\n\nRSES:\n%s\n\n", rses.data());
 
-
+  auto beg = 0;
+  auto end = rses.find("],");
+  while(end != std::string::npos){
+    fastlog(DEBUG, "---> %s", std::string(rses.begin() + beg, rses.begin() + end).data());
+    beg += end;
+    end = rses.find("],", end+1);
+  }
 
   return std::move(curl_res.payload);
 }
