@@ -59,8 +59,8 @@ struct curlRet {
 struct curlx509Bundle{
   std::string pCertFile;
   std::string pCACertFile;
-  std::string pPassphrase;
   std::string pKeyName;
+  std::string pPassphrase = nullptr;
   std::string pKeyType = "PEM";
   std::string pEngine = nullptr;
 };

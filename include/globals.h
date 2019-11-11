@@ -38,8 +38,9 @@ struct token_info{
 };
 
 enum auth_method{
-  userpass = 1,
-  x509 = 2
+  userpass,
+  x509,
+  x509proxy
 } typedef auth_method;
 
 // Rucio server descriptor

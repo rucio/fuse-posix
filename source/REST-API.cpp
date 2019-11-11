@@ -27,9 +27,10 @@ void rucio_get_auth_token_userpass(const std::string& short_server_name){
 
   struct curl_slist *headers = nullptr;
   auto conn_params = &(srv->rucio_conn_params);
-  std::string target_url;
 
-  switch (auth_method(srv->auth))
+  curlRet curl_res;
+
+  switch (srv->auth)
   {
     case auth_method::userpass:{
       auto xRucioAccount = "X-Rucio-Account: " + conn_params->account_name;
@@ -40,29 +41,32 @@ void rucio_get_auth_token_userpass(const std::string& short_server_name){
       headers = curl_slist_append(headers, xRucioUsername.c_str());
       headers = curl_slist_append(headers, xRucioPwd.c_str());
 
-      target_url = conn_params->server_url + "/auth/userpass";
+      curl_res = GET(conn_params->server_url + "/auth/userpass", headers, true);
 
       break;
     }
-    case auth_method::x509:{
-      auto xRucioAccount = "X-Rucio-Account: " + conn_params->account_name;
-      //TODO: figure out what to put inside SSLStdEnv
-      auto SSLStdEnv = "SSLStdEnv: " + std::string();
-
-      headers = curl_slist_append(headers, xRucioAccount.c_str());
-      headers = curl_slist_append(headers, SSLStdEnv.c_str());
-
-      target_url = conn_params->server_url + "/auth/x509";
-
-      break;
-    }
+//    case auth_method::x509proxy:
+//    case auth_method::x509:{
+//      auto xRucioAccount = "X-Rucio-Account: " + conn_params->account_name;
+//      curlx509Bundle bundle;
+//
+//      //TODO: fill the bundle
+//      switch(srv->auth){
+//        case auth_method::x509proxy: bundle;
+//        case auth_method::x509: bundle;
+//      }
+//
+//      headers = curl_slist_append(headers, xRucioAccount.c_str());
+//
+//      curl_res = GET_x509(conn_params->server_url + "/auth/x509", bundle, headers, true);
+//
+//      break;
+//    }
     default:{
       fastlog(ERROR, "Unsupported auth method!");
       return;
     }
   }
-
-  auto curl_res = GET(target_url, headers, true);
 
   curl_slist_free_all(headers);
 
