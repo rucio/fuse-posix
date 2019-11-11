@@ -274,20 +274,20 @@ std::vector<std::string> rucio_get_replicas_metalinks(const std::string& path){
 
   fastlog(DEBUG, "\n\nRSES:\n%s\n\n", rses.data());
 
-  auto beg_pfn = rses.find('[');
-  auto end_pfn = rses.find(']');
 
   auto beg_rse = 0;
-  auto end_rse = rses.find(':', beg_rse + 1);
-  while(beg_pfn != std::string::npos && end_pfn != std::string::npos){
+  auto end_rse = rses.find("\":", beg_rse + 1);
+  auto beg_pfn = rses.find('[', end_rse + 1);
+  auto end_pfn = rses.find(']', beg_pfn + 1);
+
+  while(beg_pfn != std::string::npos && end_pfn != std::string::npos && beg_rse != std::string::npos && end_rse != std::string::npos){
     auto rse = std::string(rses.begin() + beg_rse, rses.begin() + end_rse);
     auto pfn = std::string(rses.begin() + beg_pfn + 2, rses.begin() + end_pfn - 1);
 
-    beg_pfn = rses.find('[', end_pfn + 1);
-    end_pfn = rses.find(']', end_pfn + 1);
-
-    beg_rse = end_pfn + 3;
-    end_rse = rses.find(':', beg_rse);
+    beg_rse = rses.find('"', end_pfn + 1);
+    end_rse = rses.find("\":", beg_rse + 1);
+    beg_pfn = rses.find('[', end_rse + 1);
+    end_pfn = rses.find(']', beg_pfn + 1);
 
     fastlog(DEBUG, "---> %s : %s", rse.data(), pfn.data());
   }
