@@ -272,7 +272,7 @@ std::vector<std::string> rucio_get_replicas_metalinks(const std::string& path){
   auto rses_end = merged_response.find("}", rses_position+1);
   auto rses = std::string(merged_response.begin() + rses_position, merged_response.begin() + rses_end);
 
-  fastlog(DEBUG, "\n\nRSES:\n%s", rses.data());
+  fastlog(DEBUG, "\n\nRSES:\n%s\n\n", rses.data());
 
 
 
