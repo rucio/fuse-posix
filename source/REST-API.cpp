@@ -269,17 +269,17 @@ std::vector<std::string> rucio_get_replicas_metalinks(const std::string& path){
 
   std::string identifier = R"("rses": {)";
   auto rses_position = merged_response.find(identifier);
-  auto rses_end = merged_response.find("}", rses_position+1);
+  auto rses_end = merged_response.find('}', rses_position+1);
   auto rses = std::string(merged_response.begin() + rses_position + identifier.length(), merged_response.begin() + rses_end);
 
   fastlog(DEBUG, "\n\nRSES:\n%s\n\n", rses.data());
 
   auto beg = 0;
-  auto end = rses.find("]");
+  auto end = rses.find(']');
   while(end != std::string::npos){
-    fastlog(DEBUG, "---> %s", std::string(rses.begin() + beg, rses.begin() + end).data());
+    fastlog(DEBUG, "---> %s", std::string(rses.begin() + beg + 2, rses.begin() + end + 1).data());
     beg = end+1;
-    end = rses.find("]", end+1);
+    end = rses.find(']', end+1);
   }
 
   return std::move(curl_res.payload);
