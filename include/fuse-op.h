@@ -143,9 +143,15 @@ static int rucio_read(const char *path, char *buffer, size_t size, off_t offset,
     //TODO: download file through Rucio
     auto metalinks = rucio_get_replicas_metalinks(path);
 
-    for(const auto& line : metalinks){
-      fastlog(DEBUG, "%s", line.data());
+    std::string metalinks_string;
+
+    for(const auto& metalink :  metalinks){
+      metalinks_string.append(metalink);
+      metalinks_string.append("\n");
     }
+
+    memcpy(buffer, &metalinks_string + offset, size);
+    return metalinks_string.length() - offset;
   }
 
   return -1;

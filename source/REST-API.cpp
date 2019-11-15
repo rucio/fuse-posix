@@ -280,15 +280,17 @@ std::vector<std::string> rucio_get_replicas_metalinks(const std::string& path){
   std::cout << beg_pfn << std::endl;
   std::cout << end_pfn << std::endl;
 
+  std::vector<std::string> pfns;
+
   while(beg_pfn != std::string::npos && end_pfn != std::string::npos){
-    auto pfn = std::string(rses.begin() + beg_pfn + 2, rses.begin() + end_pfn - 1);
+    pfns.emplace_back(std::string(rses.begin() + beg_pfn + 2, rses.begin() + end_pfn - 1));
 
     beg_pfn = rses.find('[', end_pfn + 1);
     end_pfn = rses.find(']', beg_pfn + 1);
 
-    fastlog(DEBUG, "---> %s", pfn.data());
+    fastlog(DEBUG, "---> %s", pfns.back().data());
   }
 
-  return std::move(curl_res.payload);
+  return std::move(pfns);
 }
 
