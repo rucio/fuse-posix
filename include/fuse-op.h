@@ -150,7 +150,7 @@ static int rucio_read(const char *path, char *buffer, size_t size, off_t offset,
       metalinks_string.append("\n");
     }
 
-    memcpy(buffer, &metalinks_string + offset, size);
+    memcpy(buffer, metalinks_string.data() + offset, size);
     return metalinks_string.length() - offset;
   }
 
