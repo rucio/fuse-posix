@@ -30,6 +30,7 @@ else
     To install them please run the following command:
 
         yum install -y cmake3 libcurl-devel libfuse-devel
+        apt-get install cmake3 libfuse-dev libcurl4-gnutls-dev
 
     Or the corresponding package manager invocation.
     "
