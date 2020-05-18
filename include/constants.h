@@ -11,6 +11,7 @@
 
 // FS structure constants
 static const std::string rucio_root_path = "/";
+static const std::string rucio_cache_path = "/ruciofs-cache";
 
 // Token parsing constants
 static const std::string rucio_token_prefix = "X-Rucio-Auth-Token: ";
