@@ -242,3 +242,55 @@ bool rucio_is_container(const std::string& path){
     return found->second;
   }
 }
+
+std::vector<std::string> rucio_get_replicas_metalinks(const std::string& path){
+  auto short_server_name = extract_server_name(path);
+  auto scope = extract_scope(path);
+  auto name = extract_name(path);
+
+  auto headers = get_auth_headers(short_server_name);
+
+  if (not headers) {
+    fastlog(ERROR,"Server %s not found. Aborting!", short_server_name.data());
+    return {};
+  }
+  headers= curl_slist_append(headers, "HTTP_ACCEPT: metalink4+xml");
+
+  auto curl_res = GET(get_server_params(short_server_name)->server_url + "/replicas/" + scope + "/" + name, headers);
+
+  std::string merged_response;
+
+  for(const auto& line : curl_res.payload){
+    fastlog(DEBUG, "%s", line.data());
+    merged_response.append(line);
+  }
+
+  fastlog(DEBUG, "\n\nMerged:\n%s", merged_response.data());
+
+  std::string identifier = R"("rses": {)";
+  auto rses_position = merged_response.find(identifier);
+  auto rses_end = merged_response.find('}', rses_position+1);
+  auto rses = std::string(merged_response.begin() + rses_position + identifier.length(), merged_response.begin() + rses_end);
+
+  fastlog(DEBUG, "\n\nRSES:\n%s\n\n", rses.data());
+
+  auto beg_pfn = rses.find('[', 0);
+  auto end_pfn = rses.find(']', beg_pfn + 1);
+
+  std::cout << beg_pfn << std::endl;
+  std::cout << end_pfn << std::endl;
+
+  std::vector<std::string> pfns;
+
+  while(beg_pfn != std::string::npos && end_pfn != std::string::npos){
+    pfns.emplace_back(std::string(rses.begin() + beg_pfn + 2, rses.begin() + end_pfn - 1));
+
+    beg_pfn = rses.find('[', end_pfn + 1);
+    end_pfn = rses.find(']', beg_pfn + 1);
+
+    fastlog(DEBUG, "---> %s", pfns.back().data());
+  }
+
+  return std::move(pfns);
+}
+
