@@ -8,6 +8,8 @@ Authors:
 #ifndef RUCIO_FUSE_FUSE_OP_H
 #define RUCIO_FUSE_FUSE_OP_H
 
+#include <stdlib.h>
+#include <stdio.h>
 #include <stddef.h>
 #include <stdbool.h>
 #include <unistd.h>
@@ -16,6 +18,7 @@ Authors:
 #include <string.h>
 #include <iostream>
 #include <fastlog.h>
+#include "constants.h"
 
 using namespace fastlog;
 
@@ -140,24 +143,65 @@ static int rucio_readdir(const char *path, void *buffer, fuse_fill_dir_t filler,
   return 0;
 }
 
+struct file_cache {
+    std::unordered_map<std::string, FILE*> cache;
+
+    file_cache(){
+      //TODO: here we can populate the cache at startup parsing all files in the cache root.
+    }
+
+    ~file_cache(){
+      for(auto &file : cache){
+        fclose(file.second);
+      }
+    }
+
+    bool is_cached(std::string key){
+      return cache.find(key) != cache.end();
+    }
+
+    FILE* get_file(std::string key){
+      return (is_cached(key))?cache[key]:nullptr;
+    }
+
+    bool add_file(std::string key){
+      cache[key] = fopen(key.data(), "rb");
+      return true;
+    }
+};
+file_cache rucio_download_cache;
+
 static int rucio_read(const char *path, char *buffer, size_t size, off_t offset, struct fuse_file_info *fi)
 {
   fastlog(DEBUG,"rucio_read called");
-  fastlog(DEBUG,"Handling this path: %s", path);
+  fastlog(INFO,"Handling this path: %s", path);
 
   if(not is_server_mountpoint(path) and not is_main_scope(path) and not rucio_is_container(path)){
-    //TODO: download file through Rucio
-    auto metalinks = rucio_get_replicas_metalinks(path);
+    auto server_name = extract_server_name(path);
+    auto did = get_did(path);
+    std::string cache_root = rucio_cache_path + "/" + server_name;
+    std::string cache_path = cache_root + "/" + did;
 
-    std::string metalinks_string;
+    if(not rucio_download_cache.is_cached(cache_path)) {
+      //TODO: using rucio download directly, prevents from being able to connect to multiple rucio servers at once
 
-    for(const auto& metalink :  metalinks){
-      metalinks_string.append(metalink);
-      metalinks_string.append("\n");
+      fastlog(DEBUG,"File %s @ %s is not cached. Downloading...", did.data(), server_name.data());
+      std::string command = "rucio download --dir " + cache_root + " " + did;
+      system(command.data());
+
+      fastlog(DEBUG,"File downloaded at %s and added to cache.", cache_path.data());
+      rucio_download_cache.add_file(cache_path);
+    } else {
+      fastlog(DEBUG,"File %s @ %s found in cache!", did.data(), server_name.data());
     }
 
-    memcpy(buffer, metalinks_string.data() + offset, size);
-    return metalinks_string.length() - offset;
+    fastlog(DEBUG,"Getting file...");
+    auto file = rucio_download_cache.get_file(cache_path);
+
+    fastlog(DEBUG,"Seeking file...");
+    fseek(file, offset, SEEK_SET);
+
+    memcpy(buffer, file, size);
   }
 
   return -1;
