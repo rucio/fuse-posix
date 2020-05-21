@@ -38,15 +38,16 @@ int main( int argc, char *argv[] )
 
   fuse_argv[0] = argv[0];
 
-  std::string option[2] = {"-f", "/ruciofs"};
+  // Setting up mount path
+  std::string path_option[2] = {"-f", "/ruciofs"};
+  fuse_argv[1] = strdup(path_option[0].c_str());
+  mkdir(path_option[1].c_str(), 0755);
+  fuse_argv[2] = strdup(path_option[1].c_str());
 
-  fuse_argv[1] = strdup(option[0].c_str());
-
-  mkdir(option[1].c_str(), 0755);
-  fuse_argv[2] = strdup(option[1].c_str());
-
-  fuse_argv[3] = "-o";
-  fuse_argv[4] = "allow_other";
+  // Setting up NEEDED options to allow users' access
+  std::string allow_other[2] = {"-o", "allow_other"};
+  fuse_argv[3] = strdup(allow_other[0].c_str());
+  fuse_argv[4] = strdup(allow_other[1].c_str());
 
 	return fuse_main(fuse_argc, fuse_argv, &operations, nullptr);
 }
