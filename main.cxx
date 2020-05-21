@@ -33,7 +33,7 @@ int main( int argc, char *argv[] )
     logLevel = ERROR;
   }
 
-  char* fuse_argv[3];
+  char* fuse_argv[5];
 
   fuse_argv[0] = argv[0];
 
@@ -43,6 +43,9 @@ int main( int argc, char *argv[] )
 
   mkdir(option[1].c_str(), 0755);
   fuse_argv[2] = strdup(option[1].c_str());
+
+  fuse_argv[3] = "-o";
+  fuse_argv[4] = "allow_other";
 
 	return fuse_main(3, fuse_argv, &operations, nullptr);
 }
