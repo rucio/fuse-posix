@@ -33,7 +33,8 @@ int main( int argc, char *argv[] )
     logLevel = ERROR;
   }
 
-  char* fuse_argv[5];
+  const uint fuse_argc = 5;
+  char* fuse_argv[fuse_argc];
 
   fuse_argv[0] = argv[0];
 
@@ -47,5 +48,5 @@ int main( int argc, char *argv[] )
   fuse_argv[3] = "-o";
   fuse_argv[4] = "allow_other";
 
-	return fuse_main(3, fuse_argv, &operations, nullptr);
+	return fuse_main(fuse_argc, fuse_argv, &operations, nullptr);
 }
