@@ -1,0 +1,12 @@
+{
+  "servers":
+  [
+      {
+        "name" : "<server-name>",
+        "url": "https://<server-url>",
+        "account" : "<account-name>",
+        "username": "<rucio-username>",
+        "password": "<rucio-password>"
+      }
+  ]
+}
