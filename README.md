@@ -40,16 +40,93 @@ The Rucio file catalog is much flatter than that of a usual `POSIX` filesystems 
 - Fix Mac OS X mouting issues
 - Surely a lot more...
 
-## How to build
+## Getting Started
+
+### Cloning the repository
+Fork the repository and clone it on your local machine for development
+```BASH
+$ git clone https://github.com/<your-username>/fuse-posix.git
+$ cd fuse-posix/
+$ git remote add upstream https://github.com/rucio/fuse-posix.git
+```
+### Install the dependencies
+Next step is to install the dependencies which shall be required to build the software
+
+**Ubuntu/Debian (apt)**
+```BASH
+$ sudo apt-get install cmake git g++ libfuse-dev libcurl4-gnutls-dev
+```
+**CentOS (yum)**
+```BASH
+$ yum install -y cmake3 libcurl-devel libfuse-devel
+```
+
+### Build the software
 To build the software please run:
 
 ```[shell]
-./build.sh
+$ cd fuse-posix/
+$ ./build.sh
 ```
+**NOTE:** To complete the build `libcurl-devel`, `fuse-libs` and `fuse-devel` packages (or equivalent) must be present:
+`cmake` will try to locate them for you and trigger some build messages if unable to do so.
+Please note that `cmake` version 3 or greater is needed.
+
+### Setting up the FUSE mount
+If you're Ubuntu 18.04 LTS or above, you should particularly follow this step to ensure the right working of the Rucio-FUSE mount.
+* **STEP 1** - Check FUSE version
+```BASH
+$ fusermount -V
+fusermount version: 2.9.7
+```
+Also check if the `fuse` group is available on the system and your current user is a part of it or not
+```BASH
+$ groups $USER | grep fuse
+```
+If this highlights `fuse` then your current USER is a part of the `fuse` group and you may skip STEP 2. If not, then add the `fuse` group as explained in STEP 2.
+
+* **STEP 2** - Add `fuse` group for current USER
+```BASH
+$ sudo groupadd fuse
+$ sudo usermod -aG fuse $USER
+```
+The above step adds a new group named `fuse` and makes the current user a part of it. If you wish to access the FUSE mount as `root`, then you must also uncomment the line `user_allow_other` in `/etc/fuse.conf` to enable root access for FUSE filesystem. Once this is done successfully, reload the fuse module with `modprobe` or restart the machine.
+```
+$ modprobe fuse
+```
+
+### Mounting with Rucio-FUSE mount
+Now that `fusermount` is set up on the machine, we can proceed with the mounting process. The first step is to edit the `settings.json.template` and add the authentication details.
+
+```BASH
+$ mv settings.json.template settings.json
+$ gedit settings.json #or use vim/vi
+```
+Add the `name` for the server you wish to mount, the `url`, `account` name registed with Rucio, and finally the authentication details (username and password). Save the file and exit.
+
+**NOTE:** You can add multiple servers to mount on your machine, just add another block under "servers" with the required details.
+
+The FUSE mount can be either used as `root` or the current user.
+
+* **OPTION A** - Mounting as `root`
+
+To use FUSE as root, you need to set up fuse module as given in STEP 2, then follow the steps below.
+```BASH
+$ sudo mkdir /ruciofs
+$ cd fuse-posix/
+$ sudo ./cmake-build-debug/bin/rucio-fuse-main
+```
+* **OPTION B** - Mounting as current USER
+
+This step requires root to change the ownership of the mount point from `root` and group `root` to `$USER` and group `fuse`
+```BASH
+$ sudo mkdir /ruciofs
+$ sudo chown $USER:fuse /ruciofs
+$ ./cmake-build-debug/bin/rucio-fuse-main
+```
+Performing the above steps successfully shall parse the `Settings.json` file and mount the server to `/ruciofs` mount point.
+
+## Extra Notes
 
 This has been tested on CentOS7 ~~and Mac OS X Mojave 10.14.6~~.
 Mac OS X special files created by the OS FS service generate a lot of issues which should be dealt with and prevent the Fuse module from correct mounting under Mac.
-
-To complete the build `libcurl-devel`, `fuse-libs` and `fuse-devel` packages (or equivalent) must be present:
-`cmake` will try to locate them for you and trigger some build messages if unable to do so.
-Please note that `cmake` version 3 or greater is needed.
