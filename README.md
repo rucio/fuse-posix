@@ -95,15 +95,35 @@ $ modprobe fuse
 ```
 
 ### Mounting with Rucio-FUSE mount
-Now that `fusermount` is set up on the machine, we can proceed with the mounting process.
+Now that `fusermount` is set up on the machine, we can proceed with the mounting process. The first step is to edit the `settings.json.template` and add the authentication details.
+
+```BASH
+$ mv settings.json.template settings.json
+$ gedit settings.json #or use vim/vi
+```
+Add the `name` for the server you wish to mount, the `url`, `account` name registed with Rucio, and finally the authentication details (username and password). Save the file and exit.
+
+**NOTE:** You can add multiple servers to mount on your machine, just add another block under "servers" with the required details.
+
+The FUSE mount can be either used as `root` or the current user.
+
 * **OPTION A** - Mounting as `root`
 
 To use FUSE as root, you need to set up fuse module as given in STEP 2, then follow the steps below.
 ```BASH
 $ sudo mkdir /ruciofs
 $ cd fuse-posix/
+$ sudo ./cmake-build-debug/bin/rucio-fuse-main
 ```
+* **OPTION B** - Mounting as current USER
 
+This step requires root to change the ownership of the mount point from `root` and group `root` to `$USER` and group `fuse`
+```BASH
+$ sudo mkdir /ruciofs
+$ sudo chown $USER:fuse /ruciofs
+$ ./cmake-build-debug/bin/rucio-fuse-main
+```
+Performing the above steps successfully shall parse the `Settings.json` file and mount the server to `/ruciofs` mount point.
 
 ## Extra Notes
 This has been tested on CentOS7 ~~and Mac OS X Mojave 10.14.6~~.
