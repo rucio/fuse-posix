@@ -33,13 +33,18 @@ int main( int argc, char *argv[] )
     logLevel = ERROR;
   }
 
+  auto fOpt = std::find(argvect.begin(),argvect.end(),"-f");
+
   const uint fuse_argc = 5;
   char* fuse_argv[fuse_argc];
 
   fuse_argv[0] = argv[0];
 
   // Setting up mount path
-  std::string path_option[2] = {"-f", "/ruciofs"};
+  std::string path_option[2] = {"-f", (fOpt==argvect.end())?"/ruciofs":*(fOpt+1)};
+
+  fastlog(INFO, "Mount path set to %s", path_option[1].c_str());
+
   fuse_argv[1] = strdup(path_option[0].c_str());
   mkdir(path_option[1].c_str(), 0755);
   fuse_argv[2] = strdup(path_option[1].c_str());
