@@ -1,4 +1,5 @@
-
+settings.json
+submodules/
 .idea/
 
 cmake-build-*
