@@ -9,3 +9,6 @@
 [submodule "submodules/fastlog"]
     path = submodules/fastlog
     url = https://github.com/gabrielefronze/fastlog.git
+[submodule "submodules/googletest"]
+	path = submodules/googletest
+	url = https://github.com/google/googletest
