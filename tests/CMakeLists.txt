@@ -34,3 +34,10 @@ add_executable(
         gtest_curl-REST.cpp)
 
 target_link_libraries(gtest_curl-REST PUBLIC curl-wrapper ${GTEST_LIBRARIES} pthread)
+
+add_executable(
+        gtest_REST-API
+        gtest_REST-API.cpp
+)
+
+target_link_libraries(gtest_REST-API PUBLIC rucio-rest-api-wrapper globals ${GTEST_LIBRARIES} pthread)
