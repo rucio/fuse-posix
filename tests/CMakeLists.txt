@@ -28,3 +28,9 @@ add_executable(
         gtest_utils.cpp)
 
 target_link_libraries(gtest_utils PUBLIC utils ${GTEST_LIBRARIES} pthread)
+
+add_executable(
+        gtest_curl-REST 
+        gtest_curl-REST.cpp)
+
+target_link_libraries(gtest_curl-REST PUBLIC curl-wrapper ${GTEST_LIBRARIES} pthread)
