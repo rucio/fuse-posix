@@ -25,6 +25,7 @@ static int rucio_getattr (const char *path, struct stat *st){
 	st->st_atime = time( nullptr );
 	st->st_mtime = time( nullptr );
 
+  if (is_hidden(path)) return 0;
 	// If it is the root path list the connected servers
 	if ( is_root_path(path) ) {
 	  fastlog(DEBUG,"handling root path");
@@ -80,6 +81,8 @@ static int rucio_readdir(const char *path, void *buffer, fuse_fill_dir_t filler,
   filler(buffer, ".", nullptr, 0 );
   filler(buffer, "..", nullptr, 0 );
 
+  if (is_hidden(path)) return 0;
+  
   if ( is_root_path(path) )	{
     fastlog(DEBUG,"handling root path");
     auto servers = rucio_list_servers();

@@ -153,6 +153,12 @@ std::string extract_name(const std::string& path){
   return std::move(path_copy);
 }
 
+//Returns true if the folder or file is hidden else false.
+bool is_hidden(const std::string &path){
+  auto current_dir = extract_name(path);
+  return (current_dir[0] == '.');
+}
+
 std::string get_did(const std::string& path){
   return extract_scope(path)+":"+extract_name(path);
 }
