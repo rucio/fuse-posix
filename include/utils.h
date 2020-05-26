@@ -1,6 +1,9 @@
-//
-// Created by Gabriele Gaetano Fronzé on 2019-10-16.
-//
+/*
+Created by Gabriele Gaetano Fronzé on 2019-10-16.
+Authors:
+- Gabriele Gaetano Fronzé <gabriele.fronze at to.infn.it>, 2019
+- Vivek Nigam <viveknigam.nigam3@gmail.com>, 2020
+*/
 
 #ifndef RUCIO_FUSE_UTILS_H
 #define RUCIO_FUSE_UTILS_H

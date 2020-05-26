@@ -6,6 +6,8 @@
 #include <globals.h>
 #include <iostream>
 
+using namespace fastlog;
+
 void test_server_connection(std::string server_short_name){
   printf("--------------------------------------------------------------------------------------------------------\n"
          "Testing server %s\n"
@@ -18,14 +20,12 @@ void test_server_connection(std::string server_short_name){
 
     auto token = get_server_token(server_short_name);
 
-    printf("Got the following token: %s\n", token->conn_token.c_str());
+    fastlog(INFO, "Token Received: %s", token->conn_token.c_str());
 
     if (not rucio_is_token_valid(server_short_name)) {
-      std::cout << "Token not valid!" << std::endl;
+      fastlog(ERROR, "Token Expired");
     } else {
-      char buffer[100];
-      strftime(buffer, 100, "%a, %d %b %Y %H:%M:%S %Z", &token->conn_token_exp);
-      printf("Token will be valid until %s\n\n", buffer);
+      fastlog(INFO, "Token will expire in %.2f hours", difftime(token->conn_token_exp_epoch, time(nullptr))/3600);
     }
   }
 }
@@ -68,6 +68,7 @@ void test_scope_dids(std::string server_short_name, std::string scope_name){
 }
 
 int main(){
+  parse_settings();
   test_server_connection("rucio-server-torino");
   test_server_connection("rucio-server-ligo");
 
