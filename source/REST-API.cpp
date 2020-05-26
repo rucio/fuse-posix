@@ -1,6 +1,9 @@
-//
-// Created by Gabriele Gaetano Fronzé on 2019-10-16.
-//
+/*
+Created by Gabriele Gaetano Fronzé on 2019-10-16.
+Authors:
+- Gabriele Gaetano Fronzé <gabriele.fronze at to.infn.it>, 2019
+- Vivek Nigam <viveknigam.nigam3@gmail.com>, 2020
+*/
 
 #include <REST-API.h>
 #include <curl-REST.h>
@@ -64,8 +67,9 @@ void rucio_get_auth_token_userpass(const std::string& short_server_name){
   token_info->conn_token = (strlen(token.c_str())>0) ? token : rucio_invalid_token;
 
   expire_time_string = (strlen(expire_time_string.c_str())>0) ? expire_time_string : rucio_default_exp;
-  strptime(expire_time_string.c_str(),"%a, %d %b %Y %H:%M:%S",&token_info->conn_token_exp);
-  token_info->conn_token_exp_epoch = mktime(&token_info->conn_token_exp);
+  strptime(expire_time_string.data(), "%a, %d %b %Y %H:%M:%S",&token_info->conn_token_exp);
+  token_info->conn_token_exp.tm_zone = "UTC";
+  token_info->conn_token_exp_epoch = mktime(&token_info->conn_token_exp) - timezone;
 }
 
 bool rucio_is_token_valid(const std::string& short_server_name){
@@ -76,7 +80,7 @@ bool rucio_is_token_valid(const std::string& short_server_name){
     return false;
   }
 
-  return token_info->conn_token_exp_epoch >= time(nullptr);
+  return difftime(token_info->conn_token_exp_epoch, time(nullptr)) >= 0;
 }
 
 const std::vector<std::string>& rucio_list_servers(){
