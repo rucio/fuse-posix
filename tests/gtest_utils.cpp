@@ -48,6 +48,8 @@ TEST(Utils_Test, Test_string_manipulation){
     remove_trailing_token(test_string);
 
     EXPECT_EQ(test_string, exp_string);
+    EXPECT_EQ("/server/scope/dataset/filename", remove_substring(test_string, "container/"));
+    EXPECT_EQ("server/scope/container/dataset/filename", remove_root_path(test_string));
     EXPECT_EQ("server", extract_server_name(test_string));
     EXPECT_EQ("scope", extract_scope(test_string));
     EXPECT_EQ("filename", extract_name(test_string));
@@ -80,6 +82,11 @@ TEST(Utils_Test, Test_tokenize_python_list){
     EXPECT_EQ("b", scopes[1]);
     EXPECT_EQ("c", scopes[2]);
     EXPECT_EQ("d", scopes[3]);
+}
+
+TEST(Utils_Test, Test_is_hidden){
+    EXPECT_TRUE(is_hidden("/server/scope/container/dataset/.filename/"));
+    EXPECT_FALSE(is_hidden("/server/scope/container/dataset/"));
 }
 
 int main(int argc, char **argv) {
