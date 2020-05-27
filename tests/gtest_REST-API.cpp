@@ -93,9 +93,10 @@ bool get_replica_metalinks(const std::string& path){
 }
 
 TEST(RESTAPI_Test, Test_rucio_get_replicas_metalinks){
-    ASSERT_TRUE(get_replica_metalinks("/"+server_name+"/test/container/dataset1/file1"));
-    ASSERT_TRUE(get_replica_metalinks("/"+server_name+"/test/container/dataset1/file2"));
-    ASSERT_FALSE(get_replica_metalinks("/"+server_name+"/test/container/dataset1/file6"));
+    //ASSERT_TRUE(get_replica_metalinks("/"+server_name+"/test/container/dataset1/file1"));
+    ASSERT_TRUE(not rucio_get_replicas_metalinks("/"+server_name+"/test/container/dataset1/file1").empty());
+    ASSERT_FALSE(rucio_get_replicas_metalinks("/"+server_name+"/test/container/dataset1/file1").empty());
+    //ASSERT_FALSE(get_replica_metalinks("/"+server_name+"/test/container/dataset1/file6"));
 }
 
 bool get_list_container_dids(const string& server, const string& scope, const string& did_name){
