@@ -164,6 +164,11 @@ struct file_cache {
       return (is_cached(key))?cache[key]:nullptr;
     }
 
+    bool add_file(std::string key, FILE* file){
+      cache[key] = file;
+      return true;
+    }
+
     bool add_file(std::string key){
       cache[key] = fopen(key.data(), "rb");
       return true;
@@ -182,6 +187,8 @@ static int rucio_read(const char *path, char *buffer, size_t size, off_t offset,
     std::string cache_root = rucio_cache_path + "/" + server_name;
     std::string cache_path = cache_root + "/" + did;
 
+    FILE* file = nullptr;
+
     if(not rucio_download_cache.is_cached(cache_path)) {
       //TODO: using rucio download directly, prevents from being able to connect to multiple rucio servers at once
 
@@ -189,14 +196,22 @@ static int rucio_read(const char *path, char *buffer, size_t size, off_t offset,
       std::string command = "rucio download --dir " + cache_root + " " + did;
       system(command.data());
 
+      fastlog(DEBUG,"Checking downloaded file...");
+      file = fopen(cache_path.data(), "rb");
+
+      if(not file){
+        fastlog(ERROR, "Failed file download! Passing over...");
+        return -ENOENT;
+      }
+
       fastlog(DEBUG,"File downloaded at %s and added to cache.", cache_path.data());
-      rucio_download_cache.add_file(cache_path);
+      rucio_download_cache.add_file(cache_path, file);
     } else {
       fastlog(DEBUG,"File %s @ %s found in cache!", did.data(), server_name.data());
     }
 
     fastlog(DEBUG,"Getting file...");
-    auto file = rucio_download_cache.get_file(cache_path);
+    file = rucio_download_cache.get_file(cache_path);
 
     fastlog(DEBUG,"Seeking file...");
     fseek(file, offset, SEEK_SET);
