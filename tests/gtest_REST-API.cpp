@@ -20,7 +20,10 @@ TEST(RESTAPI_Test, Test_rucio_ping){
 
 TEST(RESTAPI_Test, Test_server_connection){
     auto servers = rucio_list_servers();
-
+    if (servers.empty()){
+        fastlog(ERROR, "No servers found!");
+        exit(-1); 
+    }
     ASSERT_EQ(server_name, servers[0]);
     ASSERT_NO_THROW(rucio_get_auth_token_userpass(server_name));
     ASSERT_TRUE(rucio_is_token_valid(server_name));
@@ -55,6 +58,7 @@ TEST(RESTAPI_Test, Test__is_container){
 TEST(RESTAPI_Test, Test_rucio_get_replicas_metalinks){
     ASSERT_TRUE(not rucio_get_replicas_metalinks("/"+server_name+"/test/container/dataset1/file1").empty());
     ASSERT_FALSE(rucio_get_replicas_metalinks("/"+server_name+"/test/container/dataset1/file1").empty());
+    ASSERT_TRUE(not rucio_get_replicas_metalinks("/"+server_name+"/test/container/dataset1/file2").empty());
 }
 
 TEST(RESTAPI_Test, Test_rucio_list_container_dids){
