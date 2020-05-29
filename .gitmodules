@@ -8,4 +8,4 @@
 
 [submodule "submodules/fastlog"]
     path = submodules/fastlog
-    url = https://github.com/gabrielefronze/fastlog.git
+    url = https://github.com/Elemento-Modular-Cloud/elemento-fastlog.git
