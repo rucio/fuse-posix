@@ -68,7 +68,8 @@ void rucio_get_auth_token_userpass(const std::string& short_server_name){
 
   expire_time_string = (strlen(expire_time_string.c_str())>0) ? expire_time_string : rucio_default_exp;
   strptime(expire_time_string.data(), "%a, %d %b %Y %H:%M:%S",&token_info->conn_token_exp);
-  token_info->conn_token_exp.tm_zone = (char[3]){'U','T','C'};
+  char UTC[] = {'U','T','C'};
+  token_info->conn_token_exp.tm_zone = UTC;
   token_info->conn_token_exp_epoch = mktime(&token_info->conn_token_exp) - timezone;
 }
 
