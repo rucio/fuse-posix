@@ -281,9 +281,6 @@ std::vector<std::string> rucio_get_replicas_metalinks(const std::string& path){
   auto beg_pfn = rses.find('[', 0);
   auto end_pfn = rses.find(']', beg_pfn + 1);
 
-  std::cout << beg_pfn << std::endl;
-  std::cout << end_pfn << std::endl;
-
   std::vector<std::string> pfns;
 
   while(beg_pfn != std::string::npos && end_pfn != std::string::npos){
