@@ -22,6 +22,7 @@ Authors:
 #include "constants.h"
 #include "download-cache.h"
 #include "rucio-download.h"
+#include "download-pipeline.h"
 
 using namespace fastlog;
 
@@ -161,11 +162,10 @@ static int rucio_read(const char *path, char *buffer, size_t size, off_t offset,
     if(not rucio_download_cache.is_cached(cache_path)) {
       fastlog(DEBUG,"File %s @ %s is not cached. Downloading...", did.data(), server_name.data());
 
-      auto return_code = rucio_download_wrapper(tmp_path, cache_path, did);
+//      auto return_code = rucio_download_wrapper(tmp_path, cache_path, did);
+      rucio_download_pipeline.append_new_download(rucio_download_info(cache_path, did));
 
-      if (return_code == FILE_NOT_FOUND){
-        return -ENOENT;
-      }
+      return -ENOENT;
     } else {
       fastlog(DEBUG,"File %s @ %s found in cache!", did.data(), server_name.data());
     }
