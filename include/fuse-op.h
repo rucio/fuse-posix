@@ -176,6 +176,31 @@ struct file_cache {
 };
 file_cache rucio_download_cache;
 
+#define FILE_NOT_FOUND 42
+
+int rucio_download_wrapper(std::string tmp_path, std::string cache_path, std::string did, FILE* file){
+  //TODO: using rucio download directly, prevents from being able to connect to multiple rucio servers at once
+
+  std::string command = "rucio download --dir " + tmp_path + " " + did;
+  system(command.data());
+
+  fastlog(DEBUG,"Checking downloaded file...");
+  file = fopen(tmp_path.data(), "rb");
+
+  if(not file){
+    fastlog(ERROR, "Failed file download! Passing over...");
+    return FILE_NOT_FOUND;
+  } else {
+    fastlog(DEBUG, "Download OK! Renaming temporary file...");
+    std::rename(tmp_path.data(), cache_path.data());
+  }
+
+  fastlog(DEBUG,"Adding to cache file downloaded at %s.", cache_path.data());
+  rucio_download_cache.add_file(cache_path, file);
+
+  return 0;
+}
+
 static int rucio_read(const char *path, char *buffer, size_t size, off_t offset, struct fuse_file_info *fi)
 {
   fastlog(DEBUG,"rucio_read called");
@@ -186,26 +211,18 @@ static int rucio_read(const char *path, char *buffer, size_t size, off_t offset,
     auto did = get_did(path);
     std::string cache_root = rucio_cache_path + "/" + server_name;
     std::string cache_path = cache_root + "/" + did;
+    std::string tmp_path = cache_path + ".download";
 
     FILE* file = nullptr;
 
     if(not rucio_download_cache.is_cached(cache_path)) {
-      //TODO: using rucio download directly, prevents from being able to connect to multiple rucio servers at once
-
       fastlog(DEBUG,"File %s @ %s is not cached. Downloading...", did.data(), server_name.data());
-      std::string command = "rucio download --dir " + cache_root + " " + did;
-      system(command.data());
 
-      fastlog(DEBUG,"Checking downloaded file...");
-      file = fopen(cache_path.data(), "rb");
+      auto return_code = rucio_download_wrapper(tmp_path, cache_path, did, file);
 
-      if(not file){
-        fastlog(ERROR, "Failed file download! Passing over...");
+      if (return_code == FILE_NOT_FOUND){
         return -ENOENT;
       }
-
-      fastlog(DEBUG,"File downloaded at %s and added to cache.", cache_path.data());
-      rucio_download_cache.add_file(cache_path, file);
     } else {
       fastlog(DEBUG,"File %s @ %s found in cache!", did.data(), server_name.data());
     }
