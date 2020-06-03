@@ -5,8 +5,8 @@ Authors:
 - Vivek Nigam <viveknigam.nigam3@gmail.com>, 2020
 */
 
-#ifndef RUCIO_FUSE_FUSE_OP_H
-#define RUCIO_FUSE_FUSE_OP_H
+#ifndef RUCIO_FUSE_POSIX_OP_H
+#define RUCIO_FUSE_POSIX_OP_H
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -239,4 +239,4 @@ static int rucio_read(const char *path, char *buffer, size_t size, off_t offset,
   return -1;
 }
 
-#endif //RUCIO_FUSE_FUSE_OP_H
+#endif //RUCIO_FUSE_POSIX_OP_H
