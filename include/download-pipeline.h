@@ -26,21 +26,21 @@ struct rucio_downloader : public ELWD_Middle_Stage_I<rucio_download_info, rucio_
     }
 
     rucio_download_info* process_input(rucio_download_info* input) final{
-      fastlog(DEBUG, "Downloading did %s in %s.", input->fdid, input->ftmp_path);
+      fastlog(DEBUG, "Downloading did %s in %s.", input->fdid.data(), input->ftmp_path.data());
       return rucio_download_wrapper(*input);
     }
 
     void handle_output(rucio_download_info* output) final{
       if (output->fdownloaded){
-        fastlog(DEBUG, "Did %s downloaded in %s!", output->fdid, output->fcache_path);
+        fastlog(DEBUG, "Did %s downloaded in %s!", output->fdid.data(), output->fcache_path.data());
         fOutputQ->append(*output);
       } else {
-        fastlog(ERROR, "Did %s download failed!", output->fdid);
+        fastlog(ERROR, "Did %s download failed!", output->fdid.data());
         if(output->freturn_code != MAX_ATTEMPTS){
-          fastlog(INFO,"Trying again did %s download in %s.", output->fdid, output->fcache_path);
+          fastlog(INFO,"Trying again did %s download in %s.", output->fdid.data(), output->fcache_path.data());
           fInputQ->append(*output);
         } else {
-          fastlog(ERROR, "Did %s maximum download attempts reached. Aborting!", output->fdid);
+          fastlog(ERROR, "Did %s maximum download attempts reached. Aborting!", output->fdid.data());
           fOutputQ->append(*output);
         }
       }
@@ -49,14 +49,14 @@ struct rucio_downloader : public ELWD_Middle_Stage_I<rucio_download_info, rucio_
 
 // This thread picks from the input queue and does nothing but writing to the terminal!
 struct rucio_notifier : public ELWD_Ending_Stage_I<rucio_download_info, DummyT>{
-    rucio_notifier(ELWD_Safe_Queue<rucio_download_info>* queue) : ELWD_Ending_Stage_I(0,queue){}
+    explicit rucio_notifier(ELWD_Safe_Queue<rucio_download_info>* queue) : ELWD_Ending_Stage_I(0,queue){}
 
     rucio_download_info* get_input() final{
       return new rucio_download_info(fInputQ->poll_and_pinch());
     }
 
     DummyT* process_input(rucio_download_info* input) final{
-      fastlog((input->fdownloaded)?INFO:ERROR, "%s", input->print());
+      fastlog((input->fdownloaded)?INFO:ERROR, "%s", input->print().data());
       //TODO: notify to the GUI the download status...
       return nullptr;
     }
@@ -84,8 +84,10 @@ struct rucio_pipeline{
       pipeline.stop();
     }
 
-    void append_new_download(rucio_download_info info){
-      toDownload.append(std::move(info));
+    bool append_new_download(const rucio_download_info& info){
+      //TODO: avoid appending multiple times the same DiD
+      toDownload.append(info);
+      return true;
     }
 };
 
