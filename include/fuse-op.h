@@ -18,7 +18,10 @@ Authors:
 #include <string.h>
 #include <iostream>
 #include <fastlog.h>
+
 #include "constants.h"
+#include "download-cache.h"
+#include "rucio-download.h"
 
 using namespace fastlog;
 
@@ -143,64 +146,6 @@ static int rucio_readdir(const char *path, void *buffer, fuse_fill_dir_t filler,
   return 0;
 }
 
-struct file_cache {
-    std::unordered_map<std::string, FILE*> cache;
-
-    file_cache(){
-      //TODO: here we can populate the cache at startup parsing all files in the cache root.
-    }
-
-    ~file_cache(){
-      for(auto &file : cache){
-        fclose(file.second);
-      }
-    }
-
-    bool is_cached(std::string key){
-      return cache.find(key) != cache.end();
-    }
-
-    FILE* get_file(std::string key){
-      return (is_cached(key))?cache[key]:nullptr;
-    }
-
-    bool add_file(std::string key, FILE* file){
-      cache[key] = file;
-      return true;
-    }
-
-    bool add_file(std::string key){
-      cache[key] = fopen(key.data(), "rb");
-      return true;
-    }
-};
-file_cache rucio_download_cache;
-
-#define FILE_NOT_FOUND 42
-
-int rucio_download_wrapper(std::string tmp_path, std::string cache_path, std::string did, FILE* file){
-  //TODO: using rucio download directly, prevents from being able to connect to multiple rucio servers at once
-
-  std::string command = "rucio download --dir " + tmp_path + " " + did;
-  system(command.data());
-
-  fastlog(DEBUG,"Checking downloaded file...");
-  file = fopen(tmp_path.data(), "rb");
-
-  if(not file){
-    fastlog(ERROR, "Failed file download! Passing over...");
-    return FILE_NOT_FOUND;
-  } else {
-    fastlog(DEBUG, "Download OK! Renaming temporary file...");
-    std::rename(tmp_path.data(), cache_path.data());
-  }
-
-  fastlog(DEBUG,"Adding to cache file downloaded at %s.", cache_path.data());
-  rucio_download_cache.add_file(cache_path, file);
-
-  return 0;
-}
-
 static int rucio_read(const char *path, char *buffer, size_t size, off_t offset, struct fuse_file_info *fi)
 {
   fastlog(DEBUG,"rucio_read called");
@@ -213,12 +158,10 @@ static int rucio_read(const char *path, char *buffer, size_t size, off_t offset,
     std::string cache_path = cache_root + "/" + did;
     std::string tmp_path = cache_path + ".download";
 
-    FILE* file = nullptr;
-
     if(not rucio_download_cache.is_cached(cache_path)) {
       fastlog(DEBUG,"File %s @ %s is not cached. Downloading...", did.data(), server_name.data());
 
-      auto return_code = rucio_download_wrapper(tmp_path, cache_path, did, file);
+      auto return_code = rucio_download_wrapper(tmp_path, cache_path, did);
 
       if (return_code == FILE_NOT_FOUND){
         return -ENOENT;
@@ -228,7 +171,7 @@ static int rucio_read(const char *path, char *buffer, size_t size, off_t offset,
     }
 
     fastlog(DEBUG,"Getting file...");
-    file = rucio_download_cache.get_file(cache_path);
+    FILE* file = rucio_download_cache.get_file(cache_path);
 
     fastlog(DEBUG,"Seeking file...");
     fseek(file, offset, SEEK_SET);
