@@ -9,3 +9,7 @@
 [submodule "submodules/fastlog"]
     path = submodules/fastlog
     url = https://github.com/Elemento-Modular-Cloud/elemento-fastlog.git
+
+[submodule "submodules/warpdrive"]
+    path = submodules/warpdrive
+    url = https://github.com/Elemento-Modular-Cloud/elemento-warpdrive.git
