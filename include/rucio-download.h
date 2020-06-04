@@ -26,7 +26,8 @@ int rucio_download_wrapper(const std::string& did, const std::string& scope){
   system(command.data());
 
   fastlog(DEBUG,"Checking downloaded file...");
-  FILE* file = fopen(cache_path.data(), "rb");
+  auto file_path = cache_path + "/" + did;
+  FILE* file = fopen(file_path.data(), "rb");
 
   if(not file){
     fastlog(ERROR, "Failed file download! Passing over...");
@@ -35,8 +36,8 @@ int rucio_download_wrapper(const std::string& did, const std::string& scope){
     fastlog(DEBUG, "Download OK! Renaming temporary file...");
   }
 
-  fastlog(DEBUG,"Adding to cache file downloaded at %s.", cache_path.data());
-  rucio_download_cache.add_file(cache_path, file);
+  fastlog(DEBUG,"Adding to cache file downloaded at %s.", file_path.data());
+  rucio_download_cache.add_file(file_path, file);
 
   return 0;
 }
