@@ -15,11 +15,12 @@ using namespace fastlog;
 #define MAX_ATTEMPTS 3
 #define TOO_MANY_ATTEMPTS 314
 
-int rucio_download_wrapper(const std::string& did, const std::string& scope){
+int rucio_download_wrapper(const std::string& scope, const std::string& name){
   //TODO: using rucio download directly, prevents from being able to connect to multiple rucio servers at once
 
   auto cache_path = rucio_cache_path + "/" + scope;
-  auto file_path = cache_path + "/" + did;
+  auto file_path = cache_path + "/" + scope + "/" + name;
+
   FILE* file = fopen(file_path.data(), "rb");
 
   if (file){
@@ -30,7 +31,8 @@ int rucio_download_wrapper(const std::string& did, const std::string& scope){
 
   fastlog(DEBUG,"Downloading at %s...",cache_path.data());
 
-  std::string command = "rucio --verbose download --dir " + cache_path  + " " + did;
+  std::string did = scope + ":" + name;
+  std::string command = "rucio --verbose download --dir " + cache_path + " " + did;
   system(command.data());
 
   fastlog(DEBUG,"Checking downloaded file...");
@@ -77,7 +79,7 @@ struct rucio_download_info{
       return fdid.substr(fpos+1);
     }
 
-    std::string full_path(){
+    std::string full_cache_path(){
       return rucio_cache_path + "/" + this->scopename() + "/" + this->filename();
     }
 };
@@ -85,7 +87,7 @@ struct rucio_download_info{
 rucio_download_info* rucio_download_wrapper(rucio_download_info& info){
   if (info.fattempt <= MAX_ATTEMPTS) {
     info.fattempt++;
-    info.freturn_code = rucio_download_wrapper(info.fdid, info.scopename());
+    info.freturn_code = rucio_download_wrapper(info.scopename(), info.filename());
     info.fdownloaded = (info.freturn_code != FILE_NOT_FOUND);
   } else {
     info.freturn_code = TOO_MANY_ATTEMPTS;

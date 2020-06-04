@@ -26,18 +26,18 @@ struct rucio_downloader : public ELWD_Middle_Stage_I<rucio_download_info, rucio_
     }
 
     rucio_download_info* process_input(rucio_download_info* input) final{
-      fastlog(DEBUG, "Downloading did %s in %s.", input->fdid.data(), input->full_path().data());
+      fastlog(DEBUG, "Downloading did %s in %s.", input->fdid.data(), input->full_cache_path().data());
       return rucio_download_wrapper(*input);
     }
 
     void handle_output(rucio_download_info* output) final{
       if (output->fdownloaded){
-        fastlog(DEBUG, "Did %s downloaded in %s!", output->fdid.data(), output->full_path().data());
+        fastlog(DEBUG, "Did %s downloaded in %s!", output->fdid.data(), output->full_cache_path().data());
         fOutputQ->append(*output);
       } else {
         fastlog(ERROR, "Did %s download failed!", output->fdid.data());
         if(output->freturn_code != MAX_ATTEMPTS){
-          fastlog(INFO,"Trying again did %s download in %s.", output->fdid.data(), output->full_path().data());
+          fastlog(INFO,"Trying again did %s download in %s.", output->fdid.data(), output->full_cache_path().data());
           fInputQ->append(*output);
         } else {
           fastlog(ERROR, "Did %s maximum download attempts reached. Aborting!", output->fdid.data());

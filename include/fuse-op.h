@@ -161,7 +161,6 @@ static int rucio_read(const char *path, char *buffer, size_t size, off_t offset,
     if(not rucio_download_cache.is_cached(cache_path)) {
       fastlog(DEBUG,"File %s @ %s is not cached. Downloading...", did.data(), server_name.data());
 
-//      auto return_code = rucio_download_wrapper(did);
       rucio_download_pipeline.append_new_download(rucio_download_info(did));
 
       return -ENOENT;
