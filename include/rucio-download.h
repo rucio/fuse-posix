@@ -19,6 +19,14 @@ int rucio_download_wrapper(const std::string& did, const std::string& scope){
   //TODO: using rucio download directly, prevents from being able to connect to multiple rucio servers at once
 
   auto cache_path = rucio_cache_path + "/" + scope;
+  auto file_path = cache_path + "/" + did;
+  FILE* file = fopen(file_path.data(), "rb");
+
+  if (file){
+    fclose(file);
+    fastlog(INFO,"File %s already there!",file_path.data());
+    return 0;
+  }
 
   fastlog(DEBUG,"Downloading at %s...",cache_path.data());
 
@@ -26,8 +34,7 @@ int rucio_download_wrapper(const std::string& did, const std::string& scope){
   system(command.data());
 
   fastlog(DEBUG,"Checking downloaded file...");
-  auto file_path = cache_path + "/" + did;
-  FILE* file = fopen(file_path.data(), "rb");
+  file = fopen(file_path.data(), "rb");
 
   if(not file){
     fastlog(ERROR, "Failed file download! Passing over...");
