@@ -17,7 +17,7 @@ using namespace fastlog;
 int rucio_download_wrapper(const std::string& tmp_path, const std::string& cache_path, const std::string& did){
   //TODO: using rucio download directly, prevents from being able to connect to multiple rucio servers at once
 
-  std::string command = "rucio download --dir " + tmp_path + " " + did;
+  std::string command = "rucio download --verbose --dir " + tmp_path + " " + did;
   system(command.data());
 
   fastlog(DEBUG,"Checking downloaded file...");
