@@ -23,8 +23,8 @@ int rucio_download_wrapper(const std::string& did, const std::string& scope){
   FILE* file = fopen(file_path.data(), "rb");
 
   if (file){
-    fclose(file);
     fastlog(INFO,"File %s already there!",file_path.data());
+    rucio_download_cache.add_file(file_path, file);
     return 0;
   }
 
