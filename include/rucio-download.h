@@ -14,22 +14,24 @@ using namespace fastlog;
 #define MAX_ATTEMPTS 3
 #define TOO_MANY_ATTEMPTS 314
 
-int rucio_download_wrapper(const std::string& tmp_path, const std::string& cache_path, const std::string& did){
+int rucio_download_wrapper(const std::string& did, const std::string& scope){
   //TODO: using rucio download directly, prevents from being able to connect to multiple rucio servers at once
-  fastlog(DEBUG,"Downloading at %s...",tmp_path.data());
-  
-  std::string command = "rucio --verbose download --dir " + tmp_path + " " + did;
+
+  auto cache_path = rucio_cache_path + "/" + scope;
+
+  fastlog(DEBUG,"Downloading at %s...",cache_path.data());
+
+  std::string command = "rucio --verbose download --dir " + cache_path  + " " + did;
   system(command.data());
 
   fastlog(DEBUG,"Checking downloaded file...");
-  FILE* file = fopen(tmp_path.data(), "rb");
+  FILE* file = fopen(cache_path.data(), "rb");
 
   if(not file){
     fastlog(ERROR, "Failed file download! Passing over...");
     return FILE_NOT_FOUND;
   } else {
     fastlog(DEBUG, "Download OK! Renaming temporary file...");
-    std::rename(tmp_path.data(), cache_path.data());
   }
 
   fastlog(DEBUG,"Adding to cache file downloaded at %s.", cache_path.data());
@@ -39,29 +41,42 @@ int rucio_download_wrapper(const std::string& tmp_path, const std::string& cache
 }
 
 struct rucio_download_info{
-    std::string ftmp_path, fcache_path, fdid;
+    std::string fdid;
+    std::string::size_type fpos;
     int freturn_code = 0;
     uint fattempt = 0;
     bool fdownloaded = false;
 
-    rucio_download_info(const std::string& cache_path, std::string did) :
-      fcache_path(cache_path),
-      ftmp_path(cache_path+".download"),
-      fdid(std::move(did)){}
+    explicit rucio_download_info(std::string did) :
+      fdid(std::move(did)){
+      fpos = did.find_first_of(':');
+    }
 
     std::string print(){
       if(fdownloaded){
-        return "Did " + fdid + " downloaded at " + fcache_path;
+        return "Did " + fdid + " downloaded at " + rucio_cache_path + "/" + fdid ;
       } else {
         return "Did " + fdid + " download FAILED!";
       }
+    }
+
+    std::string scopename(){
+      return fdid.substr(0, fpos);
+    }
+
+    std::string filename(){
+      return fdid.substr(fpos, fdid.size());
+    }
+
+    std::string full_path(){
+      return rucio_cache_path + "/" + this->scopename() + "/" + this->filename();
     }
 };
 
 rucio_download_info* rucio_download_wrapper(rucio_download_info& info){
   if (info.fattempt <= MAX_ATTEMPTS) {
     info.fattempt++;
-    info.freturn_code = rucio_download_wrapper(info.ftmp_path, info.fcache_path, info.fdid);
+    info.freturn_code = rucio_download_wrapper(info.fdid, info.scopename());
     info.fdownloaded = (info.freturn_code != FILE_NOT_FOUND);
   } else {
     info.freturn_code = TOO_MANY_ATTEMPTS;
