@@ -7,6 +7,7 @@
 
 #include <fastlog.h>
 #include "download-cache.h"
+#include "constants.h"
 
 using namespace fastlog;
 
@@ -44,12 +45,12 @@ struct rucio_download_info{
     std::string fdid;
     std::string::size_type fpos;
     int freturn_code = 0;
-    uint fattempt = 0;
+    unsigned int fattempt = 0;
     bool fdownloaded = false;
 
     explicit rucio_download_info(std::string did) :
       fdid(std::move(did)){
-      fpos = did.find_first_of(':');
+      fpos = fdid.find_first_of(':');
     }
 
     std::string print(){
@@ -65,7 +66,7 @@ struct rucio_download_info{
     }
 
     std::string filename(){
-      return fdid.substr(fpos, fdid.size());
+      return fdid.substr(fpos+1);
     }
 
     std::string full_path(){

@@ -5,6 +5,8 @@
 #ifndef RUCIO_FUSE_POSIX_DOWNLOAD_CACHE_H
 #define RUCIO_FUSE_POSIX_DOWNLOAD_CACHE_H
 
+#include <unordered_map>
+
 struct file_cache {
     std::unordered_map<std::string, FILE*> cache;
 
