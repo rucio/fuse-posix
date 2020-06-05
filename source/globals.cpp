@@ -21,6 +21,10 @@ connection_parameters* get_server_params(std::string server_name){
   return (key_exists(server_name)) ? rucio_server_map[server_name].get_params() : nullptr;
 }
 
+std::string* get_server_config(std::string server_name){
+  return (key_exists(server_name)) ? &(rucio_server_map[server_name].config_file_path) : nullptr;
+}
+
 token_info* get_server_token(std::string server_name){
   return (key_exists(server_name)) ? rucio_server_map[server_name].get_token() : nullptr;
 }
@@ -102,9 +106,11 @@ void parse_settings_cfg(){
         fastlog(INFO, "Parsing settings file: %s", file_name.data());
 
         auto srv = rucio_server();
+        srv.config_file_path = ruciofs_settings_root+"/"+file_name;
+        auto srv_name = (file_name.substr(0, file_name.find(".cfg"))).data();
 
         std::ifstream settings_file;
-        settings_file.open((ruciofs_settings_root+"/"+file_name).data());
+        settings_file.open(srv.config_file_path.data());
         std::string line;
         while (getline(settings_file, line)) {
           if (line.rfind("rucio_host", 0) == 0) {
@@ -130,14 +136,14 @@ void parse_settings_cfg(){
                       "\t\tusername = %s\n"
                       "\t\tpassword = %s",
                 i_srv++,
-                file_name.data(),
+                srv_name,
                 srv.rucio_conn_params.server_url.data(),
                 srv.rucio_conn_params.account_name.data(),
                 srv.rucio_conn_params.user_name.data(),
                 srv.rucio_conn_params.password.data());
 
-//        rucio_server_names.emplace_back(srv_name);
-//        rucio_server_map.emplace(std::make_pair(srv_name,srv));
+        rucio_server_names.emplace_back(srv_name);
+        rucio_server_map.emplace(std::make_pair(srv_name,srv));
       }
       inode = readdir(dp);
     }
