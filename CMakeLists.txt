@@ -4,8 +4,8 @@ cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
 project(rucio-fuse-posix CXX)
 
 set (CMAKE_BUILD_TYPE DEBUG)
-set (CMAKE_CXX_STANDARD 11)
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set (CMAKE_CXX_STANDARD 17)
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread")
 set (CMAKE_C_FLAGS "-O0 -ggdb")
 set (CMAKE_C_FLAGS_DEBUG "-O0 -ggdb")
 set (CMAKE_C_FLAGS_RELEASE "-O0 -ggdb")
@@ -29,7 +29,14 @@ find_package(CURL REQUIRED)
 include_directories(${CURL_INCLUDE_DIR})
 
 add_subdirectory(submodules)
-include_directories(include source submodules/SHA1 submodules/nlohmann_json/single_include/nlohmann)
+include_directories(include
+                    source
+                    submodules/SHA1
+                    submodules/nlohmann_json/single_include/nlohmann
+                    submodules/fastlog
+                    submodules/warpdrive/include/interfaces
+                    submodules/warpdrive/include
+                    )
 
 add_library(globals
         include/globals.h
@@ -45,7 +52,7 @@ add_library(utils
 add_library(curl-wrapper
         include/curl-REST.h
         source/curl-REST.cpp
-        )
+        include/rucio-download.h include/download-cache.h)
 target_link_libraries(curl-wrapper utils fastlog ${CURL_LIBRARIES})
 
 
@@ -58,12 +65,12 @@ target_link_libraries(rucio-rest-api-wrapper curl-wrapper utils globals fastlog)
 add_library(rucio-fuse
         include/fuse-op.h
         source/fuse-op.cpp
+        include/download-pipeline.h
         )
-target_link_libraries(rucio-fuse utils rucio-rest-api-wrapper fastlog ${FUSE_LIBRARIES})
+target_link_libraries(rucio-fuse utils rucio-rest-api-wrapper fastlog warpdrive ${FUSE_LIBRARIES})
 
 add_executable(rucio-fuse-main
-        main.cxx
-        )
+        main.cxx)
 target_link_libraries(rucio-fuse-main rucio-fuse globals)
 
 add_subdirectory(tests)

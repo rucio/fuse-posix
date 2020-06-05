@@ -1,7 +1,6 @@
 add_executable(
         test_curl-REST
-        test_curl-REST.cpp
-)
+        test_curl-REST.cpp)
 target_link_libraries(test_curl-REST PUBLIC curl-wrapper)
 
 add_executable(
@@ -15,3 +14,9 @@ add_executable(
         test_REST-API.cpp
 )
 target_link_libraries(test_REST-API PUBLIC rucio-rest-api-wrapper globals)
+
+add_executable(
+        test_rucio_download_info
+        test_rucio_download_info.cpp
+)
+target_link_libraries(test_rucio_download_info PUBLIC rucio-fuse globals)

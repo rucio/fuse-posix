@@ -5,8 +5,8 @@ Authors:
 - Vivek Nigam <viveknigam.nigam3@gmail.com>, 2020
 */
 
-#ifndef RUCIO_FUSE_FUSE_OP_H
-#define RUCIO_FUSE_FUSE_OP_H
+#ifndef RUCIO_FUSE_POSIX_OP_H
+#define RUCIO_FUSE_POSIX_OP_H
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -18,7 +18,11 @@ Authors:
 #include <string.h>
 #include <iostream>
 #include <fastlog.h>
+
 #include "constants.h"
+#include "download-cache.h"
+#include "rucio-download.h"
+#include "download-pipeline.h"
 
 using namespace fastlog;
 
@@ -143,39 +147,6 @@ static int rucio_readdir(const char *path, void *buffer, fuse_fill_dir_t filler,
   return 0;
 }
 
-struct file_cache {
-    std::unordered_map<std::string, FILE*> cache;
-
-    file_cache(){
-      //TODO: here we can populate the cache at startup parsing all files in the cache root.
-    }
-
-    ~file_cache(){
-      for(auto &file : cache){
-        fclose(file.second);
-      }
-    }
-
-    bool is_cached(std::string key){
-      return cache.find(key) != cache.end();
-    }
-
-    FILE* get_file(std::string key){
-      return (is_cached(key))?cache[key]:nullptr;
-    }
-
-    bool add_file(std::string key, FILE* file){
-      cache[key] = file;
-      return true;
-    }
-
-    bool add_file(std::string key){
-      cache[key] = fopen(key.data(), "rb");
-      return true;
-    }
-};
-file_cache rucio_download_cache;
-
 static int rucio_read(const char *path, char *buffer, size_t size, off_t offset, struct fuse_file_info *fi)
 {
   fastlog(DEBUG,"rucio_read called");
@@ -187,31 +158,18 @@ static int rucio_read(const char *path, char *buffer, size_t size, off_t offset,
     std::string cache_root = rucio_cache_path + "/" + server_name;
     std::string cache_path = cache_root + "/" + did;
 
-    FILE* file = nullptr;
-
     if(not rucio_download_cache.is_cached(cache_path)) {
-      //TODO: using rucio download directly, prevents from being able to connect to multiple rucio servers at once
-
       fastlog(DEBUG,"File %s @ %s is not cached. Downloading...", did.data(), server_name.data());
-      std::string command = "rucio download --dir " + cache_root + " " + did;
-      system(command.data());
 
-      fastlog(DEBUG,"Checking downloaded file...");
-      file = fopen(cache_path.data(), "rb");
+      rucio_download_pipeline.append_new_download(rucio_download_info(did));
 
-      if(not file){
-        fastlog(ERROR, "Failed file download! Passing over...");
-        return -ENOENT;
-      }
-
-      fastlog(DEBUG,"File downloaded at %s and added to cache.", cache_path.data());
-      rucio_download_cache.add_file(cache_path, file);
+      return -ENOENT;
     } else {
       fastlog(DEBUG,"File %s @ %s found in cache!", did.data(), server_name.data());
     }
 
     fastlog(DEBUG,"Getting file...");
-    file = rucio_download_cache.get_file(cache_path);
+    FILE* file = rucio_download_cache.get_file(cache_path);
 
     fastlog(DEBUG,"Seeking file...");
     fseek(file, offset, SEEK_SET);
@@ -222,4 +180,4 @@ static int rucio_read(const char *path, char *buffer, size_t size, off_t offset,
   return -1;
 }
 
-#endif //RUCIO_FUSE_FUSE_OP_H
+#endif //RUCIO_FUSE_POSIX_OP_H
