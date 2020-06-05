@@ -69,6 +69,8 @@ connection_parameters* get_server_params(std::string server_name);
 
 token_info* get_server_token(std::string server_name);
 
-void parse_settings();
+void parse_settings_json();
+
+void parse_settings_cfg();
 
 #endif //RUCIO_FUSE_CONNNECTION_PARAMETERS_H

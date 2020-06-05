@@ -5,7 +5,7 @@ project(rucio-fuse-posix CXX)
 
 set (CMAKE_BUILD_TYPE DEBUG)
 set (CMAKE_CXX_STANDARD 17)
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -pthread")
 set (CMAKE_C_FLAGS "-O0 -ggdb")
 set (CMAKE_C_FLAGS_DEBUG "-O0 -ggdb")
 set (CMAKE_C_FLAGS_RELEASE "-O0 -ggdb")
