@@ -8,6 +8,7 @@
 #include <fastlog.h>
 #include <REST-API.h>
 #include <dirent.h>
+#include <algorithm>
 
 std::unordered_map<std::string, rucio_server> rucio_server_map = {};
 std::vector<std::string> rucio_server_names;
@@ -72,6 +73,11 @@ void parse_settings_json(){
   }
 }
 
+std::string get_cfg_value(std::string& line){
+  line.erase(std::remove(line.begin(), line.end(), ' '), line.end());
+  return line.substr(line.find("=") + 1);
+}
+
 void parse_settings_cfg(){
   std::string ruciofs_settings_root;
 
@@ -79,7 +85,7 @@ void parse_settings_cfg(){
     ruciofs_settings_root = getenv("RUCIOFS_SETTINGS_FILES_ROOT");
   } else ruciofs_settings_root = "./rucio-settings";
 
-  fastlog(INFO,"\nSettings files contained at: %s", ruciofs_settings_root.data());
+  fastlog(INFO,"Settings files contained at: %s", ruciofs_settings_root.data());
 
   struct dirent *inode = nullptr;
   DIR *dp = opendir(ruciofs_settings_root.data());
@@ -102,24 +108,23 @@ void parse_settings_cfg(){
         std::string line;
         while (getline(settings_file, line)) {
           if (line.rfind("rucio_host", 0) == 0) {
-            srv.rucio_conn_params.server_url = line.substr(line.find("rucio_host = "));
+            srv.rucio_conn_params.server_url = get_cfg_value(line);
           }
 
           if (line.rfind("username", 0) == 0) {
-            srv.rucio_conn_params.user_name = line.substr(line.find("username = "));
+            srv.rucio_conn_params.user_name = get_cfg_value(line);
           }
 
           if (line.rfind("password", 0) == 0) {
-            srv.rucio_conn_params.password = line.substr(line.find("password = "));
+            srv.rucio_conn_params.password = get_cfg_value(line);
           }
 
           if (line.rfind("account", 0) == 0) {
-            srv.rucio_conn_params.account_name = line.substr(line.find("account = "));
+            srv.rucio_conn_params.account_name = get_cfg_value(line);
           }
         }
 
-        fastlog(INFO, "\n"
-                      "\tServer %d -> %s:\n"
+        fastlog(INFO, "\tServer %d -> %s:\n"
                       "\t\turl = %s\n"
                       "\t\taccount = %s\n"
                       "\t\tusername = %s\n"
