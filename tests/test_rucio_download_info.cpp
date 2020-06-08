@@ -2,11 +2,12 @@
 // Created by Gabriele Gaetano Fronzé on 2020-06-04.
 //
 
+#include <globals.h>
 #include "rucio-download.h"
 
 int main(){
-
-  auto info = rucio_download_info("scope:filename");
+  parse_settings_cfg();
+  auto info = rucio_download_info("scope:filename", get_server_config("test"));
   printf("scope: %s - filename: %s\n",info.scopename().data(),info.filename().data());
 
   return 0;
