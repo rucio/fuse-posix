@@ -13,19 +13,19 @@
 std::unordered_map<std::string, rucio_server> rucio_server_map = {};
 std::vector<std::string> rucio_server_names;
 
-bool key_exists(std::string key){
+bool key_exists(const std::string& key){
   return rucio_server_map.count(key)>0;
 }
 
-connection_parameters* get_server_params(std::string server_name){
+connection_parameters* get_server_params(const std::string& server_name){
   return (key_exists(server_name)) ? rucio_server_map[server_name].get_params() : nullptr;
 }
 
-std::string* get_server_config(std::string server_name){
+std::string* get_server_config(const std::string& server_name){
   return (key_exists(server_name)) ? &(rucio_server_map[server_name].config_file_path) : nullptr;
 }
 
-token_info* get_server_token(std::string server_name){
+token_info* get_server_token(const std::string& server_name){
   return (key_exists(server_name)) ? rucio_server_map[server_name].get_token() : nullptr;
 }
 
@@ -79,7 +79,7 @@ void parse_settings_json(){
 
 std::string get_cfg_value(std::string& line){
   line.erase(std::remove(line.begin(), line.end(), ' '), line.end());
-  return line.substr(line.find("=") + 1);
+  return line.substr(line.find('=') + 1);
 }
 
 void parse_settings_cfg(){
@@ -106,7 +106,7 @@ void parse_settings_cfg(){
         fastlog(INFO, "Parsing settings file: %s", file_name.data());
 
         auto srv = rucio_server();
-        srv.config_file_path = ruciofs_settings_root+"/"+file_name;
+        srv.config_file_path = ruciofs_settings_root + "/" + file_name;
         auto srv_name = (file_name.substr(0, file_name.find(".cfg"))).data();
 
         std::ifstream settings_file;
