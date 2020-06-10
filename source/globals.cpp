@@ -107,7 +107,7 @@ void parse_settings_cfg(){
 
         auto srv = rucio_server();
         srv.config_file_path = ruciofs_settings_root + "/" + file_name;
-        auto srv_name = (file_name.substr(0, file_name.find(".cfg"))).data();
+        auto srv_name = file_name.substr(0, file_name.find(".cfg"));
 
         std::ifstream settings_file;
         settings_file.open(srv.config_file_path.data());
@@ -136,7 +136,7 @@ void parse_settings_cfg(){
                       "\t\tusername = %s\n"
                       "\t\tpassword = %s",
                 i_srv++,
-                srv_name,
+                srv_name.data(),
                 srv.rucio_conn_params.server_url.data(),
                 srv.rucio_conn_params.account_name.data(),
                 srv.rucio_conn_params.user_name.data(),
