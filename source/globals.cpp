@@ -146,11 +146,11 @@ void parse_settings_cfg(){
                 srv.rucio_conn_params.user_name.data(),
                 srv.rucio_conn_params.password.data());
 
-        rucio_server_names.emplace_back(srv_name);
         rucio_server_map.emplace(std::make_pair(srv_name,srv));
-
         if(not rucio_validate_server(srv_name)){
           drop_server(srv_name);
+        } else {
+          rucio_server_names.emplace_back(srv_name);
         }
       }
       inode = readdir(dp);
