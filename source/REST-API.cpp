@@ -20,14 +20,30 @@ bool rucio_ping(const std::string& server_url){
   return curl_res.res == CURLE_OK;
 }
 
-void rucio_get_auth_token_userpass(const std::string& short_server_name){
+bool rucio_validate_server(const std::string& short_server_name){
+  auto conn_params = get_server_params(short_server_name);
+
+  if(not rucio_ping(conn_params->server_url)){
+    fastlog(ERROR, "Server %s unreachable via network. Dropping.", conn_params->server_url.data());
+    return false;
+  }
+
+  if(rucio_get_auth_token_userpass(conn_params->server_url) != TOKEN_OK){
+    fastlog(ERROR, "Cannot validate server %s settings. Dropping.", conn_params->server_url.data());
+    return false;
+  }
+
+  return true;
+}
+
+int rucio_get_auth_token_userpass(const std::string& short_server_name){
   struct curl_slist *headers = nullptr;
 
   auto conn_params = get_server_params(short_server_name);
 
   if(not conn_params){
     fastlog(ERROR,"Server %s not found. Aborting!", short_server_name.data());
-    return;
+    return SERVER_NOT_LOADED;
   }
 
   auto xRucioAccount = "X-Rucio-Account: "+conn_params->account_name;
@@ -46,6 +62,12 @@ void rucio_get_auth_token_userpass(const std::string& short_server_name){
   std::string expire_time_string;
 
   for(auto& line : curl_res.payload){
+    if (line.find(rucio_token_exception_prefix) != std::string::npos) {
+      fastlog(ERROR, "Wrong authentication parameters for server %s! Disabling server.",short_server_name.data());
+      drop_server(short_server_name);
+      return CANNOT_AUTH;
+    }
+
     if (line.find(rucio_token_prefix) != std::string::npos) {
       token = line;
       token.erase(0, rucio_token_prefix_size);
@@ -60,8 +82,8 @@ void rucio_get_auth_token_userpass(const std::string& short_server_name){
   auto token_info = get_server_token(short_server_name);
 
   if(not token_info){
-    fastlog(ERROR,"Server %s not found. Aborting!", short_server_name.data());
-    return;
+    fastlog(ERROR,"Server %s didn't provide token. Aborting!", short_server_name.data());
+    return TOKEN_ERROR;
   }
 
   token_info->conn_token = (strlen(token.c_str())>0) ? token : rucio_invalid_token;
@@ -71,6 +93,8 @@ void rucio_get_auth_token_userpass(const std::string& short_server_name){
   char UTC[] = {'U','T','C'};
   token_info->conn_token_exp.tm_zone = UTC;
   token_info->conn_token_exp_epoch = mktime(&token_info->conn_token_exp) - timezone;
+
+  return TOKEN_OK;
 }
 
 bool rucio_is_token_valid(const std::string& short_server_name){

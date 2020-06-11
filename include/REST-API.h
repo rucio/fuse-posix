@@ -12,12 +12,18 @@
 #include <unordered_map>
 #include <fastlog.h>
 
-bool rucio_ping(const std::string& server_url);
+#define TOKEN_OK 0
+#define SERVER_NOT_LOADED 1
+#define CANNOT_AUTH 2
+#define TOKEN_ERROR 3
 
-void rucio_get_auth_token_userpass(const std::string& short_server_name);
+bool rucio_ping(const std::string& server_url);
+bool rucio_validate_server(const std::string& short_server_name);
+
+int rucio_get_auth_token_userpass(const std::string& short_server_name);
+
 bool rucio_is_token_valid(const std::string& short_server_name);
 
-static std::vector<std::string> servers_cache;
 const std::vector<std::string>& rucio_list_servers();
 
 static std::unordered_map<std::string, std::vector<std::string>> scopes_cache;

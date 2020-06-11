@@ -17,6 +17,10 @@ bool key_exists(const std::string& key){
   return rucio_server_map.count(key)>0;
 }
 
+void drop_server(const std::string& server_name){
+  rucio_server_map.erase (rucio_server_map.find(server_name), rucio_server_map.end());
+}
+
 connection_parameters* get_server_params(const std::string& server_name){
   return (key_exists(server_name)) ? rucio_server_map[server_name].get_params() : nullptr;
 }
@@ -144,6 +148,10 @@ void parse_settings_cfg(){
 
         rucio_server_names.emplace_back(srv_name);
         rucio_server_map.emplace(std::make_pair(srv_name,srv));
+
+        if(not rucio_validate_server(srv_name)){
+          drop_server(srv_name);
+        }
       }
       inode = readdir(dp);
     }
