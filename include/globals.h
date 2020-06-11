@@ -14,6 +14,25 @@
 #include <time.h>
 #include <unordered_map>
 #include <vector>
+#include <utility>
+
+enum auth_mode{
+    userpass,
+    x509,
+    none
+};
+
+auth_mode get_auth_mode(const std::string& settings_line){
+  if (settings_line.rfind("userpass", 0) == 0) {
+    return auth_mode::userpass;
+  }
+
+  if (settings_line.rfind("x509", 0) == 0) {
+    return auth_mode::x509;
+  }
+
+  return auth_mode::none;
+}
 
 // Connection parameters struct definition
 // Contains all the parameteres defining how to contact a rucio server
@@ -22,15 +41,18 @@ struct connection_parameters{
   std::string account_name;
   std::string user_name;
   std::string password;
+  auth_mode rucio_auth_mode;
 
   connection_parameters(std::string server_url,
                         std::string account_name,
                         std::string user_name,
-                        std::string password):
+                        std::string password,
+                        const std::string& auth_method_line = "userpass"):
                         server_url(std::move(server_url)),
                         account_name(std::move(account_name)),
                         user_name(std::move(user_name)),
-                        password(std::move(password)){}
+                        password(std::move(password)),
+                        rucio_auth_mode(get_auth_mode(auth_method_line)){}
 };
 
 // Token info struct definition
