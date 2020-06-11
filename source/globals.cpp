@@ -142,8 +142,14 @@ void parse_settings_cfg(){
                 srv.rucio_conn_params.user_name.data(),
                 srv.rucio_conn_params.password.data());
 
-        rucio_server_names.emplace_back(srv_name);
         rucio_server_map.emplace(std::make_pair(srv_name,srv));
+
+        if(not rucio_validate_server(srv_name)){
+          fastlog(ERROR, "Unable to validate server %s. Dropping.", srv_name.data());
+        } else {
+          rucio_server_names.emplace_back(srv_name);
+          fastlog(INFO, "Server %s validated!", srv_name.data());
+        }
       }
       inode = readdir(dp);
     }

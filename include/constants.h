@@ -15,6 +15,7 @@ static const std::string rucio_cache_path = "/ruciofs-cache";
 
 // Token parsing constants
 static const std::string rucio_token_prefix = "X-Rucio-Auth-Token: ";
+static const std::string rucio_token_exception_prefix = "ExceptionMessage:";
 static const size_t rucio_token_prefix_size = strlen(rucio_token_prefix.c_str());
 static const std::string rucio_invalid_token = ">>>---invalid-token---<<<";
 

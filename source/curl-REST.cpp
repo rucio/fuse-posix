@@ -52,7 +52,7 @@ curlRet GET(const std::string& url, const struct curl_slist* headers, bool inclu
   // Check return code to detect issues
   if(ret.res != CURLE_OK)
   {
-      fastlog(ERROR, "curl_easy_perform() failed: %s\n", curl_easy_strerror(ret.res));
+      fastlog(ERROR, "curl_easy_perform() failed: %s", curl_easy_strerror(ret.res));
   }
 
   // Reset headers
