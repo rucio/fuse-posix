@@ -66,8 +66,6 @@ extern std::vector<std::string> rucio_server_names;
 // Utility functions
 bool key_exists(const std::string& key);
 
-void drop_server(const std::string& server_name);
-
 connection_parameters* get_server_params(const std::string& server_name);
 
 std::string* get_server_config(const std::string& server_name);

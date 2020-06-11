@@ -17,11 +17,6 @@ bool key_exists(const std::string& key){
   return rucio_server_map.count(key)>0;
 }
 
-void drop_server(const std::string& server_name){
-  rucio_server_map.erase (rucio_server_map.find(server_name), rucio_server_map.end());
-  rucio_server_names.erase(std::remove(rucio_server_names.begin(), rucio_server_names.end(), server_name), rucio_server_names.end());
-}
-
 connection_parameters* get_server_params(const std::string& server_name){
   return (key_exists(server_name)) ? rucio_server_map[server_name].get_params() : nullptr;
 }
@@ -147,13 +142,12 @@ void parse_settings_cfg(){
                 srv.rucio_conn_params.user_name.data(),
                 srv.rucio_conn_params.password.data());
 
-        rucio_server_names.emplace_back(srv_name);
         rucio_server_map.emplace(std::make_pair(srv_name,srv));
 
         if(not rucio_validate_server(srv_name)){
           fastlog(ERROR, "Unable to validate server %s. Dropping.", srv_name.data());
-          drop_server(srv_name);
         } else {
+          rucio_server_names.emplace_back(srv_name);
           fastlog(INFO, "Server %s validated!", srv_name.data());
         }
       }
