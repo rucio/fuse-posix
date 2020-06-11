@@ -24,12 +24,12 @@ bool rucio_validate_server(const std::string& short_server_name){
   auto conn_params = get_server_params(short_server_name);
 
   if(not rucio_ping(conn_params->server_url)){
-    fastlog(ERROR, "Server %s unreachable via network. Dropping.", conn_params->server_url.data());
+    fastlog(ERROR, "Server %s unreachable via network.", conn_params->server_url.data());
     return false;
   }
 
   if(rucio_get_auth_token_userpass(short_server_name) != TOKEN_OK){
-    fastlog(ERROR, "Cannot validate server %s settings. Dropping.", conn_params->server_url.data());
+    fastlog(ERROR, "Cannot validate server %s auth settings.", conn_params->server_url.data());
     return false;
   }
 
