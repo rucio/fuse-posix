@@ -63,8 +63,7 @@ int rucio_get_auth_token_userpass(const std::string& short_server_name){
 
   for(auto& line : curl_res.payload){
     if (line.find(rucio_token_exception_prefix) != std::string::npos) {
-      fastlog(ERROR, "Wrong authentication parameters for server %s! Disabling server.",short_server_name.data());
-      drop_server(short_server_name);
+      fastlog(ERROR, "Wrong authentication parameters for server %s!",short_server_name.data());
       return CANNOT_AUTH;
     }
 
