@@ -68,7 +68,7 @@ void test_scope_dids(std::string server_short_name, std::string scope_name){
 }
 
 int main(){
-  parse_settings();
+  parse_settings_json();
   test_server_connection("rucio-server-torino");
   test_server_connection("rucio-server-ligo");
 

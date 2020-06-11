@@ -111,21 +111,18 @@ $ modprobe fuse
 
 ### Setting up Rucio-FUSE connections
 Now that `fusermount` is set up on the machine, we need to set up the Rucio-FUSE connections before proceeding with the mounting process.
-For this, create a file named `settings.json` based on the template found at `settings.json.template` and add the authentication details.
 
-Each portion in the template contains the following keys:
+The Rucio FUSE module will parse the connection parameters from configuration files in the same format as typical `rucio.cfg` files. 
+All the `.cfg` files found in the path pointed by the environment variable `RUCIOFS_SETTINGS_FILES_ROOT` will be parsed looking for the following required fields in the `[client]` section:
+ - `rucio_host`: the server URL
+ - `username`: the server username
+ - `password`: the server password
+ - `account`: the connection account
 
-* `name`: The name for the server you wish to mount.
-This can be anything the user prefers, not necessarily correspond to a fully qualified domain name (FQDN).
-* `url`: URL to connect with the Rucio server. 
-If you're using the development docker for Rucio enter `https://localhost/` here.
-* `account`: Account name registered with Rucio. 
-* `username`: Username you use to sign-in to your Rucio account. 
-* `password`: Password for your Rucio account. 
+At the moment only `userpass` authentication method is supported.
+To add a new server it is enough to import the existing `.cfg` and restart the FUSE module.
 
-Save the file and exit.
-
-**NOTE:** You can add multiple servers to mount on your machine, just add another portion under "servers" with the required details.
+**NOTE:** The configuration files are passed at runtime to the internal routine performing rucio downloads. Do not remove them without restarting the FUSE module!
 
 ### Mounting with Rucio-FUSE mount
 The FUSE mount can be either used as `root` or the current user.

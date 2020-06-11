@@ -14,8 +14,9 @@ using namespace fastlog;
 #define FILE_NOT_FOUND 42
 #define MAX_ATTEMPTS 3
 #define TOO_MANY_ATTEMPTS 314
+#define SETTINGS_NOT_FOUND 1717
 
-int rucio_download_wrapper(const std::string& scope, const std::string& name){
+int rucio_download_wrapper(const std::string& server_config_file, const std::string& scope, const std::string& name){
   //TODO: using rucio download directly, prevents from being able to connect to multiple rucio servers at once
 
   auto cache_path = rucio_cache_path + "/" + scope;
@@ -31,8 +32,18 @@ int rucio_download_wrapper(const std::string& scope, const std::string& name){
 
   fastlog(DEBUG,"Downloading at %s...",cache_path.data());
 
+  FILE* settings = fopen(server_config_file.data(), "r");
+
+  if(not settings){
+    fastlog(ERROR, "Server config file not found at %s. Aborting!", server_config_file.data());
+    fclose(settings);
+    return SETTINGS_NOT_FOUND;
+  }
+
+  fclose(settings);
+
   std::string did = scope + ":" + name;
-  std::string command = "rucio --verbose download --dir " + cache_path + " " + did;
+  std::string command = "rucio --verbose --config " + server_config_file + " download --dir " + cache_path + " " + did;
   system(command.data());
 
   fastlog(DEBUG,"Checking downloaded file...");
@@ -52,14 +63,16 @@ int rucio_download_wrapper(const std::string& scope, const std::string& name){
 }
 
 struct rucio_download_info{
+    std::string* fserver_config;
     std::string fdid;
     std::string::size_type fpos;
     int freturn_code = 0;
     unsigned int fattempt = 0;
     bool fdownloaded = false;
 
-    explicit rucio_download_info(std::string did) :
-      fdid(std::move(did)){
+    explicit rucio_download_info(std::string did, std::string* server_config) :
+      fdid(std::move(did)),
+      fserver_config(server_config){
       fpos = fdid.find_first_of(':');
     }
 
@@ -85,10 +98,10 @@ struct rucio_download_info{
 };
 
 rucio_download_info* rucio_download_wrapper(rucio_download_info& info){
-  if (info.fattempt <= MAX_ATTEMPTS) {
+  if (info.fattempt <= MAX_ATTEMPTS and info.freturn_code != SETTINGS_NOT_FOUND) {
     info.fattempt++;
-    info.freturn_code = rucio_download_wrapper(info.scopename(), info.filename());
-    info.fdownloaded = (info.freturn_code != FILE_NOT_FOUND);
+    info.freturn_code = rucio_download_wrapper(*info.fserver_config, info.scopename(), info.filename());
+    info.fdownloaded = (info.freturn_code != FILE_NOT_FOUND and info.freturn_code != SETTINGS_NOT_FOUND);
   } else {
     info.freturn_code = TOO_MANY_ATTEMPTS;
     info.fdownloaded = false;

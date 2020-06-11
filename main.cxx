@@ -22,7 +22,7 @@ int main( int argc, char *argv[] )
 
   logLevel = INFO;
 
-  parse_settings();
+  parse_settings_cfg();
 
   std::vector<std::string> argvect(argv, argv + argc);
   if(std::find(argvect.begin(),argvect.end(),"-vv") != argvect.end()){

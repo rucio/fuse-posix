@@ -41,6 +41,7 @@ struct token_info{
 struct rucio_server{
   connection_parameters rucio_conn_params;
   token_info rucio_token_info;
+  std::string config_file_path;
 
   rucio_server():rucio_conn_params("","","",""), rucio_token_info(){};
 
@@ -63,12 +64,16 @@ extern std::unordered_map<std::string, rucio_server> rucio_server_map;
 extern std::vector<std::string> rucio_server_names;
 
 // Utility functions
-bool key_exists(std::string key);
+bool key_exists(const std::string& key);
 
-connection_parameters* get_server_params(std::string server_name);
+connection_parameters* get_server_params(const std::string& server_name);
 
-token_info* get_server_token(std::string server_name);
+std::string* get_server_config(const std::string& server_name);
 
-void parse_settings();
+token_info* get_server_token(const std::string& server_name);
+
+void parse_settings_json();
+
+void parse_settings_cfg();
 
 #endif //RUCIO_FUSE_CONNNECTION_PARAMETERS_H

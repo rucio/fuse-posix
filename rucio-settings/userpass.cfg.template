@@ -1,0 +1,9 @@
+[client]
+rucio_host = https://0.0.0.0 or DNS name
+auth_host = https://0.0.0.0 or DNS name
+auth_type = userpass
+username =
+password =
+account =
+ca_cert =
+request_retries = 3
