@@ -1,3 +1,5 @@
+#include <utility>
+
 //
 // Created by Gabriele Gaetano Fronzé on 2019-10-16.
 //
@@ -24,10 +26,10 @@ struct connection_parameters{
                         std::string account_name,
                         std::string user_name,
                         std::string password):
-                        server_url(server_url),
-                        account_name(account_name),
-                        user_name(user_name),
-                        password(password){}
+                        server_url(std::move(server_url)),
+                        account_name(std::move(account_name)),
+                        user_name(std::move(user_name)),
+                        password(std::move(password)){}
 };
 
 // Token info struct definition
@@ -49,10 +51,10 @@ struct rucio_server{
                std::string account_name,
                std::string user_name,
                std::string password):
-               rucio_conn_params(server_url,
-                                 account_name,
-                                 user_name,
-                                 password),
+               rucio_conn_params(std::move(server_url),
+                                 std::move(account_name),
+                                 std::move(user_name),
+                                 std::move(password)),
                rucio_token_info(){}
 
   connection_parameters* get_params(){ return &rucio_conn_params; };
@@ -75,5 +77,7 @@ token_info* get_server_token(const std::string& server_name);
 void parse_settings_json();
 
 void parse_settings_cfg();
+
+bool check_permissions(const std::string& mountpoint_path);
 
 #endif //RUCIO_FUSE_CONNNECTION_PARAMETERS_H

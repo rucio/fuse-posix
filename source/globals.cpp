@@ -9,6 +9,7 @@
 #include <REST-API.h>
 #include <dirent.h>
 #include <algorithm>
+#include <unistd.h>
 
 std::unordered_map<std::string, rucio_server> rucio_server_map = {};
 std::vector<std::string> rucio_server_names;
@@ -154,4 +155,36 @@ void parse_settings_cfg(){
       inode = readdir(dp);
     }
   }
+}
+
+bool check_permissions(const std::string& mountpoint_path){
+  int mountpoint_status = access(mountpoint_path.data(), R_OK && W_OK);
+
+  if(mountpoint_status != 0){
+    DIR *dp = opendir(mountpoint_path.data());
+    if(dp) {
+      fastlog(ERROR, "Mountpoint at %s has wrong permissions!", mountpoint_path.data());
+      closedir(dp);
+    } else {
+      fastlog(ERROR, "Mountpoint at %s does not exist!", mountpoint_path.data());
+    }
+
+    return false;
+  }
+
+  int cache_status = access(rucio_cache_path.data(), R_OK && W_OK);
+
+  if(cache_status != 0){
+    DIR *dp = opendir(rucio_cache_path.data());
+    if(dp){
+      fastlog(ERROR, "Cache root path at %s has wrong permissions!", rucio_cache_path.data());
+      closedir(dp);
+    } else {
+      fastlog(ERROR, "Cache root path at %s does not exist!", rucio_cache_path.data());
+    }
+    return false;
+  }
+
+  fastlog(INFO, "Local mountpoint and cache location validated!");
+  return true;
 }
