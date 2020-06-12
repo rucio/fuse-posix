@@ -37,6 +37,9 @@ static int rucio_getattr (const char *path, struct stat *st){
 	st->st_mtime = time( nullptr );
 
   if (is_hidden(path)) return 0;
+
+  if (is_mac_specific(path)) return 0;
+
 	// If it is the root path list the connected servers
 	if ( is_root_path(path) ) {
 	  fastlog(DEBUG,"handling root path");

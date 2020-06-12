@@ -34,6 +34,9 @@ bool is_main_scope(const char *path);
 //Returns true if file is hidden.
 bool is_hidden(const std::string &path);
 
+//Returns true if file is Mac system file.
+bool is_mac_specific(const std::string &path);
+
 template<class T>
 void tokenize_python_list(std::string list, std::vector<T>& target, char separator = ',', std::array<char,2> unwanted_chars = {'"', ' '}){
   std::string list_copy = list;

@@ -162,6 +162,13 @@ bool is_hidden(const std::string &path){
   return (current_dir[0] == '.');
 }
 
+bool is_mac_specific(const std::string &path){
+  auto current_dir = extract_name(path);
+  if(current_dir=="HEAD") return true;
+  if(current_dir=="DCIM") return true;
+  return false;
+}
+
 std::string get_did(const std::string& path){
   return extract_scope(path)+":"+extract_name(path);
 }

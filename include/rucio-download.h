@@ -44,6 +44,7 @@ int rucio_download_wrapper(const std::string& server_config_file, const std::str
 
   std::string did = scope + ":" + name;
   std::string command = "rucio --verbose --config " + server_config_file + " download --dir " + cache_path + " " + did;
+  fastlog(DEBUG, "Executing: %s", command.data());
   system(command.data());
 
   fastlog(DEBUG,"Checking downloaded file...");
