@@ -98,8 +98,6 @@ void parse_settings_cfg(){
   size_t i_srv = 0;
 
   if (dp) {
-    inode = readdir(dp);
-
     while(inode = readdir(dp)){
       std::string file_name = inode->d_name;
 
