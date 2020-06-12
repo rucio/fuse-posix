@@ -100,7 +100,7 @@ void parse_settings_cfg(){
   if (dp) {
     inode = readdir(dp);
 
-    while(inode){
+    while(inode = readdir(dp)){
       std::string file_name = inode->d_name;
 
       if(file_name.find(".cfg") != std::string::npos) {
@@ -113,6 +113,7 @@ void parse_settings_cfg(){
         std::ifstream settings_file;
         settings_file.open(srv.config_file_path.data());
         std::string line;
+        std::string ca_file_path;
         while (getline(settings_file, line)) {
           if (line.rfind("rucio_host", 0) == 0) {
             srv.rucio_conn_params.server_url = get_cfg_value(line);
@@ -129,6 +130,16 @@ void parse_settings_cfg(){
           if (line.rfind("account", 0) == 0) {
             srv.rucio_conn_params.account_name = get_cfg_value(line);
           }
+
+          if (line.rfind("ca_cert", 0) == 0) {
+            ca_file_path = get_cfg_value(line);
+          }
+        }
+
+        auto ca_file = fopen(ca_file_path.data(), "rb");
+        if(!ca_file){
+          fastlog(ERROR, "CA file not found at %s. Server will be skipped.", ca_file_path.data());
+          continue;
         }
 
         fastlog(INFO, "\tServer %d -> %s:\n"
@@ -152,7 +163,6 @@ void parse_settings_cfg(){
           fastlog(INFO, "Server %s validated!", srv_name.data());
         }
       }
-      inode = readdir(dp);
     }
   }
 }
