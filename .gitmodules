@@ -2,10 +2,6 @@
 	path = submodules/SHA1
 	url = https://github.com/983/SHA1.git
 
-[submodule "submodules/nlohmann_json"]
-    path = submodules/nlohmann_json
-    url = https://github.com/nlohmann/json.git
-
 [submodule "submodules/fastlog"]
     path = submodules/fastlog
     url = https://github.com/Elemento-Modular-Cloud/elemento-fastlog.git

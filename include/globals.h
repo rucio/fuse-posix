@@ -74,8 +74,6 @@ std::string* get_server_config(const std::string& server_name);
 
 token_info* get_server_token(const std::string& server_name);
 
-void parse_settings_json();
-
 void parse_settings_cfg();
 
 bool check_permissions(const std::string& mountpoint_path);

@@ -42,7 +42,7 @@ add_library(globals
         include/globals.h
         source/globals.cpp
         )
-target_link_libraries(globals fastlog nlohmann_json)
+target_link_libraries(globals fastlog)
 
 add_library(utils
         include/utils.h
