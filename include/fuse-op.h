@@ -18,6 +18,7 @@ Authors:
 #include <string.h>
 #include <iostream>
 #include <fastlog.h>
+#include <algorithm>
 
 #include "constants.h"
 #include "globals.h"
@@ -174,11 +175,19 @@ static int rucio_read(const char *path, char *buffer, size_t size, off_t offset,
 
     fastlog(DEBUG,"Getting file...");
     FILE* file = rucio_download_cache.get_file(cache_path);
+    fseek(file, 0L, SEEK_END);
+    auto file_size = ftell(file);
+    fseek(file, 0L, SEEK_SET);
 
     fastlog(DEBUG,"Seeking file...");
-    fseek(file, offset, SEEK_SET);
 
-    memcpy(buffer, file, size);
+    if (offset > file_size) return 0;
+
+    auto next_size = std::min(size , (unsigned long)(file_size - offset));
+
+    fseek(file, offset, SEEK_SET);
+    fread(buffer, sizeof(char), size, file);
+    return next_size;
   }
 
   return -1;
