@@ -86,6 +86,7 @@ struct rucio_pipeline{
 
     bool append_new_download(const rucio_download_info& info){
       //TODO: avoid appending multiple times the same DiD
+      fastlog(DEBUG, "Download info enqueued with server name %s and settings at %s", info.fserver_name.data(), info.fserver_config->data());
       toDownload.append(info);
       return true;
     }

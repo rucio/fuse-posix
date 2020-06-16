@@ -8,6 +8,7 @@
 #include <fastlog.h>
 #include "download-cache.h"
 #include "constants.h"
+#include "utils.h"
 
 using namespace fastlog;
 
@@ -16,11 +17,13 @@ using namespace fastlog;
 #define TOO_MANY_ATTEMPTS 314
 #define SETTINGS_NOT_FOUND 1717
 
-int rucio_download_wrapper(const std::string& server_config_file, const std::string& scope, const std::string& name){
+int rucio_download_wrapper(const std::string& server_name, const std::string& scope, const std::string& name){
   //TODO: using rucio download directly, prevents from being able to connect to multiple rucio servers at once
 
-  auto cache_path = rucio_cache_path + "/" + scope;
-  auto file_path = cache_path + "/" + scope + "/" + name;
+  auto server_config_file = *get_server_config(server_name);
+
+  auto cache_path = rucio_cache_path + "/" + server_name + "/" + scope;
+  auto file_path = cache_path + "/" + name;
 
   FILE* file = fopen(file_path.data(), "rb");
 
@@ -43,8 +46,9 @@ int rucio_download_wrapper(const std::string& server_config_file, const std::str
   fclose(settings);
 
   std::string did = scope + ":" + name;
-  std::string command = "rucio --verbose --config " + server_config_file + " download --dir " + cache_path + " " + did;
+  std::string command = "rucio --verbose --config " + server_config_file + " download --no-subdir --dir " + cache_path + " " + did;
   fastlog(DEBUG, "Executing: %s", command.data());
+  fastlog(DEBUG, "Downloading to: %s", file_path.data());
   system(command.data());
 
   fastlog(DEBUG,"Checking downloaded file...");
@@ -54,16 +58,17 @@ int rucio_download_wrapper(const std::string& server_config_file, const std::str
     fastlog(ERROR, "Failed file download! Passing over...");
     return FILE_NOT_FOUND;
   } else {
-    fastlog(DEBUG, "Download OK! Renaming temporary file...");
+    fastlog(DEBUG, "Download OK!");
   }
 
-  fastlog(DEBUG,"Adding to cache file downloaded at %s.", file_path.data());
+  fastlog(DEBUG,"Adding to cache file downloaded at %s", file_path.data());
   rucio_download_cache.add_file(file_path, file);
 
   return 0;
 }
 
 struct rucio_download_info{
+    std::string fserver_name;
     std::string* fserver_config;
     std::string fdid;
     std::string::size_type fpos;
@@ -71,10 +76,12 @@ struct rucio_download_info{
     unsigned int fattempt = 0;
     bool fdownloaded = false;
 
-    explicit rucio_download_info(std::string did, std::string* server_config) :
+    explicit rucio_download_info(std::string did, const std::string& path) :
       fdid(std::move(did)),
-      fserver_config(server_config){
+      fserver_name(extract_server_name(path)){
       fpos = fdid.find_first_of(':');
+      fserver_config = get_server_config(fserver_name);
+      fastlog(DEBUG, "Download info added with server name %s and settings at %s", fserver_name.data(), fserver_config->data());
     }
 
     std::string print(){
@@ -94,14 +101,14 @@ struct rucio_download_info{
     }
 
     std::string full_cache_path(){
-      return rucio_cache_path + "/" + this->scopename() + "/" + this->filename();
+      return rucio_cache_path + "/" + this->fserver_name + "/" + this->scopename() + "/" + this->filename();
     }
 };
 
 rucio_download_info* rucio_download_wrapper(rucio_download_info& info){
   if (info.fattempt <= MAX_ATTEMPTS and info.freturn_code != SETTINGS_NOT_FOUND) {
     info.fattempt++;
-    info.freturn_code = rucio_download_wrapper(*info.fserver_config, info.scopename(), info.filename());
+    info.freturn_code = rucio_download_wrapper(info.fserver_name, info.scopename(), info.filename());
     info.fdownloaded = (info.freturn_code != FILE_NOT_FOUND and info.freturn_code != SETTINGS_NOT_FOUND);
   } else {
     info.freturn_code = TOO_MANY_ATTEMPTS;

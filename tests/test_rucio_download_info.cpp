@@ -7,7 +7,7 @@
 
 int main(){
   parse_settings_cfg();
-  auto info = rucio_download_info("scope:filename", get_server_config("test"));
+  auto info = rucio_download_info("scope:filename", "/ruciofs/server/scope/name");
   printf("scope: %s - filename: %s\n",info.scopename().data(),info.filename().data());
 
   return 0;

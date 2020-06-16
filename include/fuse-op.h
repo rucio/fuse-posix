@@ -159,13 +159,13 @@ static int rucio_read(const char *path, char *buffer, size_t size, off_t offset,
   if(not is_server_mountpoint(path) and not is_main_scope(path) and not rucio_is_container(path)){
     auto server_name = extract_server_name(path);
     auto did = get_did(path);
-    std::string cache_root = rucio_cache_path + "/" + server_name;
-    std::string cache_path = cache_root + "/" + did;
+    std::string cache_root = rucio_cache_path + "/" + server_name + "/" + extract_scope(path);
+    std::string cache_path = cache_root + "/" + extract_name(path);
 
     if(not rucio_download_cache.is_cached(cache_path)) {
       fastlog(DEBUG,"File %s @ %s is not cached. Downloading...", did.data(), server_name.data());
 
-      rucio_download_pipeline.append_new_download(rucio_download_info(did, get_server_config(extract_server_name(path))));
+      rucio_download_pipeline.append_new_download(rucio_download_info(did, path));
 
       return -ENOENT;
     } else {
