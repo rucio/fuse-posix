@@ -271,6 +271,32 @@ bool rucio_is_container(const std::string& path){
   }
 }
 
+size_t rucio_get_size(const std::string& path){
+  auto short_server_name = extract_server_name(path);
+  auto scope = extract_scope(path);
+  auto name = extract_name(path);
+
+  auto headers = get_auth_headers(short_server_name);
+
+  if (not headers) {
+    fastlog(ERROR,"Server %s not found. Aborting!", short_server_name.data());
+    return {};
+  }
+
+  auto curl_res = GET(get_server_params(short_server_name)->server_url + "/dids/" + scope + "/" + name, headers);
+  for(auto const& payload : curl_res.payload){
+    auto found = payload.find(rucio_bytes_metadata);
+    if (found != std::string::npos) {
+      auto pos = payload.find(rucio_bytes_metadata);
+      auto pos2 = payload.find(',', pos + rucio_bytes_metadata_length - 1);
+      auto size_bytes = payload.substr(pos + rucio_bytes_metadata_length, pos2 - pos - rucio_bytes_metadata_length);
+      fastlog(INFO, "File size is %s", size_bytes.data());
+      return std::stoi(size_bytes);
+    }
+  }
+  return -1;
+}
+
 std::vector<std::string> rucio_get_replicas_metalinks(const std::string& path){
   auto short_server_name = extract_server_name(path);
   auto scope = extract_scope(path);

@@ -82,7 +82,7 @@ static int rucio_getattr (const char *path, struct stat *st){
     fastlog(DEBUG,"handling file path");
     st->st_mode = S_IFREG | 0644;
     st->st_nlink = 1;
-    st->st_size = 1024;
+    st->st_size = rucio_get_size(path);
   }
 
 	return 0;

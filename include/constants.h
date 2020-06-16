@@ -18,6 +18,8 @@ static const std::string rucio_token_prefix = "X-Rucio-Auth-Token: ";
 static const std::string rucio_token_exception_prefix = "ExceptionMessage:";
 static const size_t rucio_token_prefix_size = strlen(rucio_token_prefix.c_str());
 static const std::string rucio_invalid_token = ">>>---invalid-token---<<<";
+static const std::string rucio_bytes_metadata = "\"bytes\": ";
+static const size_t rucio_bytes_metadata_length =  rucio_bytes_metadata.length();
 
 static const std::string rucio_token_duration_prefix = "X-Rucio-Auth-Token-Expires: ";
 static const size_t rucio_token_duration_prefix_size = strlen(rucio_token_duration_prefix.c_str());
