@@ -59,6 +59,7 @@ struct curlRet {
 // This is the REST GET wrapper
 curlRet GET(const std::string& url, const struct curl_slist * headers = nullptr, bool include_headers = false);
 
+// This is the REST POST wrapper
 curlRet POST(const std::string& url, const std::string& thing_to_post);
 
 #endif //RUCIO_FUSE_CURL_REST_H

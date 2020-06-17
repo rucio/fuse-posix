@@ -12,18 +12,21 @@
 #include <unordered_map>
 #include <fastlog.h>
 
+// Error return values definition
 #define TOKEN_OK 0
 #define SERVER_NOT_LOADED 1
 #define CANNOT_AUTH 2
 #define TOKEN_ERROR 3
 
+// Ping and server validation methods
 bool rucio_ping(const std::string& server_url);
 bool rucio_validate_server(const std::string& short_server_name);
 
+// Auth and token validation methods
 int rucio_get_auth_token_userpass(const std::string& short_server_name);
-
 bool rucio_is_token_valid(const std::string& short_server_name);
 
+// Listing methods
 const std::vector<std::string>& rucio_list_servers();
 
 static std::unordered_map<std::string, std::vector<std::string>> scopes_cache;
@@ -40,8 +43,8 @@ std::vector<rucio_did> rucio_list_container_dids(const std::string& scope, const
 bool rucio_is_container(const rucio_did& did);
 bool rucio_is_container(const std::string& path);
 
+// Metadata access methods
 size_t rucio_get_size(const std::string& path);
-
 std::vector<std::string> rucio_get_replicas_metalinks(const std::string& path);
 
 #endif //RUCIO_FUSE_REST_API_H

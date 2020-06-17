@@ -7,16 +7,19 @@
 
 #include <unordered_map>
 
+// This struct implements a did to local cache path mapping.
+// It also keeps open files pointer alive and performs cleanup at end of execution.
 struct file_cache {
     std::unordered_map<std::string, FILE*> cache;
 
-    file_cache(){
-      //TODO: here we can populate the cache at startup parsing all files in the cache root.
-    }
+    //TODO-or-NOT: here we can populate the cache at startup parsing all files in the cache root.
+    file_cache() = default;
 
     ~file_cache(){
       for(auto &file : cache){
-        fclose(file.second);
+        if(file.second){
+          fclose(file.second);
+        }
       }
     }
 
@@ -38,6 +41,7 @@ struct file_cache {
       return true;
     }
 };
-file_cache rucio_download_cache;
+
+static file_cache rucio_download_cache;
 
 #endif //RUCIO_FUSE_POSIX_DOWNLOAD_CACHE_H

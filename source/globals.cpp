@@ -13,29 +13,35 @@
 std::unordered_map<std::string, rucio_server> rucio_server_map = {};
 std::vector<std::string> rucio_server_names;
 
-bool key_exists(const std::string& key){
+// Returns true if server name found in map
+bool server_exists(const std::string &key){
   return rucio_server_map.count(key)>0;
 }
 
+// Returns server parameters if found, otherwise nullptr
 connection_parameters* get_server_params(const std::string& server_name){
-  return (key_exists(server_name)) ? rucio_server_map[server_name].get_params() : nullptr;
+  return (server_exists(server_name)) ? rucio_server_map[server_name].get_params() : nullptr;
 }
 
+// Returns path to server config file as string ptr
 std::string* get_server_config(const std::string& server_name){
-  return (key_exists(server_name)) ? &(rucio_server_map[server_name].config_file_path) : nullptr;
+  return (server_exists(server_name)) ? &(rucio_server_map[server_name].config_file_path) : nullptr;
 }
 
+// Returns token_info if found
 token_info* get_server_token(const std::string& server_name){
-  return (key_exists(server_name)) ? rucio_server_map[server_name].get_token() : nullptr;
+  return (server_exists(server_name)) ? rucio_server_map[server_name].get_token() : nullptr;
 }
 
 using namespace fastlog;
 
+// Useful method to extract values from rucio.cfg-like files
 std::string get_cfg_value(std::string& line){
   line.erase(std::remove(line.begin(), line.end(), ' '), line.end());
   return line.substr(line.find('=') + 1);
 }
 
+// Method to parse and validate all the .cfg files found in the RUCIOFS_SETTINGS_FILES_ROOT folder
 void parse_settings_cfg(){
   std::string ruciofs_settings_root;
 
@@ -59,7 +65,8 @@ void parse_settings_cfg(){
           fastlog(INFO, "Parsing settings file: %s", file_name.data());
 
           auto srv = rucio_server();
-          srv.config_file_path = ruciofs_settings_root + "/" + file_name;
+          srv.config_file_path = ruciofs_settings_root;
+          srv.config_file_path += "/" + file_name;
           auto srv_name = file_name.substr(0, file_name.find(".cfg"));
 
           std::ifstream settings_file;
@@ -120,6 +127,7 @@ void parse_settings_cfg(){
   }
 }
 
+// Method to check read/write permissions on both mountpoint or cache path
 bool check_permissions(const std::string& mountpoint_path){
   int mountpoint_status = access(mountpoint_path.data(), R_OK && W_OK);
 

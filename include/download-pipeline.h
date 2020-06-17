@@ -48,6 +48,7 @@ struct rucio_downloader : public ELWD_Middle_Stage_I<rucio_download_info, rucio_
 };
 
 // This thread picks from the input queue and does nothing but writing to the terminal!
+// This worker will serve well for sending "download completed" notifications
 struct rucio_notifier : public ELWD_Ending_Stage_I<rucio_download_info, DummyT>{
     explicit rucio_notifier(ELWD_Safe_Queue<rucio_download_info>* queue) : ELWD_Ending_Stage_I(0,queue){}
 
@@ -62,6 +63,9 @@ struct rucio_notifier : public ELWD_Ending_Stage_I<rucio_download_info, DummyT>{
     }
 };
 
+// This is a struct to keep together the pieces for the rucio download pipeline and allow static instantiation.
+// It contains two queues ("to do" and "done" jobs) and two thread pools with automated load-based rescaling.
+// It also provides a method to append new jobs, being able to act as an opaque function with internal multithreading.
 struct rucio_pipeline{
     ELWD_Safe_Queue<rucio_download_info> toDownload;
     ELWD_Safe_Queue<rucio_download_info> downloaded;
