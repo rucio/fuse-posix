@@ -167,17 +167,26 @@ static int rucio_read(const char *path, char *buffer, size_t size, off_t offset,
 
     // Check if file has been downloaded already and cached
     if(not rucio_download_cache.is_cached(cache_path)) {
-      fastlog(DEBUG,"File %s @ %s is not cached. Downloading...", did.data(), server_name.data());
 
-      // If not downloaded yet, download file appending its infos to the download jobs queue
-      rucio_download_pipeline.append_new_download(rucio_download_info(did, path));
+      // If file is downloading avoid enqueue-ing it again
+      if(is_downloading(path)){
+        fastlog(INFO, "File %s @ %s is not cached and already downloading!", did.data(), server_name.data());
+        return -ENOENT;
 
-      // Notify the file is not there (yet)
-      return -ENOENT;
+      // Otherwise download it
+      } else {
+        fastlog(DEBUG, "File %s @ %s is not cached. Downloading...", did.data(), server_name.data());
 
-      // TODO: it might be worth setting a xattr to flag it as downloading and write something more meaningful
+        // If not downloaded yet, download file appending its infos to the download jobs queue
+        rucio_download_pipeline.append_new_download(rucio_download_info(did, path));
+        set_downloading(path);
+
+        // Notify the file is not there (yet)
+        return -ENOENT;
+      }
     } else {
       fastlog(DEBUG,"File %s @ %s found in cache!", did.data(), server_name.data());
+      set_downloaded(path);
     }
 
     // Getting the file from cache and retrieving its size

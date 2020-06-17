@@ -14,6 +14,7 @@ Authors:
 #include <map>
 #include <sstream>
 #include <algorithm>
+#include <unordered_set>
 
 std::string to_string(char* contents, size_t size);
 
@@ -89,5 +90,10 @@ struct rucio_did{
 // Translators from string-like rucio did descriptor to rucio_did structures
 void structurize_did(const std::string& did_str, std::vector<rucio_did>& target);
 void structurize_container_did(const std::string& did_str, std::vector<rucio_did>& target);
+
+static std::unordered_set<std::string> downloading_status_cache;
+void set_downloading(const std::string& path);
+bool is_downloading(const std::string& path);
+void set_downloaded(const std::string& path);
 
 #endif //RUCIO_FUSE_UTILS_H
