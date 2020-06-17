@@ -193,9 +193,7 @@ static int rucio_read(const char *path, char *buffer, size_t size, off_t offset,
     // TODO: cache file sizes!
     fastlog(DEBUG,"Getting file...");
     FILE* file = rucio_download_cache.get_file(cache_path);
-    fseek(file, 0L, SEEK_END);
-    auto file_size = ftell(file);
-    fseek(file, 0L, SEEK_SET);
+    auto file_size = rucio_get_size(path);
 
     fastlog(DEBUG,"Seeking file...");
 

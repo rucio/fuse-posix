@@ -44,6 +44,7 @@ bool rucio_is_container(const rucio_did& did);
 bool rucio_is_container(const std::string& path);
 
 // Metadata access methods
+static std::unordered_map<std::string, size_t> file_size_cache;
 size_t rucio_get_size(const std::string& path);
 std::vector<std::string> rucio_get_replicas_metalinks(const std::string& path);
 
