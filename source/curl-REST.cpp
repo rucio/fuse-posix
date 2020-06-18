@@ -20,7 +20,7 @@ size_t curl_append_string_to_vect_callback(void *contents, size_t size, size_t n
     return newLength;
 }
 
-curlRet GET(const std::string& url, const struct curl_slist* headers, bool include_headers){
+curlRet GET(const std::string& url, const std::string& ca_path, const struct curl_slist* headers, bool include_headers){
   curlRet ret;
   auto static_curl = curlSingleton::curlWrap();
 
@@ -28,7 +28,9 @@ curlRet GET(const std::string& url, const struct curl_slist* headers, bool inclu
 
   curl_easy_setopt(static_curl(), CURLOPT_URL, url.c_str());
   curl_easy_setopt(static_curl(), CURLOPT_SSL_VERIFYPEER, CURLOPT_FALSE); //only for https
-  curl_easy_setopt(static_curl(), CURLOPT_SSL_VERIFYHOST, CURLOPT_FALSE); //only for https
+  curl_easy_setopt(static_curl(), CURLOPT_SSL_VERIFYHOST, CURLOPT_TRUE); //only for https
+  curl_easy_setopt(static_curl(), CURLOPT_CAINFO, ca_path.data());
+  curl_easy_setopt(static_curl(), CURLOPT_CAPATH, ca_path.data());
 //  curl_easy_setopt(static_curl(), CURLOPT_SSL_VERIFYHOST, ((url.find("https") != std::string::npos)?CURLOPT_TRUE:CURLOPT_FALSE)); //only for https
   curl_easy_setopt(static_curl(), CURLOPT_WRITEFUNCTION, curl_append_string_to_vect_callback);
   curl_easy_setopt(static_curl(), CURLOPT_WRITEDATA, &ret.payload);
@@ -69,7 +71,7 @@ curlRet GET(const std::string& url, const struct curl_slist* headers, bool inclu
   return ret;
 }
 
-curlRet GET_x509(const std::string& url, curlx509Bundle& bundle, struct curl_slist* headers, bool include_headers){
+curlRet GET_x509(const std::string& url, curlx509Bundle& bundle, const struct curl_slist* headers, bool include_headers){
   curlRet ret;
   auto static_curl = curlSingleton::curlWrap();
 
@@ -81,15 +83,22 @@ curlRet GET_x509(const std::string& url, curlx509Bundle& bundle, struct curl_sli
   curl_easy_setopt(static_curl(), CURLOPT_SSLCERT, bundle.pCertFile.data());
   curl_easy_setopt(static_curl(), CURLOPT_SSLCERTTYPE, "PEM");
 
-  curl_easy_setopt(static_curl(), CURLOPT_SSLENGINE, bundle.pEngine.data());
+  if(bundle.pEngine.length() != 0) {
+    curl_easy_setopt(static_curl(), CURLOPT_SSLENGINE, bundle.pEngine.data());
+  } else {
+    curl_easy_setopt(static_curl(), CURLOPT_SSLENGINE_DEFAULT, CURLOPT_TRUE);
+  }
+
   curl_easy_setopt(static_curl(), CURLOPT_SSLENGINE_DEFAULT, CURLOPT_TRUE);
   curl_easy_setopt(static_curl(), CURLOPT_SSLKEYTYPE, bundle.pKeyType.data());
   curl_easy_setopt(static_curl(), CURLOPT_SSLKEY, bundle.pKeyName.data());
-  curl_easy_setopt(static_curl(), CURLOPT_KEYPASSWD, bundle.pPassphrase.data());
+
+  if(!bundle.pPassphrase.empty()) curl_easy_setopt(static_curl(), CURLOPT_KEYPASSWD, bundle.pPassphrase.data());
 
   curl_easy_setopt(static_curl(), CURLOPT_CAINFO, bundle.pCACertFile.data());
+  curl_easy_setopt(static_curl(), CURLOPT_CAPATH, bundle.pCACertFile.data());
 
-  curl_easy_setopt(static_curl(), CURLOPT_SSL_VERIFYPEER, ((url.find("https") != std::string::npos)?CURLOPT_TRUE:CURLOPT_FALSE)); //only for https
+  curl_easy_setopt(static_curl(), CURLOPT_SSL_VERIFYPEER, CURLOPT_FALSE); //only for https
 
   curl_easy_setopt(static_curl(), CURLOPT_WRITEFUNCTION, curl_append_string_to_vect_callback);
   curl_easy_setopt(static_curl(), CURLOPT_WRITEDATA, &ret.payload);

@@ -20,10 +20,14 @@
 
 // Ping and server validation methods
 bool rucio_ping(const std::string& server_url);
-bool rucio_validate_server(const std::string& short_server_name);
 
 // Auth and token validation methods
+int rucio_get_auth_token(const std::string& short_server_name);
 int rucio_get_auth_token_userpass(const std::string& short_server_name);
+int rucio_get_auth_token_x509(const std::string& short_server_name);
+
+bool rucio_validate_server(const std::string& short_server_name);
+
 bool rucio_is_token_valid(const std::string& short_server_name);
 
 // Listing methods

@@ -15,6 +15,7 @@
 #include <unordered_map>
 #include <vector>
 #include <utility>
+#include "curl-REST.h"
 
 enum auth_mode{
     userpass,
@@ -22,17 +23,8 @@ enum auth_mode{
     none
 };
 
-auth_mode get_auth_mode(const std::string& settings_line){
-  if (settings_line.rfind("userpass", 0) == 0) {
-    return auth_mode::userpass;
-  }
-
-  if (settings_line.rfind("x509", 0) == 0) {
-    return auth_mode::x509;
-  }
-
-  return auth_mode::none;
-}
+auth_mode get_auth_mode(const std::string& settings_line);
+std::string get_auth_name(auth_mode mode);
 
 // Connection parameters struct definition
 // Contains all the parameteres defining how to contact a rucio server
@@ -75,11 +67,13 @@ struct rucio_server{
   rucio_server(std::string server_url,
                std::string account_name,
                std::string user_name,
-               std::string password):
+               std::string password,
+               std::string auth_mode):
                rucio_conn_params(std::move(server_url),
                                  std::move(account_name),
                                  std::move(user_name),
-                                 std::move(password)),
+                                 std::move(password),
+                                 auth_mode),
                rucio_token_info(){}
 
   connection_parameters* get_params(){ return &rucio_conn_params; };
@@ -93,6 +87,7 @@ extern std::vector<std::string> rucio_server_names;
 // Utility functions
 bool server_exists(const std::string &key);
 connection_parameters* get_server_params(const std::string& server_name);
+curlx509Bundle* get_server_SSL_bundle(const std::string& server_name);
 std::string* get_server_config(const std::string& server_name);
 token_info* get_server_token(const std::string& server_name);
 

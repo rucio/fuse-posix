@@ -16,7 +16,7 @@ Authors:
 using namespace fastlog;
 
 bool rucio_ping(const std::string& server_url){
-  auto curl_res = GET(server_url+"/ping");
+  auto curl_res = GET(server_url+"/ping", "");
   return curl_res.res == CURLE_OK;
 }
 
@@ -28,7 +28,7 @@ bool rucio_validate_server(const std::string& short_server_name){
     return false;
   }
 
-  if(rucio_get_auth_token_userpass(short_server_name) != TOKEN_OK){
+  if(rucio_get_auth_token(short_server_name) != TOKEN_OK){
     fastlog(ERROR, "Cannot validate server %s auth settings.", conn_params->server_url.data());
     return false;
   }
@@ -36,7 +36,19 @@ bool rucio_validate_server(const std::string& short_server_name){
   return true;
 }
 
+int rucio_get_auth_token(const std::string& short_server_name){
+
+  auto conn_params = get_server_params(short_server_name);
+
+  switch (conn_params->rucio_auth_mode){
+    case auth_mode::userpass: return rucio_get_auth_token_userpass(short_server_name);
+    case auth_mode::x509: return rucio_get_auth_token_x509(short_server_name);
+    default: return TOKEN_ERROR;
+  }
+}
+
 int rucio_get_auth_token_userpass(const std::string& short_server_name){
+
   struct curl_slist *headers = nullptr;
 
   auto conn_params = get_server_params(short_server_name);
@@ -54,7 +66,7 @@ int rucio_get_auth_token_userpass(const std::string& short_server_name){
   headers= curl_slist_append(headers, xRucioUsername.c_str());
   headers= curl_slist_append(headers, xRucioPwd.c_str());
 
-  auto curl_res = GET(conn_params->server_url+"/auth/userpass", headers, true);
+  auto curl_res = GET(conn_params->server_url+"/auth/userpass", *get_server_config(short_server_name), headers, true);
 
   curl_slist_free_all(headers);
 
@@ -64,6 +76,65 @@ int rucio_get_auth_token_userpass(const std::string& short_server_name){
   for(auto& line : curl_res.payload){
     if (line.find(rucio_token_exception_prefix) != std::string::npos) {
       fastlog(ERROR, "Wrong authentication parameters for server %s!",short_server_name.data());
+      return CANNOT_AUTH;
+    }
+
+    if (line.find(rucio_token_prefix) != std::string::npos) {
+      token = line;
+      token.erase(0, rucio_token_prefix_size);
+    }
+
+    if (line.find(rucio_token_duration_prefix) != std::string::npos) {
+      expire_time_string = line;
+      expire_time_string.erase(0, rucio_token_duration_prefix_size);
+    }
+  }
+
+  auto token_info = get_server_token(short_server_name);
+
+  if(not token_info){
+    fastlog(ERROR,"Server %s didn't provide token. Aborting!", short_server_name.data());
+    return TOKEN_ERROR;
+  }
+
+  token_info->conn_token = (strlen(token.c_str())>0) ? token : rucio_invalid_token;
+
+  expire_time_string = (strlen(expire_time_string.c_str())>0) ? expire_time_string : rucio_default_exp;
+  strptime(expire_time_string.data(), "%a, %d %b %Y %H:%M:%S",&token_info->conn_token_exp);
+  char UTC[] = {'U','T','C'};
+  token_info->conn_token_exp.tm_zone = UTC;
+  token_info->conn_token_exp_epoch = mktime(&token_info->conn_token_exp) - timezone;
+
+  return TOKEN_OK;
+}
+
+int rucio_get_auth_token_x509(const std::string& short_server_name){
+
+  struct curl_slist *headers = nullptr;
+
+  auto conn_params = get_server_params(short_server_name);
+
+  if(not conn_params){
+    fastlog(ERROR,"Server %s not found. Aborting!", short_server_name.data());
+    return SERVER_NOT_LOADED;
+  }
+
+  auto xRucioAccount = "X-Rucio-Account: "+conn_params->account_name;
+
+  curlx509Bundle* bundle = get_server_SSL_bundle(short_server_name);
+
+  headers = curl_slist_append(headers, xRucioAccount.c_str());
+
+  auto curl_res = GET_x509(conn_params->server_url + "/auth/x509", *bundle, headers, true);
+
+  curl_slist_free_all(headers);
+
+  std::string token;
+  std::string expire_time_string;
+
+  for(auto& line : curl_res.payload){
+    if (line.find(rucio_token_exception_prefix) != std::string::npos) {
+      fastlog(ERROR, "Wrong authentication parameters for server %s! Aborting!",short_server_name.data());
       return CANNOT_AUTH;
     }
 
@@ -122,7 +193,7 @@ std::vector<std::string> rucio_list_scopes(const std::string& short_server_name)
       return {};
     }
 
-    if (not rucio_is_token_valid(short_server_name)) rucio_get_auth_token_userpass(short_server_name);
+    if (not rucio_is_token_valid(short_server_name)) rucio_get_auth_token(short_server_name);
 
     auto xRucioToken = "X-Rucio-Auth-Token: " + token_info->conn_token;
 
@@ -130,7 +201,7 @@ std::vector<std::string> rucio_list_scopes(const std::string& short_server_name)
 
     headers = curl_slist_append(headers, xRucioToken.c_str());
 
-    auto curl_res = GET(conn_params->server_url + "/scopes/", headers);
+    auto curl_res = GET(conn_params->server_url + "/scopes/", *get_server_config(short_server_name), headers);
 
     curl_slist_free_all(headers);
 
@@ -157,7 +228,7 @@ curl_slist* get_auth_headers(const std::string& short_server_name){
     return nullptr;
   }
 
-  if(not rucio_is_token_valid(short_server_name)) rucio_get_auth_token_userpass(short_server_name);
+  if(not rucio_is_token_valid(short_server_name)) rucio_get_auth_token(short_server_name);
 
   auto xRucioToken = "X-Rucio-Auth-Token: "+token_info->conn_token;
 
@@ -179,7 +250,7 @@ std::vector<rucio_did> rucio_list_dids(const std::string& scope, const std::stri
       return {};
     }
 
-    auto curl_res = GET(get_server_params(short_server_name)->server_url + "/dids/" + scope + "/", headers);
+    auto curl_res = GET(get_server_params(short_server_name)->server_url + "/dids/" + scope + "/", *get_server_config(short_server_name), headers);
 
     curl_slist_free_all(headers);
 
@@ -215,6 +286,7 @@ std::vector<rucio_did> rucio_list_container_dids(const std::string& scope, const
 
     auto curl_res = GET(
             get_server_params(short_server_name)->server_url + "/dids/" + scope + "/" + container_name + "/dids",
+            *get_server_config(short_server_name),
             headers);
 
     curl_slist_free_all(headers);
@@ -257,7 +329,9 @@ bool rucio_is_container(const std::string& path){
       return {};
     }
 
-    auto curl_res = GET(get_server_params(short_server_name)->server_url + "/dids/" + scope + "/" + name, headers);
+    auto curl_res = GET(get_server_params(short_server_name)->server_url + "/dids/" + scope + "/" + name,
+                        *get_server_config(short_server_name),
+                        headers);
 
     curl_slist_free_all(headers);
 
@@ -289,7 +363,9 @@ size_t rucio_get_size(const std::string& path){
     return {};
   }
 
-  auto curl_res = GET(get_server_params(short_server_name)->server_url + "/dids/" + scope + "/" + name, headers);
+  auto curl_res = GET(get_server_params(short_server_name)->server_url + "/dids/" + scope + "/" + name,
+                      *get_server_config(short_server_name),
+                      headers);
   for(auto const& payload : curl_res.payload){
     auto found = payload.find(rucio_bytes_metadata);
     if (found != std::string::npos) {
@@ -318,7 +394,9 @@ std::vector<std::string> rucio_get_replicas_metalinks(const std::string& path){
   }
   headers= curl_slist_append(headers, "HTTP_ACCEPT: metalink4+xml");
 
-  auto curl_res = GET(get_server_params(short_server_name)->server_url + "/replicas/" + scope + "/" + name, headers);
+  auto curl_res = GET(get_server_params(short_server_name)->server_url + "/replicas/" + scope + "/" + name,
+                      *get_server_config(short_server_name),
+                      headers);
 
   std::string merged_response;
 

@@ -7,7 +7,7 @@
 
 int main(){
 
-  auto res = GET("www.example.com");
+  auto res = GET("www.example.com", "");
 
   std::cout << std::endl;
 
