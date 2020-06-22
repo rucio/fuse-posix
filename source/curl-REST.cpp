@@ -25,7 +25,7 @@ curlRet GET(const std::string& url, const std::string& ca_path, const struct cur
   curlRet ret;
   auto static_curl = curlSingleton::curlWrap();
 
-  fastlog(DEBUG,"GET %s",url.data());
+  fastlog(INFO,"GET %s",url.data());
   fastlog(DEBUG,"CA path %s",ca_path.data());
 
   curl_easy_setopt(static_curl(), CURLOPT_URL, url.c_str());
@@ -57,7 +57,7 @@ curlRet GET(const std::string& url, const std::string& ca_path, const struct cur
   // Check return code to detect issues
   if(ret.res != CURLE_OK)
   {
-      fastlog(ERROR, "curl_easy_perform() failed: %s", curl_easy_strerror(ret.res));
+    fastlog(ERROR, "curl_easy_perform() failed: %s url=", curl_easy_strerror(ret.res), url.c_str());
   }
 
   // Reset headers
