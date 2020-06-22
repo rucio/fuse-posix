@@ -379,6 +379,42 @@ bool rucio_is_container(const std::string& path){
   }
 }
 
+bool rucio_is_file(const std::string& path){
+  auto short_server_name = extract_server_name(path);
+  auto conn_params = get_server_params(short_server_name);
+  auto scope = extract_scope(path);
+  auto name = extract_name(path);
+  auto found = is_file_cache.find(short_server_name+scope+name);
+
+  if(found == is_container_cache.end()) {
+    auto headers = get_auth_headers(short_server_name);
+
+    if (not headers) {
+      fastlog(ERROR,"Server %s not found. Aborting!", short_server_name.data());
+      return {};
+    }
+
+    auto curl_res = GET(conn_params->server_url + "/dids/" + scope + "/" + name,
+                        conn_params->ca_path,
+                        headers);
+    if(curl_res.res != CURLE_OK){
+      fastlog(ERROR, "Curl error. Abort.");
+      return false;
+    }
+
+
+    curl_slist_free_all(headers);
+
+    is_file_cache[path] = curl_res.payload.front().find(R"("type": "FILE",)") != std::string::npos;
+    return is_file_cache[path];
+  } else {
+    fastlog(DEBUG,"USING CACHE");
+    fastlog(DEBUG,"%s:%s:%s -> %s",short_server_name.data(), scope.data(), name.data(),
+            (is_file_cache[short_server_name+scope+name])?"true":"false");
+    return found->second;
+  }
+}
+
 size_t rucio_get_size(const std::string& path){
   auto cache_found = file_size_cache.find(path);
 

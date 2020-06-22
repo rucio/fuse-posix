@@ -37,16 +37,19 @@ const std::vector<std::string>& rucio_list_servers();
 static std::unordered_map<std::string, std::vector<std::string>> scopes_cache;
 std::vector<std::string> rucio_list_scopes(const std::string& short_server_name);
 
-static std::unordered_map<std::string, bool> is_container_cache;
 static std::unordered_map<std::string, std::vector<rucio_did>> dids_cache;
 std::vector<rucio_did> rucio_list_dids(const std::string& scope, const std::string& short_server_name);
-
 static std::unordered_map<std::string, std::vector<rucio_did>> container_dids_cache;
+
 std::vector<rucio_did> rucio_list_container_dids(const std::string& scope, const std::string& container_name, const std::string& short_server_name);
 
 // Returns true if did is container of dataset, false otherwise (for files)
+static std::unordered_map<std::string, bool> is_container_cache;
 bool rucio_is_container(const rucio_did& did);
 bool rucio_is_container(const std::string& path);
+
+static std::unordered_map<std::string, bool> is_file_cache;
+bool rucio_is_file(const std::string& path);
 
 // Metadata access methods
 static std::unordered_map<std::string, size_t> file_size_cache;
