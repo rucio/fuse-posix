@@ -14,13 +14,13 @@ using namespace fastlog;
 
 // Error return codes definition
 #define FILE_NOT_FOUND 42
+#define SERVER_NOT_FOUND 17
 #define MAX_ATTEMPTS 3
 #define TOO_MANY_ATTEMPTS 314
 #define SETTINGS_NOT_FOUND 1717
 
 // Wrapper around rucio download called as bash command
-int rucio_download_wrapper(const std::string& server_name, const std::string& scope, const std::string& name){
-  auto server_config_file = *get_server_config(server_name);
+int rucio_download_wrapper(const std::string& server_name, const std::string* server_cfg, const std::string& scope, const std::string& name){
   auto cache_path = rucio_cache_path + "/" + server_name + "/" + scope;
   auto file_path = cache_path + "/" + name;
   FILE* file = fopen(file_path.data(), "rb");
@@ -32,11 +32,11 @@ int rucio_download_wrapper(const std::string& server_name, const std::string& sc
   // Otherwise download the file using rucio and populate the cache
   } else {
     fastlog(DEBUG, "Downloading at %s...", cache_path.data());
-    FILE *settings = fopen(server_config_file.data(), "r");
+    FILE *settings = fopen(server_cfg->data(), "r");
 
     // Abort with correct exit code if the server config is not found
     if (not settings) {
-      fastlog(ERROR, "Server config file not found at %s. Aborting!", server_config_file.data());
+      fastlog(ERROR, "Server config file not found at %s. Aborting!", server_cfg->data());
       fclose(settings);
       return SETTINGS_NOT_FOUND;
     }
@@ -44,7 +44,7 @@ int rucio_download_wrapper(const std::string& server_name, const std::string& sc
     fclose(settings);
 
     std::string did = scope + ":" + name;
-    std::string command = "rucio --verbose --config " + server_config_file + " download --no-subdir --dir " + cache_path + " " + did;
+    std::string command = "rucio --verbose --config " + *server_cfg + " download --no-subdir --dir " + cache_path + " " + did;
     fastlog(DEBUG, "Executing: %s", command.data());
     fastlog(DEBUG, "Downloading to: %s", file_path.data());
     system(command.data());
@@ -108,13 +108,20 @@ struct rucio_download_info{
 
 // Alternate rucio download wrapper which ingests a rucio download info object. Useful for download pipeline use.
 rucio_download_info* rucio_download_wrapper(rucio_download_info& info){
-  if (info.fattempt <= MAX_ATTEMPTS and info.freturn_code != SETTINGS_NOT_FOUND) {
-    info.fattempt++;
-    info.freturn_code = rucio_download_wrapper(info.fserver_name, info.scopename(), info.filename());
-    info.fdownloaded = (info.freturn_code != FILE_NOT_FOUND and info.freturn_code != SETTINGS_NOT_FOUND);
+  if(not server_exists(info.fserver_name)) {
+    fastlog(ERROR, "Server %s not found. Aborting!", info.fserver_name.data());
+    info.freturn_code = SERVER_NOT_FOUND;
+    return &info;
   } else {
-    info.freturn_code = TOO_MANY_ATTEMPTS;
-    info.fdownloaded = false;
+    if (info.fattempt <= MAX_ATTEMPTS and info.freturn_code != SETTINGS_NOT_FOUND) {
+      info.fattempt++;
+      info.freturn_code = rucio_download_wrapper(info.fserver_name, info.fserver_config, info.scopename(),
+                                                 info.filename());
+      info.fdownloaded = (info.freturn_code != FILE_NOT_FOUND and info.freturn_code != SETTINGS_NOT_FOUND);
+    } else {
+      info.freturn_code = TOO_MANY_ATTEMPTS;
+      info.fdownloaded = false;
+    }
   }
   return &info;
 }

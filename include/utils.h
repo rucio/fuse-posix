@@ -86,6 +86,10 @@ struct rucio_did{
   std::string name;
   std::string parent;
   int level;
+
+  bool operator==(const rucio_did& check){
+    return this->scope == check.scope && this->name == check.name;
+  }
 };
 
 // Translators from string-like rucio did descriptor to rucio_did structures

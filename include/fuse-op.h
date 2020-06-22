@@ -30,17 +30,17 @@ using namespace fastlog;
 
 // This is the method which renders the posix namespace and set the file/dir permissions
 static int rucio_getattr (const char *path, struct stat *st){
+  if (is_hidden(path)) return 0;
+
+  if (is_mac_specific(path)) return 0;
+
   fastlog(DEBUG,"rucio_getattr called");
-  fastlog(INFO,"Handling this path: %s", path);
+  fastlog(DEBUG,"Handling this path: %s", path);
 
   st->st_uid = getuid();
 	st->st_gid = getgid();
 	st->st_atime = time( nullptr );
 	st->st_mtime = time( nullptr );
-
-  if (is_hidden(path)) return 0;
-
-  if (is_mac_specific(path)) return 0;
 
 	// If it is the root path list the connected servers
 	if ( is_root_path(path) ) {
@@ -86,14 +86,17 @@ static int rucio_getattr (const char *path, struct stat *st){
 	return 0;
 }
 
+static int finalize_filler(void *buffer, fuse_fill_dir_t filler){
+  filler(buffer, ".", nullptr, 0 );
+  filler(buffer, "..", nullptr, 0 );
+  return 0;
+}
+
 // This is the method called when using cd
 static int rucio_readdir(const char *path, void *buffer, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fi)
 {
   fastlog(DEBUG,"rucio_readdir called");
   fastlog(INFO,"Handling this path: %s", path);
-
-  filler(buffer, ".", nullptr, 0 );
-  filler(buffer, "..", nullptr, 0 );
 
   if (is_hidden(path)) return 0;
 
@@ -105,7 +108,7 @@ static int rucio_readdir(const char *path, void *buffer, fuse_fill_dir_t filler,
     for(auto const& server : servers){
       filler(buffer, server.data(), nullptr, 0 );
     }
-    return 0;
+    return finalize_filler(buffer, filler);
 
 	}	else {
 	  std::string server_short_name = extract_server_name(path);
@@ -118,7 +121,7 @@ static int rucio_readdir(const char *path, void *buffer, fuse_fill_dir_t filler,
       for(auto const& scope : scopes){
         filler(buffer, scope.data(), nullptr, 0 );
       }
-      return 0;
+      return finalize_filler(buffer, filler);
 
 	  } else {
       // If is one of the top level scopes list the dids inside
@@ -129,7 +132,7 @@ static int rucio_readdir(const char *path, void *buffer, fuse_fill_dir_t filler,
         for(auto const& did : dids){
           filler(buffer, did.name.data(), nullptr, 0 );
         }
-        return 0;
+        return finalize_filler(buffer, filler);
 
       // Otherwise, if a container (or a dataset), list its dids
       } else if (rucio_is_container(path)) {
@@ -145,7 +148,7 @@ static int rucio_readdir(const char *path, void *buffer, fuse_fill_dir_t filler,
         for(auto const& did : container_dids){
           filler(buffer, did.name.data(), nullptr, 0 );
         }
-        return 0;
+        return finalize_filler(buffer, filler);
       }
     }
 	}
