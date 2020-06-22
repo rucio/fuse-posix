@@ -28,6 +28,9 @@ set(CURL_LIBRARY "-lcurl")
 find_package(CURL REQUIRED)
 include_directories(${CURL_INCLUDE_DIR})
 
+#find_package(OpenSSL REQUIRED)
+#include_directories(${OPENSSL_INCLUDE_DIR})
+
 add_subdirectory(submodules)
 include_directories(include
                     source

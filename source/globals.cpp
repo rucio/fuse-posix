@@ -10,6 +10,26 @@
 #include <algorithm>
 #include <unistd.h>
 
+auth_mode get_auth_mode(const std::string& settings_line){
+  if (settings_line.rfind("userpass", 0) == 0) {
+    return auth_mode::userpass;
+  }
+
+  if (settings_line.rfind("x509", 0) == 0) {
+    return auth_mode::x509;
+  }
+
+  return auth_mode::none;
+}
+
+std::string get_auth_name(auth_mode mode){
+  switch (mode){
+    case userpass: return "userpass";
+    case x509: return "x509";
+    default: return "undefined";
+  }
+}
+
 std::unordered_map<std::string, rucio_server> rucio_server_map = {};
 std::vector<std::string> rucio_server_names;
 
@@ -23,6 +43,40 @@ connection_parameters* get_server_params(const std::string& server_name){
   return (server_exists(server_name)) ? rucio_server_map[server_name].get_params() : nullptr;
 }
 
+// Useful method to extract values from rucio.cfg-like files
+std::string get_cfg_value(std::string& line){
+  line.erase(std::remove(line.begin(), line.end(), ' '), line.end());
+  return line.substr(line.find('=') + 1);
+}
+
+curlx509Bundle* get_server_SSL_bundle(const std::string& server_name){
+  if(not server_exists(server_name)) return nullptr;
+
+  auto bundle = new curlx509Bundle;
+
+  std::ifstream settings_file;
+  settings_file.open(rucio_server_map[server_name].config_file_path.data());
+
+  std::string line;
+  while (getline(settings_file, line)) {
+    if (line.rfind("ca_cert", 0) == 0) {
+      bundle->pCACertFile = get_cfg_value(line);
+    }
+
+    if (line.rfind("client_cert", 0) == 0) {
+      bundle->pCertFile = get_cfg_value(line);
+    }
+
+    if (line.rfind("client_key", 0) == 0) {
+      bundle->pKeyName = get_cfg_value(line);
+    }
+  }
+
+  settings_file.close();
+
+  return bundle;
+}
+
 // Returns path to server config file as string ptr
 std::string* get_server_config(const std::string& server_name){
   return (server_exists(server_name)) ? &(rucio_server_map[server_name].config_file_path) : nullptr;
@@ -34,12 +88,6 @@ token_info* get_server_token(const std::string& server_name){
 }
 
 using namespace fastlog;
-
-// Useful method to extract values from rucio.cfg-like files
-std::string get_cfg_value(std::string& line){
-  line.erase(std::remove(line.begin(), line.end(), ' '), line.end());
-  return line.substr(line.find('=') + 1);
-}
 
 // Method to parse and validate all the .cfg files found in the RUCIOFS_SETTINGS_FILES_ROOT folder
 void parse_settings_cfg(){
@@ -90,10 +138,16 @@ void parse_settings_cfg(){
               srv.rucio_conn_params.account_name = get_cfg_value(line);
             }
 
+            if (line.rfind("auth_type", 0) == 0) {
+              srv.rucio_conn_params.rucio_auth_mode = get_auth_mode(get_cfg_value(line));
+            }
+
             if (line.rfind("ca_cert", 0) == 0) {
               ca_file_path = get_cfg_value(line);
             }
           }
+
+//          settings_file.close();
 
           auto ca_file = fopen(ca_file_path.data(), "rb");
           if (!ca_file) {
@@ -105,13 +159,15 @@ void parse_settings_cfg(){
                         "\t\turl = %s\n"
                         "\t\taccount = %s\n"
                         "\t\tusername = %s\n"
-                        "\t\tpassword = %s",
+                        "\t\tpassword = %s\n"
+                        "\t\tauth_type = %s\n",
                   i_srv++,
                   srv_name.data(),
                   srv.rucio_conn_params.server_url.data(),
                   srv.rucio_conn_params.account_name.data(),
                   srv.rucio_conn_params.user_name.data(),
-                  srv.rucio_conn_params.password.data());
+                  srv.rucio_conn_params.password.data(),
+                  get_auth_name(srv.rucio_conn_params.rucio_auth_mode).data());
 
           rucio_server_map.emplace(std::make_pair(srv_name, srv));
 

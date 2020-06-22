@@ -16,7 +16,7 @@ void test_server_connection(std::string server_short_name){
   std::cout<<std::flush;
 
   {
-    rucio_get_auth_token_userpass(server_short_name);
+    rucio_get_auth_token(server_short_name);
 
     auto token = get_server_token(server_short_name);
 

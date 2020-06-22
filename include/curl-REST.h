@@ -56,8 +56,18 @@ struct curlRet {
   std::vector<std::string> payload;
 };
 
+struct curlx509Bundle{
+    std::string pCertFile;
+    std::string pCACertFile;
+    std::string pPassphrase = "";
+    std::string pKeyName;
+    const std::string pKeyType = "PEM";
+    std::string pEngine = "";
+};
+
 // This is the REST GET wrapper
-curlRet GET(const std::string& url, const struct curl_slist * headers = nullptr, bool include_headers = false);
+curlRet GET(const std::string& url, const std::string& ca_path, const struct curl_slist * headers = nullptr, bool include_headers = false);
+curlRet GET_x509(const std::string& url, curlx509Bundle& bundle, const struct curl_slist* headers, bool include_headers);
 
 // This is the REST POST wrapper
 curlRet POST(const std::string& url, const std::string& thing_to_post);

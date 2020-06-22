@@ -20,3 +20,9 @@ add_executable(
         test_rucio_download_info.cpp
 )
 target_link_libraries(test_rucio_download_info PUBLIC rucio-fuse globals)
+
+add_executable(
+        test_x509_auth
+        test_x509_auth.cpp
+)
+target_link_libraries(test_x509_auth PUBLIC rucio-rest-api-wrapper globals)
