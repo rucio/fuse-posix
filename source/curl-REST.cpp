@@ -10,6 +10,7 @@
 
 #define CURLOPT_FALSE 0L
 #define CURLOPT_TRUE 1L
+#define CURLOPT_SUPERTRUE 2L
 
 using namespace fastlog;
 
@@ -25,10 +26,11 @@ curlRet GET(const std::string& url, const std::string& ca_path, const struct cur
   auto static_curl = curlSingleton::curlWrap();
 
   fastlog(DEBUG,"GET %s",url.data());
+  fastlog(DEBUG,"CA path %s",ca_path.data());
 
   curl_easy_setopt(static_curl(), CURLOPT_URL, url.c_str());
-  curl_easy_setopt(static_curl(), CURLOPT_SSL_VERIFYPEER, CURLOPT_FALSE); //only for https
-  curl_easy_setopt(static_curl(), CURLOPT_SSL_VERIFYHOST, CURLOPT_TRUE); //only for https
+  curl_easy_setopt(static_curl(), CURLOPT_SSL_VERIFYPEER, CURLOPT_TRUE); //only for https
+  curl_easy_setopt(static_curl(), CURLOPT_SSL_VERIFYHOST, CURLOPT_SUPERTRUE); //only for https
   curl_easy_setopt(static_curl(), CURLOPT_CAINFO, ca_path.data());
   curl_easy_setopt(static_curl(), CURLOPT_CAPATH, ca_path.data());
 //  curl_easy_setopt(static_curl(), CURLOPT_SSL_VERIFYHOST, ((url.find("https") != std::string::npos)?CURLOPT_TRUE:CURLOPT_FALSE)); //only for https
@@ -76,6 +78,7 @@ curlRet GET_x509(const std::string& url, curlx509Bundle& bundle, const struct cu
   auto static_curl = curlSingleton::curlWrap();
 
   fastlog(DEBUG,"GET x509 %s",url.data());
+  fastlog(DEBUG,"CA path %s",bundle.pCACertFile.data());
 
   curl_easy_setopt(static_curl(), CURLOPT_URL, url.c_str());
 
@@ -98,7 +101,8 @@ curlRet GET_x509(const std::string& url, curlx509Bundle& bundle, const struct cu
   curl_easy_setopt(static_curl(), CURLOPT_CAINFO, bundle.pCACertFile.data());
   curl_easy_setopt(static_curl(), CURLOPT_CAPATH, bundle.pCACertFile.data());
 
-  curl_easy_setopt(static_curl(), CURLOPT_SSL_VERIFYPEER, CURLOPT_FALSE); //only for https
+  curl_easy_setopt(static_curl(), CURLOPT_SSL_VERIFYPEER, CURLOPT_TRUE); //only for https
+  curl_easy_setopt(static_curl(), CURLOPT_SSL_VERIFYHOST, CURLOPT_SUPERTRUE); //only for https
 
   curl_easy_setopt(static_curl(), CURLOPT_WRITEFUNCTION, curl_append_string_to_vect_callback);
   curl_easy_setopt(static_curl(), CURLOPT_WRITEDATA, &ret.payload);

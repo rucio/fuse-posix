@@ -77,11 +77,6 @@ curlx509Bundle* get_server_SSL_bundle(const std::string& server_name){
   return bundle;
 }
 
-// Returns path to server config file as string ptr
-std::string* get_server_config(const std::string& server_name){
-  return (server_exists(server_name)) ? &(rucio_server_map[server_name].config_file_path) : nullptr;
-}
-
 // Returns token_info if found
 token_info* get_server_token(const std::string& server_name){
   return (server_exists(server_name)) ? rucio_server_map[server_name].get_token() : nullptr;
@@ -153,6 +148,8 @@ void parse_settings_cfg(){
           if (!ca_file) {
             fastlog(ERROR, "CA file not found at %s. Server will be skipped.", ca_file_path.data());
             continue;
+          } else {
+            srv.rucio_conn_params.ca_path = ca_file_path;
           }
 
           fastlog(INFO, "\tServer %d -> %s:\n"
@@ -160,16 +157,20 @@ void parse_settings_cfg(){
                         "\t\taccount = %s\n"
                         "\t\tusername = %s\n"
                         "\t\tpassword = %s\n"
-                        "\t\tauth_type = %s\n",
+                        "\t\tauth_type = %s\n"
+                        "\t\tca_path = %s\n",
                   i_srv++,
                   srv_name.data(),
                   srv.rucio_conn_params.server_url.data(),
                   srv.rucio_conn_params.account_name.data(),
                   srv.rucio_conn_params.user_name.data(),
                   srv.rucio_conn_params.password.data(),
-                  get_auth_name(srv.rucio_conn_params.rucio_auth_mode).data());
+                  get_auth_name(srv.rucio_conn_params.rucio_auth_mode).data(),
+                  srv.rucio_conn_params.ca_path.data());
 
           rucio_server_map.emplace(std::make_pair(srv_name, srv));
+
+          fastlog(INFO, "Validating server %s.", srv_name.data());
 
           if (not rucio_validate_server(srv_name)) {
             fastlog(ERROR, "Unable to validate server %s. Dropping.", srv_name.data());

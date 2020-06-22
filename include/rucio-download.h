@@ -20,7 +20,7 @@ using namespace fastlog;
 
 // Wrapper around rucio download called as bash command
 int rucio_download_wrapper(const std::string& server_name, const std::string& scope, const std::string& name){
-  auto server_config_file = *get_server_config(server_name);
+  auto server_config_file = get_server_params(server_name)->ca_path;
   auto cache_path = rucio_cache_path + "/" + server_name + "/" + scope;
   auto file_path = cache_path + "/" + name;
   FILE* file = fopen(file_path.data(), "rb");
@@ -81,7 +81,7 @@ struct rucio_download_info{
       fdid(std::move(did)),
       fserver_name(extract_server_name(path)){
       fpos = fdid.find_first_of(':');
-      fserver_config = get_server_config(fserver_name);
+      fserver_config = &rucio_server_map[fserver_name].config_file_path;
       fastlog(DEBUG, "Download info added with server name %s and settings at %s", fserver_name.data(), fserver_config->data());
     }
 

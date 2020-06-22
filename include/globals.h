@@ -34,16 +34,19 @@ struct connection_parameters{
   std::string user_name;
   std::string password;
   auth_mode rucio_auth_mode;
+  std::string ca_path;
 
   connection_parameters(std::string server_url,
                         std::string account_name,
                         std::string user_name,
                         std::string password,
+                        std::string ca_path,
                         const std::string& auth_method_line = "userpass"):
                         server_url(std::move(server_url)),
                         account_name(std::move(account_name)),
                         user_name(std::move(user_name)),
                         password(std::move(password)),
+                        ca_path(std::move(ca_path)),
                         rucio_auth_mode(get_auth_mode(auth_method_line)){}
 };
 
@@ -62,17 +65,19 @@ struct rucio_server{
   token_info rucio_token_info;
   std::string config_file_path;
 
-  rucio_server():rucio_conn_params("","","",""), rucio_token_info(){};
+  rucio_server():rucio_conn_params("","","","",""), rucio_token_info(){};
 
   rucio_server(std::string server_url,
                std::string account_name,
                std::string user_name,
                std::string password,
-               std::string auth_mode):
+               std::string ca_path,
+               const std::string& auth_mode):
                rucio_conn_params(std::move(server_url),
                                  std::move(account_name),
                                  std::move(user_name),
                                  std::move(password),
+                                 std::move(ca_path),
                                  auth_mode),
                rucio_token_info(){}
 
@@ -88,7 +93,6 @@ extern std::vector<std::string> rucio_server_names;
 bool server_exists(const std::string &key);
 connection_parameters* get_server_params(const std::string& server_name);
 curlx509Bundle* get_server_SSL_bundle(const std::string& server_name);
-std::string* get_server_config(const std::string& server_name);
 token_info* get_server_token(const std::string& server_name);
 
 // Startup functions

@@ -19,7 +19,7 @@
 #define TOKEN_ERROR 3
 
 // Ping and server validation methods
-bool rucio_ping(const std::string& server_url);
+bool rucio_ping(const std::string& short_server_name);
 
 // Auth and token validation methods
 int rucio_get_auth_token(const std::string& short_server_name);
