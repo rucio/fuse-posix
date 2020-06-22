@@ -91,7 +91,8 @@ extern std::vector<std::string> rucio_server_names;
 
 // Utility functions
 bool server_exists(const std::string &key);
-connection_parameters* get_server_params(const std::string& server_name);
+connection_parameters*  get_server_params(const std::string& server_name);
+std::string*  get_server_config(const std::string& server_name);
 curlx509Bundle* get_server_SSL_bundle(const std::string& server_name);
 token_info* get_server_token(const std::string& server_name);
 

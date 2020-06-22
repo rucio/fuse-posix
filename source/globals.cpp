@@ -43,6 +43,10 @@ connection_parameters* get_server_params(const std::string& server_name){
   return (server_exists(server_name)) ? rucio_server_map[server_name].get_params() : nullptr;
 }
 
+std::string*  get_server_config(const std::string& server_name){
+  return (server_exists(server_name)) ? &rucio_server_map[server_name].config_file_path : nullptr;
+}
+
 // Useful method to extract values from rucio.cfg-like files
 std::string get_cfg_value(std::string& line){
   line.erase(std::remove(line.begin(), line.end(), ' '), line.end());

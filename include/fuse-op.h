@@ -30,6 +30,10 @@ using namespace fastlog;
 
 // This is the method which renders the posix namespace and set the file/dir permissions
 static int rucio_getattr (const char *path, struct stat *st){
+  if (is_hidden(path)) return 0;
+
+  if (is_mac_specific(path)) return 0;
+
   fastlog(DEBUG,"rucio_getattr called");
   fastlog(INFO,"Handling this path: %s", path);
 
@@ -37,10 +41,6 @@ static int rucio_getattr (const char *path, struct stat *st){
 	st->st_gid = getgid();
 	st->st_atime = time( nullptr );
 	st->st_mtime = time( nullptr );
-
-  if (is_hidden(path)) return 0;
-
-  if (is_mac_specific(path)) return 0;
 
 	// If it is the root path list the connected servers
 	if ( is_root_path(path) ) {
