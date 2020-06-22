@@ -69,6 +69,10 @@ int rucio_get_auth_token_userpass(const std::string& short_server_name){
   headers= curl_slist_append(headers, xRucioPwd.c_str());
 
   auto curl_res = GET(conn_params->server_url+"/auth/userpass", conn_params->ca_path, headers, true);
+  if(curl_res.res != CURLE_OK){
+    fastlog(ERROR, "Curl error. Abort.");
+    return CURL_ERROR;
+  }
 
   curl_slist_free_all(headers);
 
@@ -128,6 +132,11 @@ int rucio_get_auth_token_x509(const std::string& short_server_name){
   headers = curl_slist_append(headers, xRucioAccount.c_str());
 
   auto curl_res = GET_x509(conn_params->server_url + "/auth/x509", *bundle, headers, true);
+  if(curl_res.res != CURLE_OK){
+    fastlog(ERROR, "Curl error. Abort.");
+    return CURL_ERROR;
+  }
+
 
   curl_slist_free_all(headers);
 
@@ -204,6 +213,11 @@ std::vector<std::string> rucio_list_scopes(const std::string& short_server_name)
     headers = curl_slist_append(headers, xRucioToken.c_str());
 
     auto curl_res = GET(conn_params->server_url + "/scopes/", conn_params->ca_path, headers);
+    if(curl_res.res != CURLE_OK){
+      fastlog(ERROR, "Curl error. Abort.");
+      return {};
+    }
+
 
     curl_slist_free_all(headers);
 
@@ -254,6 +268,11 @@ std::vector<rucio_did> rucio_list_dids(const std::string& scope, const std::stri
     }
 
     auto curl_res = GET(conn_params->server_url + "/dids/" + scope + "/", conn_params->ca_path, headers);
+    if(curl_res.res != CURLE_OK){
+      fastlog(ERROR, "Curl error. Abort.");
+      return {};
+    }
+
 
     curl_slist_free_all(headers);
 
@@ -292,6 +311,11 @@ std::vector<rucio_did> rucio_list_container_dids(const std::string& scope, const
             conn_params->server_url + "/dids/" + scope + "/" + container_name + "/dids",
             conn_params->ca_path,
             headers);
+    if(curl_res.res != CURLE_OK){
+      fastlog(ERROR, "Curl error. Abort.");
+      return {};
+    }
+
 
     curl_slist_free_all(headers);
 
@@ -337,6 +361,11 @@ bool rucio_is_container(const std::string& path){
     auto curl_res = GET(conn_params->server_url + "/dids/" + scope + "/" + name,
                         conn_params->ca_path,
                         headers);
+    if(curl_res.res != CURLE_OK){
+      fastlog(ERROR, "Curl error. Abort.");
+      return false;
+    }
+
 
     curl_slist_free_all(headers);
 
@@ -372,6 +401,12 @@ size_t rucio_get_size(const std::string& path){
   auto curl_res = GET(conn_params->server_url + "/dids/" + scope + "/" + name,
                       conn_params->ca_path,
                       headers);
+  if(curl_res.res != CURLE_OK){
+    fastlog(ERROR, "Curl error. Abort.");
+    return 0;
+  }
+
+
   for(auto const& payload : curl_res.payload){
     auto found = payload.find(rucio_bytes_metadata);
     if (found != std::string::npos) {
@@ -404,6 +439,11 @@ std::vector<std::string> rucio_get_replicas_metalinks(const std::string& path){
   auto curl_res = GET(conn_params->server_url + "/replicas/" + scope + "/" + name,
                       conn_params->ca_path,
                       headers);
+  if(curl_res.res != CURLE_OK){
+    fastlog(ERROR, "Curl error. Abort.");
+    return {};
+  }
+
 
   std::string merged_response;
 

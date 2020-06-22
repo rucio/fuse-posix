@@ -17,6 +17,7 @@
 #define SERVER_NOT_LOADED 1
 #define CANNOT_AUTH 2
 #define TOKEN_ERROR 3
+#define CURL_ERROR 4
 
 // Ping and server validation methods
 bool rucio_ping(const std::string& short_server_name);

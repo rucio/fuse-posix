@@ -35,7 +35,7 @@ static int rucio_getattr (const char *path, struct stat *st){
   if (is_mac_specific(path)) return 0;
 
   fastlog(DEBUG,"rucio_getattr called");
-  fastlog(INFO,"Handling this path: %s", path);
+  fastlog(DEBUG,"Handling this path: %s", path);
 
   st->st_uid = getuid();
 	st->st_gid = getgid();
