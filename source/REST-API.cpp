@@ -70,7 +70,7 @@ int rucio_get_auth_token_userpass(const std::string& short_server_name){
 
   auto curl_res = GET(conn_params->server_url+"/auth/userpass", conn_params->ca_path, headers, true);
   if(curl_res.res != CURLE_OK){
-    fastlog(ERROR, "Curl error. Abort.");
+    fastlog(ERROR, "Token: Curl error. Abort.");
     return CURL_ERROR;
   }
 
@@ -133,7 +133,7 @@ int rucio_get_auth_token_x509(const std::string& short_server_name){
 
   auto curl_res = GET_x509(conn_params->server_url + "/auth/x509", *bundle, headers, true);
   if(curl_res.res != CURLE_OK){
-    fastlog(ERROR, "Curl error. Abort.");
+    fastlog(ERROR, "Token x509: Curl error. Abort.");
     return CURL_ERROR;
   }
 
@@ -214,7 +214,7 @@ std::vector<std::string> rucio_list_scopes(const std::string& short_server_name)
 
     auto curl_res = GET(conn_params->server_url + "/scopes/", conn_params->ca_path, headers);
     if(curl_res.res != CURLE_OK){
-      fastlog(ERROR, "Curl error. Abort.");
+      fastlog(ERROR, "Scopes: Curl error. Abort.");
       return {};
     }
 
@@ -269,7 +269,7 @@ std::vector<rucio_did> rucio_list_dids(const std::string& scope, const std::stri
 
     auto curl_res = GET(conn_params->server_url + "/dids/" + scope + "/", conn_params->ca_path, headers);
     if(curl_res.res != CURLE_OK){
-      fastlog(ERROR, "Curl error. Abort.");
+      fastlog(ERROR, "Dids: Curl error. Abort.");
       return {};
     }
 
@@ -312,7 +312,7 @@ std::vector<rucio_did> rucio_list_container_dids(const std::string& scope, const
             conn_params->ca_path,
             headers);
     if(curl_res.res != CURLE_OK){
-      fastlog(ERROR, "Curl error. Abort.");
+      fastlog(ERROR, "Container: Curl error. Abort.");
       return {};
     }
 
@@ -362,14 +362,15 @@ bool rucio_is_container(const std::string& path){
                         conn_params->ca_path,
                         headers);
     if(curl_res.res != CURLE_OK){
-      fastlog(ERROR, "Curl error. Abort.");
+      fastlog(ERROR, "IsCont: Curl error. Abort.");
       return false;
     }
 
 
     curl_slist_free_all(headers);
 
-    is_container_cache[path] = curl_res.payload.front().find(R"("type": "FILE",)") == std::string::npos;
+    is_container_cache[path] = curl_res.payload.front().find(R"("CONTAINER",)") != std::string::npos;
+    is_container_cache[path] |= curl_res.payload.front().find(R"("DATASET",)") != std::string::npos;
     return is_container_cache[path];
   } else {
     fastlog(DEBUG,"USING CACHE");
@@ -398,14 +399,14 @@ bool rucio_is_file(const std::string& path){
                         conn_params->ca_path,
                         headers);
     if(curl_res.res != CURLE_OK){
-      fastlog(ERROR, "Curl error. Abort.");
+      fastlog(ERROR, "IsFile: Curl error. Abort. %s", (conn_params->server_url + "/dids/" + scope + "/" + name).data());
       return false;
     }
 
 
     curl_slist_free_all(headers);
 
-    is_file_cache[path] = curl_res.payload.front().find(R"("type": "FILE",)") != std::string::npos;
+    is_file_cache[path] = curl_res.payload.front().find(R"("FILE",)") != std::string::npos;
     return is_file_cache[path];
   } else {
     fastlog(DEBUG,"USING CACHE");
@@ -438,7 +439,7 @@ size_t rucio_get_size(const std::string& path){
                       conn_params->ca_path,
                       headers);
   if(curl_res.res != CURLE_OK){
-    fastlog(ERROR, "Curl error. Abort.");
+    fastlog(ERROR, "Size: Curl error. Abort.");
     return 0;
   }
 
@@ -476,7 +477,7 @@ std::vector<std::string> rucio_get_replicas_metalinks(const std::string& path){
                       conn_params->ca_path,
                       headers);
   if(curl_res.res != CURLE_OK){
-    fastlog(ERROR, "Curl error. Abort.");
+    fastlog(ERROR, "Meta: Curl error. Abort.");
     return {};
   }
 
