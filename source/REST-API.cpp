@@ -8,7 +8,6 @@ Authors:
 #include <REST-API.h>
 #include <curl-REST.h>
 #include <globals.h>
-#include <sha1.hpp>
 #include <utils.h>
 #include <iostream>
 #include <time.h>
