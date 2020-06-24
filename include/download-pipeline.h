@@ -76,8 +76,8 @@ struct rucio_pipeline{
     ELWD_Pipeline pipeline;
 
     rucio_pipeline(){
-      rucio_downloaders = new ELWD_Load_Balanced_Thread_Pool<typeof(rucio_downloader)>(rucio_downloader(&toDownload, &downloaded), 1);
-      rucio_notifiers = new ELWD_Load_Balanced_Thread_Pool<typeof(rucio_notifier)>(rucio_notifier(&downloaded), 1);
+      rucio_downloaders = new rucio_downloader(&toDownload, &downloaded);
+      rucio_notifiers = new rucio_notifier(&downloaded);
 
       pipeline | rucio_downloaders | rucio_notifiers;
 
