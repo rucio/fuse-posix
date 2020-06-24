@@ -195,7 +195,7 @@ void parse_settings_cfg(){
 
 // Method to check read/write permissions on both mountpoint or cache path
 bool check_permissions(const std::string& mountpoint_path){
-  int mountpoint_status = access(mountpoint_path.data(), R_OK && W_OK);
+  int mountpoint_status = access(mountpoint_path.data(), R_OK & W_OK);
 
   if(mountpoint_status != 0){
     DIR *dp = opendir(mountpoint_path.data());
@@ -209,7 +209,7 @@ bool check_permissions(const std::string& mountpoint_path){
     return false;
   }
 
-  int cache_status = access(rucio_cache_path.data(), R_OK && W_OK);
+  int cache_status = access(rucio_cache_path.data(), R_OK & W_OK);
 
   if(cache_status != 0){
     DIR *dp = opendir(rucio_cache_path.data());
