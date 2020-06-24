@@ -46,6 +46,7 @@ int main( int argc, char *argv[] )
 
   fuse_argv[1] = strdup(path_option[0].c_str());
   mkdir(path_option[1].c_str(), 0755);
+  mkdir(rucio_cache_path.c_str(), 0755);
   fuse_argv[2] = strdup(path_option[1].c_str());
 
   if(!check_permissions(fuse_argv[2])){
