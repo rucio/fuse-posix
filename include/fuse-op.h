@@ -52,6 +52,12 @@ static int rucio_getattr (const char *path, struct stat *st){
 	} else if (is_server_mountpoint(path)) {
     fastlog(DEBUG,"handling server path");
     std::string server_short_name = extract_server_name(path);
+
+    if(not server_exists(server_short_name)){
+      fastlog(DEBUG, "Server %s doesn't exist.", server_short_name.data());
+      return -ENOENT;
+    }
+
     auto scopes = rucio_list_scopes(server_short_name);
     st->st_mode = S_IFDIR | 0755;
     st->st_nlink = 2 + scopes.size();
@@ -60,7 +66,14 @@ static int rucio_getattr (const char *path, struct stat *st){
   } else if (is_main_scope(path)) {
     fastlog(DEBUG,"handling scope path");
     std::string server_short_name = extract_server_name(path);
-    auto dids = rucio_list_dids(extract_scope(path), server_short_name);
+    std::string scope = extract_scope(path);
+
+    if(not scope_exists(server_short_name, scope)){
+      fastlog(DEBUG, "Scope %s at server %s doesn't exist.", scope.data(), server_short_name.data());
+      return -ENOENT;
+    }
+
+    auto dids = rucio_list_dids(scope, server_short_name);
     st->st_mode = S_IFDIR | 0755;
     st->st_nlink = 2 + dids.size();
 
@@ -116,6 +129,7 @@ static int rucio_readdir(const char *path, void *buffer, fuse_fill_dir_t filler,
 	  // At server mountpoint render all the scopes
 	  if (is_server_mountpoint(path)) {
 	    fastlog(DEBUG,"handling server path");
+
 	    auto scopes = rucio_list_scopes(server_short_name);
 
       for(auto const& scope : scopes){

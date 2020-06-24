@@ -38,6 +38,11 @@ bool server_exists(const std::string &key){
   return rucio_server_map.count(key)>0;
 }
 
+bool scope_exists(const std::string &server_name, const std::string &scope){
+  const auto& scopes = rucio_list_scopes(server_name);
+  return std::find(scopes.begin(), scopes.end(), scope) != scopes.end();
+}
+
 // Returns server parameters if found, otherwise nullptr
 connection_parameters* get_server_params(const std::string& server_name){
   return (server_exists(server_name)) ? rucio_server_map[server_name].get_params() : nullptr;
