@@ -21,7 +21,7 @@ size_t curl_append_string_to_vect_callback(void *contents, size_t size, size_t n
     return newLength;
 }
 
-curlRet GET(const std::string& url, const std::string& ca_path, const struct curl_slist* headers, bool include_headers){
+curlRet GET(const std::string& url, const std::string& ca_path, const struct curl_slist* headers, bool include_headers, long timeout){
   curlRet ret;
   auto static_curl = curlSingleton::curlWrap();
 
@@ -37,6 +37,7 @@ curlRet GET(const std::string& url, const std::string& ca_path, const struct cur
   curl_easy_setopt(static_curl(), CURLOPT_WRITEFUNCTION, curl_append_string_to_vect_callback);
   curl_easy_setopt(static_curl(), CURLOPT_WRITEDATA, &ret.payload);
   curl_easy_setopt(static_curl(), CURLOPT_VERBOSE, CURLOPT_FALSE); //remove this to disable verbose output
+  curl_easy_setopt(static_curl(), CURLOPT_TIMEOUT, timeout);
 
   // Include reply headers in CURLOPT_WRITEFUNCTION
   if(include_headers) {
@@ -73,7 +74,7 @@ curlRet GET(const std::string& url, const std::string& ca_path, const struct cur
   return ret;
 }
 
-curlRet GET_x509(const std::string& url, curlx509Bundle& bundle, const struct curl_slist* headers, bool include_headers){
+curlRet GET_x509(const std::string& url, curlx509Bundle& bundle, const struct curl_slist* headers, bool include_headers, long timeout){
   curlRet ret;
   auto static_curl = curlSingleton::curlWrap();
 
@@ -138,6 +139,17 @@ curlRet GET_x509(const std::string& url, curlx509Bundle& bundle, const struct cu
   // Reset behavior
   if(include_headers) {
     curl_easy_setopt(static_curl(), CURLOPT_HEADER, CURLOPT_FALSE);
+  }
+
+  return ret;
+}
+
+curlRet safeGET(const std::string& url, const std::string& ca_path, const struct curl_slist * headers, bool include_headers, long timeout){
+  curlRet ret = GET(url, ca_path, headers, include_headers, timeout);
+  while(ret.res != CURLE_OK){
+    fastlog(ERROR, "safeGET: Curl error on URL %s. Retry.", url.data());
+    timeout*=2;
+    ret = GET(url, ca_path, headers, include_headers, timeout);
   }
 
   return ret;
