@@ -46,7 +46,7 @@ void tokenize_python_list(std::string list, std::vector<T>& target, char separat
 
   list_copy.erase(0, 1);
   list_copy.erase(list_copy.size() - 1);
-  std::stringstream stream(list_copy.c_str());
+  std::stringstream stream(list_copy.data());
   while (getline(stream, element, separator)) {
     for(const auto& ch : unwanted_chars){
       element.erase(std::remove(element.begin(), element.end(), ch), element.end());

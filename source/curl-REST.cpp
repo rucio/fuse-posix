@@ -28,7 +28,7 @@ curlRet GET(const std::string& url, const std::string& ca_path, const struct cur
   fastlog(INFO,"GET %s",url.data());
   fastlog(DEBUG,"CA path %s",ca_path.data());
 
-  curl_easy_setopt(static_curl(), CURLOPT_URL, url.c_str());
+  curl_easy_setopt(static_curl(), CURLOPT_URL, url.data());
   curl_easy_setopt(static_curl(), CURLOPT_SSL_VERIFYPEER, CURLOPT_TRUE); //only for https
   curl_easy_setopt(static_curl(), CURLOPT_SSL_VERIFYHOST, CURLOPT_SUPERTRUE); //only for https
   curl_easy_setopt(static_curl(), CURLOPT_CAINFO, ca_path.data());
@@ -57,7 +57,7 @@ curlRet GET(const std::string& url, const std::string& ca_path, const struct cur
   // Check return code to detect issues
   if(ret.res != CURLE_OK)
   {
-    fastlog(ERROR, "curl_easy_perform() failed: %s url=", curl_easy_strerror(ret.res), url.c_str());
+    fastlog(ERROR, "curl_easy_perform() failed: %s url=", curl_easy_strerror(ret.res), url.data());
   }
 
   // Reset headers
@@ -80,7 +80,7 @@ curlRet GET_x509(const std::string& url, curlx509Bundle& bundle, const struct cu
   fastlog(DEBUG,"GET x509 %s",url.data());
   fastlog(DEBUG,"CA path %s",bundle.pCACertFile.data());
 
-  curl_easy_setopt(static_curl(), CURLOPT_URL, url.c_str());
+  curl_easy_setopt(static_curl(), CURLOPT_URL, url.data());
 
   // x509 setup
   curl_easy_setopt(static_curl(), CURLOPT_SSLCERT, bundle.pCertFile.data());
@@ -149,8 +149,8 @@ curlRet POST(const std::string& url, const std::string& thing_to_post){
 
   fastlog(DEBUG,"POST %s",url.data());
 
-  curl_easy_setopt(static_curl(), CURLOPT_URL, url.c_str());
-  curl_easy_setopt(static_curl(), CURLOPT_POSTFIELDS, thing_to_post.c_str());
+  curl_easy_setopt(static_curl(), CURLOPT_URL, url.data());
+  curl_easy_setopt(static_curl(), CURLOPT_POSTFIELDS, thing_to_post.data());
   curl_easy_setopt(static_curl(), CURLOPT_SSL_VERIFYPEER, CURLOPT_FALSE); //only for https
   curl_easy_setopt(static_curl(), CURLOPT_SSL_VERIFYHOST, CURLOPT_FALSE); //only for https
   curl_easy_setopt(static_curl(), CURLOPT_VERBOSE, CURLOPT_TRUE); //remove this to disable verbose output

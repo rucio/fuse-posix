@@ -42,12 +42,12 @@ int main( int argc, char *argv[] )
   // Setting up mount path
   std::string path_option[2] = {"-f", (fOpt==argvect.end())?"/ruciofs":*(fOpt+1)};
 
-  fastlog(INFO, "Mount path set to %s", path_option[1].c_str());
+  fastlog(INFO, "Mount path set to %s", path_option[1].data());
 
-  fuse_argv[1] = strdup(path_option[0].c_str());
-  mkdir(path_option[1].c_str(), 0755);
-  mkdir(rucio_cache_path.c_str(), 0755);
-  fuse_argv[2] = strdup(path_option[1].c_str());
+  fuse_argv[1] = strdup(path_option[0].data());
+  mkdir(path_option[1].data(), 0755);
+  mkdir(rucio_cache_path.data(), 0755);
+  fuse_argv[2] = strdup(path_option[1].data());
 
   if(!check_permissions(fuse_argv[2])){
     fastlog(ERROR, "Fatal error occurred. Aborting!");
@@ -56,8 +56,8 @@ int main( int argc, char *argv[] )
 
   // Setting up NEEDED options to allow users' access
   std::string allow_other[2] = {"-o", "allow_other"};
-  fuse_argv[3] = strdup(allow_other[0].c_str());
-  fuse_argv[4] = strdup(allow_other[1].c_str());
+  fuse_argv[3] = strdup(allow_other[0].data());
+  fuse_argv[4] = strdup(allow_other[1].data());
 
 	return fuse_main(fuse_argc, fuse_argv, &operations, nullptr);
 }

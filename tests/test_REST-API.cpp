@@ -12,7 +12,7 @@ void test_server_connection(std::string server_short_name){
   printf("--------------------------------------------------------------------------------------------------------\n"
          "Testing server %s\n"
          "--------------------------------------------------------------------------------------------------------\n\n",
-         server_short_name.c_str());
+         server_short_name.data());
   std::cout<<std::flush;
 
   {
@@ -20,7 +20,7 @@ void test_server_connection(std::string server_short_name){
 
     auto token = get_server_token(server_short_name);
 
-    fastlog(INFO, "Token Received: %s", token->conn_token.c_str());
+    fastlog(INFO, "Token Received: %s", token->conn_token.data());
 
     if (not rucio_is_token_valid(server_short_name)) {
       fastlog(ERROR, "Token Expired");
@@ -34,7 +34,7 @@ void test_server_scopes(std::string server_short_name){
   printf("--------------------------------------------------------------------------------------------------------\n"
          "Retrieving scopes from server %s\n"
          "--------------------------------------------------------------------------------------------------------\n\n",
-         server_short_name.c_str());
+         server_short_name.data());
   std::cout<<std::flush;
 
   {
@@ -42,7 +42,7 @@ void test_server_scopes(std::string server_short_name){
 
     printf("\nDetected scopes:\n");
     for (const auto &line : ret) {
-      printf("%s\n", line.c_str());
+      printf("%s\n", line.data());
     }
     std::cout << std::endl;
   }
@@ -52,8 +52,8 @@ void test_scope_dids(std::string server_short_name, std::string scope_name){
   printf("--------------------------------------------------------------------------------------------------------\n"
          "Retrieving dids from server %s and scope %s\n"
          "--------------------------------------------------------------------------------------------------------\n\n",
-         server_short_name.c_str(),
-         scope_name.c_str());
+         server_short_name.data(),
+         scope_name.data());
   std::cout<<std::flush;
 
   {
@@ -61,7 +61,7 @@ void test_scope_dids(std::string server_short_name, std::string scope_name){
 
     printf("\nDetected dids:\n");
     for (const auto &did : ret) {
-      printf("%s/%s\n", did.scope.c_str(), did.name.c_str());
+      printf("%s/%s\n", did.scope.data(), did.name.data());
     }
     std::cout << std::endl;
   }

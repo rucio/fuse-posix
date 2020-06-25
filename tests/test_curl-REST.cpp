@@ -12,7 +12,7 @@ int main(){
   std::cout << std::endl;
 
   for(auto const& line : res.payload){
-    printf("%s\n", line.c_str());
+    printf("%s\n", line.data());
   }
 
   std::cout << std::endl;

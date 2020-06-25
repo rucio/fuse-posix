@@ -23,7 +23,7 @@ std::string to_string(char* contents, size_t size){
 
 // Returns true if and only if path is root path
 bool is_root_path(const char *path){
-  return (strcmp(path, rucio_root_path.c_str()) == 0 || strcmp(path, (rucio_root_path+"/").c_str()) == 0);
+  return (strcmp(path, rucio_root_path.data()) == 0 || strcmp(path, (rucio_root_path+"/").data()) == 0);
 }
 
 
@@ -228,7 +228,7 @@ void structurize_did(const std::string& did_str, std::vector<rucio_did>& target)
 
     did.name = key_values[5];
     did.parent = key_values[7];
-    did.level = std::atoi(key_values[9].c_str());
+    did.level = std::atoi(key_values[9].data());
 
     target.emplace_back(did);
   }

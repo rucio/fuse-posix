@@ -63,9 +63,9 @@ int rucio_get_auth_token_userpass(const std::string& short_server_name){
   auto xRucioUsername = "X-Rucio-Username: "+conn_params->user_name;
   auto xRucioPwd = "X-Rucio-Password: "+conn_params->password;
 
-  headers= curl_slist_append(headers, xRucioAccount.c_str());
-  headers= curl_slist_append(headers, xRucioUsername.c_str());
-  headers= curl_slist_append(headers, xRucioPwd.c_str());
+  headers= curl_slist_append(headers, xRucioAccount.data());
+  headers= curl_slist_append(headers, xRucioUsername.data());
+  headers= curl_slist_append(headers, xRucioPwd.data());
 
   auto curl_res = GET(conn_params->server_url+"/auth/userpass", conn_params->ca_path, headers, true);
   if(curl_res.res != CURLE_OK){
@@ -102,9 +102,9 @@ int rucio_get_auth_token_userpass(const std::string& short_server_name){
     return TOKEN_ERROR;
   }
 
-  token_info->conn_token = (strlen(token.c_str())>0) ? token : rucio_invalid_token;
+  token_info->conn_token = (strlen(token.data())>0) ? token : rucio_invalid_token;
 
-  expire_time_string = (strlen(expire_time_string.c_str())>0) ? expire_time_string : rucio_default_exp;
+  expire_time_string = (strlen(expire_time_string.data())>0) ? expire_time_string : rucio_default_exp;
   strptime(expire_time_string.data(), "%a, %d %b %Y %H:%M:%S",&token_info->conn_token_exp);
   char UTC[] = {'U','T','C'};
   token_info->conn_token_exp.tm_zone = UTC;
@@ -128,7 +128,7 @@ int rucio_get_auth_token_x509(const std::string& short_server_name){
 
   curlx509Bundle* bundle = get_server_SSL_bundle(short_server_name);
 
-  headers = curl_slist_append(headers, xRucioAccount.c_str());
+  headers = curl_slist_append(headers, xRucioAccount.data());
 
   auto curl_res = GET_x509(conn_params->server_url + "/auth/x509", *bundle, headers, true);
   if(curl_res.res != CURLE_OK){
@@ -166,9 +166,9 @@ int rucio_get_auth_token_x509(const std::string& short_server_name){
     return TOKEN_ERROR;
   }
 
-  token_info->conn_token = (strlen(token.c_str())>0) ? token : rucio_invalid_token;
+  token_info->conn_token = (strlen(token.data())>0) ? token : rucio_invalid_token;
 
-  expire_time_string = (strlen(expire_time_string.c_str())>0) ? expire_time_string : rucio_default_exp;
+  expire_time_string = (strlen(expire_time_string.data())>0) ? expire_time_string : rucio_default_exp;
   strptime(expire_time_string.data(), "%a, %d %b %Y %H:%M:%S",&token_info->conn_token_exp);
   char UTC[] = {'U','T','C'};
   token_info->conn_token_exp.tm_zone = UTC;
@@ -209,7 +209,7 @@ std::vector<std::string> rucio_list_scopes(const std::string& short_server_name)
 
     struct curl_slist *headers = nullptr;
 
-    headers = curl_slist_append(headers, xRucioToken.c_str());
+    headers = curl_slist_append(headers, xRucioToken.data());
 
     auto curl_res = GET(conn_params->server_url + "/scopes/", conn_params->ca_path, headers);
     if(curl_res.res != CURLE_OK){
@@ -249,7 +249,7 @@ curl_slist* get_auth_headers(const std::string& short_server_name){
 
   struct curl_slist *headers = nullptr;
 
-  headers= curl_slist_append(headers, xRucioToken.c_str());
+  headers= curl_slist_append(headers, xRucioToken.data());
 
   return headers;
 }
