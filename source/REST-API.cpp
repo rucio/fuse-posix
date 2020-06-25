@@ -17,7 +17,7 @@ using namespace fastlog;
 bool rucio_ping(const std::string& short_server_name){
   auto conn_params = get_server_params(short_server_name);
 
-  auto curl_res = GET(conn_params->server_url+"/ping", conn_params->ca_path);
+  auto curl_res = safeGET(conn_params->server_url+"/ping", conn_params->ca_path);
   return curl_res.res == CURLE_OK;
 }
 
@@ -67,7 +67,7 @@ int rucio_get_auth_token_userpass(const std::string& short_server_name){
   headers= curl_slist_append(headers, xRucioUsername.data());
   headers= curl_slist_append(headers, xRucioPwd.data());
 
-  auto curl_res = GET(conn_params->server_url+"/auth/userpass", conn_params->ca_path, headers, true);
+  auto curl_res = safeGET(conn_params->server_url+"/auth/userpass", conn_params->ca_path, headers, true);
   if(curl_res.res != CURLE_OK){
     fastlog(ERROR, "Token: Curl error. Abort.");
     return CURL_ERROR;
@@ -211,7 +211,7 @@ std::vector<std::string> rucio_list_scopes(const std::string& short_server_name)
 
     headers = curl_slist_append(headers, xRucioToken.data());
 
-    auto curl_res = GET(conn_params->server_url + "/scopes/", conn_params->ca_path, headers);
+    auto curl_res = safeGET(conn_params->server_url + "/scopes/", conn_params->ca_path, headers);
     if(curl_res.res != CURLE_OK){
       fastlog(ERROR, "Scopes: Curl error. Abort.");
       return {};
@@ -266,7 +266,7 @@ std::vector<rucio_did> rucio_list_dids(const std::string& scope, const std::stri
       return {};
     }
 
-    auto curl_res = GET(conn_params->server_url + "/dids/" + scope + "/", conn_params->ca_path, headers);
+    auto curl_res = safeGET(conn_params->server_url + "/dids/" + scope + "/", conn_params->ca_path, headers);
     if(curl_res.res != CURLE_OK){
       fastlog(ERROR, "Dids: Curl error. Abort.");
       return {};
@@ -306,7 +306,7 @@ std::vector<rucio_did> rucio_list_container_dids(const std::string& scope, const
       return {};
     }
 
-    auto curl_res = GET(
+    auto curl_res = safeGET(
             conn_params->server_url + "/dids/" + scope + "/" + container_name + "/dids",
             conn_params->ca_path,
             headers);
@@ -357,7 +357,7 @@ bool rucio_is_container(const std::string& path){
       return {};
     }
 
-    auto curl_res = GET(conn_params->server_url + "/dids/" + scope + "/" + name,
+    auto curl_res = safeGET(conn_params->server_url + "/dids/" + scope + "/" + name,
                         conn_params->ca_path,
                         headers);
     if(curl_res.res != CURLE_OK){
@@ -394,7 +394,7 @@ bool rucio_is_file(const std::string& path){
       return {};
     }
 
-    auto curl_res = GET(conn_params->server_url + "/dids/" + scope + "/" + name,
+    auto curl_res = safeGET(conn_params->server_url + "/dids/" + scope + "/" + name,
                         conn_params->ca_path,
                         headers);
     if(curl_res.res != CURLE_OK){
@@ -434,7 +434,7 @@ size_t rucio_get_size(const std::string& path){
     return {};
   }
 
-  auto curl_res = GET(conn_params->server_url + "/dids/" + scope + "/" + name,
+  auto curl_res = safeGET(conn_params->server_url + "/dids/" + scope + "/" + name,
                       conn_params->ca_path,
                       headers);
   if(curl_res.res != CURLE_OK){
@@ -472,7 +472,7 @@ std::vector<std::string> rucio_get_replicas_metalinks(const std::string& path){
   }
   headers= curl_slist_append(headers, "HTTP_ACCEPT: metalink4+xml");
 
-  auto curl_res = GET(conn_params->server_url + "/replicas/" + scope + "/" + name,
+  auto curl_res = safeGET(conn_params->server_url + "/replicas/" + scope + "/" + name,
                       conn_params->ca_path,
                       headers);
   if(curl_res.res != CURLE_OK){
