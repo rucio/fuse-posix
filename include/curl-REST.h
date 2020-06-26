@@ -12,43 +12,35 @@
 
 using namespace fastlog;
 
-namespace curlSingleton {
-  static short curl_singleton = 0;
-  static void *static_curl_address = nullptr;
+static const auto CURLOPT_FALSE = 0L;
+static const auto CURLOPT_TRUE = 1L;
+static const auto CURLOPT_SUPERTRUE = 2L;
 
 // This curl wrapper handles a CURL pointer with automatic cleanup
 // It supports () operator for easier usage
-  struct curlWrap {
-    CURL *curl;
+struct curlWrap {
+  CURL *curl;
 
-    curlWrap() {
-      if (curl_singleton == 0) {
-        fastlog(DEBUG,"Creating CURL instance\n");
-        curl_global_init(CURL_GLOBAL_ALL);
-        curl = curl_easy_init();
-        static_curl_address = curl;
-      } else {
-        curl = (CURL *) static_curl_address;
-      }
-      curl_singleton++;
-    }
+  curlWrap() {
+    fastlog(DEBUG,"Creating CURL instance\n");
+    curl_global_init(CURL_GLOBAL_ALL);
+    curl = curl_easy_init();
 
-    ~curlWrap() {
-      curl_singleton--;
-      if (curl_singleton == 0) {
-        fastlog(DEBUG,"Cleaning CURL instance\n");
-        curl_easy_cleanup(curl);
-        curl_global_cleanup();
-      }
-    }
+    // Curl performances optimization
+    curl_easy_setopt(curl, CURLOPT_ENCODING, "gzip");
+    curl_easy_setopt(curl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+    curl_easy_setopt(curl, CURLOPT_TCP_FASTOPEN, CURLOPT_TRUE);
+  }
 
-    CURL *operator()() {
-      return curl;
-    }
-  };
-}
+  ~curlWrap() {
+    fastlog(DEBUG,"Cleaning CURL instance\n");
+    curl_easy_cleanup(curl);
+  }
 
-//static curlSingleton::curlWrap static_curl;
+  CURL *operator()() {
+    return curl;
+  }
+};
 
 // This struct groups the returned CURL code and a payload in the form of splitted lines
 struct curlRet {
@@ -66,10 +58,10 @@ struct curlx509Bundle{
 };
 
 // This is the REST GET wrapper
-curlRet GET(const std::string& url, const std::string& ca_path, const struct curl_slist * headers = nullptr, bool include_headers = false, long timeout = 2L);
+curlRet GET(const std::string& url, const std::string& ca_path, const struct curl_slist * headers = nullptr, bool include_headers = false, long timeout = 2L, bool insecure = false);
 curlRet GET_x509(const std::string& url, curlx509Bundle& bundle, const struct curl_slist* headers, bool include_headers = false, long timeout = 2L);
 
-curlRet safeGET(const std::string& url, const std::string& ca_path, const struct curl_slist * headers = nullptr, bool include_headers = false, long timeout = 2L);
+curlRet safeGET(const std::string& url, const std::string& ca_path, const struct curl_slist * headers = nullptr, bool include_headers = false, long timeout = 20L);
 
 // This is the REST POST wrapper
 curlRet POST(const std::string& url, const std::string& thing_to_post);
