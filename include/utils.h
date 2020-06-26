@@ -85,6 +85,7 @@ struct rucio_did{
   rucio_data_type type;
   std::string name;
   std::string parent;
+  size_t size;
   int level;
 
   bool operator==(const rucio_did& check){

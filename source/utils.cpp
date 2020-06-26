@@ -253,6 +253,7 @@ void structurize_container_did(const std::string& did_str, std::vector<rucio_did
 
     if (key_values[9] == "FILE") {
       did.type = rucio_data_type::rucio_file;
+      did.size = std::atoi(key_values[5].data());
     } else if (key_values[9] == "CONTAINER") {
       did.type = rucio_data_type::rucio_container;
     } else if (key_values[9] == "DATASET") {

@@ -326,6 +326,7 @@ std::vector<rucio_did> rucio_list_container_dids(const std::string& scope, const
 
     for(const auto& did : dids){
       is_container_cache[short_server_name+scope+did.name] = did.type != rucio_data_type::rucio_file;
+      file_size_cache[short_server_name+scope+did.name] = did.size;
       fastlog(DEBUG,"%s:%s:%s -> %s",short_server_name.data(), scope.data(), did.name.data(),
               (is_container_cache[short_server_name+scope+did.name])?"true":"false");
     }
@@ -416,16 +417,18 @@ bool rucio_is_file(const std::string& path){
 }
 
 size_t rucio_get_size(const std::string& path){
-  auto cache_found = file_size_cache.find(path);
+  auto short_server_name = extract_server_name(path);
+  auto scope = extract_scope(path);
+  auto name = extract_name(path);
+  auto key = short_server_name+scope+name;
+
+  auto cache_found = file_size_cache.find(key);
 
   if(cache_found != file_size_cache.end()){
     return cache_found->second;
   }
 
-  auto short_server_name = extract_server_name(path);
   auto conn_params = get_server_params(short_server_name);
-  auto scope = extract_scope(path);
-  auto name = extract_name(path);
 
   auto headers = get_auth_headers(short_server_name);
 
@@ -451,7 +454,7 @@ size_t rucio_get_size(const std::string& path){
       auto size_bytes = payload.substr(pos + rucio_bytes_metadata_length, pos2 - pos - rucio_bytes_metadata_length);
       fastlog(INFO, "File size is %s", size_bytes.data());
       auto size_i = std::stoi(size_bytes);
-      file_size_cache.emplace(path, size_i);
+      file_size_cache.emplace(key, size_i);
       return size_i;
     }
   }
