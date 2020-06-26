@@ -131,7 +131,8 @@ curlRet GET_x509(const std::string& url, curlx509Bundle& bundle, const struct cu
 
 curlRet safeGET(const std::string& url, const std::string& ca_path, const struct curl_slist * headers, bool include_headers, long timeout){
   curlRet ret = GET(url, ca_path, headers, include_headers, timeout);
-  while(ret.res != CURLE_OK){
+  short retry = 0;
+  while(ret.res != CURLE_OK && max_retry > ++retry){
     fastlog(ERROR, "safeGET: Curl error on URL %s. Retry.", url.data());
     timeout*=2;
     ret = GET(url, ca_path, headers, include_headers, timeout);

@@ -30,6 +30,7 @@ struct curlWrap {
     curl_easy_setopt(curl, CURLOPT_ENCODING, "gzip");
     curl_easy_setopt(curl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
     curl_easy_setopt(curl, CURLOPT_TCP_FASTOPEN, CURLOPT_TRUE);
+    curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, CURLOPT_TRUE);
   }
 
   ~curlWrap() {
@@ -61,6 +62,7 @@ struct curlx509Bundle{
 curlRet GET(const std::string& url, const std::string& ca_path, const struct curl_slist * headers = nullptr, bool include_headers = false, long timeout = 2L, bool insecure = false);
 curlRet GET_x509(const std::string& url, curlx509Bundle& bundle, const struct curl_slist* headers, bool include_headers = false, long timeout = 2L);
 
+static const short max_retry = 1;
 curlRet safeGET(const std::string& url, const std::string& ca_path, const struct curl_slist * headers = nullptr, bool include_headers = false, long timeout = 20L);
 
 // This is the REST POST wrapper
