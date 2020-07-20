@@ -200,35 +200,52 @@ void coherentize_dids(std::string &did_string){
   }
 }
 
+std::unordered_map<std::string, std::string> map_did(std::string& sdid){
+  std::unordered_map<std::string, std::string> did_map;
+
+  for (const auto &ch : {' ', '}', '{', '"'}) {
+    sdid.erase(std::remove(sdid.begin(), sdid.end(), ch), sdid.end());
+  }
+
+  std::replace(sdid.begin(), sdid.end(), ':', ' ');
+  std::replace(sdid.begin(), sdid.end(), ',', ' ');
+
+  auto key_values = split(sdid, ' ');
+
+  for(size_t i=0; i<key_values.size(); i+=2){
+    did_map[key_values[i]] = key_values[i+1];
+  }
+
+  return std::move(did_map);
+}
+
 void structurize_did(const std::string& did_str, std::vector<rucio_did>& target) {
   std::vector<std::string> did_strings_vect;
   split_dids(did_str, did_strings_vect);
 
   for (auto &sdid : did_strings_vect) {
-
-    for (const auto &ch : {' ', '}', '{', '"'}) {
-      sdid.erase(std::remove(sdid.begin(), sdid.end(), ch), sdid.end());
-    }
-
-    std::replace(sdid.begin(), sdid.end(), ':', ' ');
-    std::replace(sdid.begin(), sdid.end(), ',', ' ');
-
-    auto key_values = split(sdid, ' ');
+    auto mapped_did = map_did(sdid);
     rucio_did did;
+    did.scope = mapped_did["scope"];
 
-    did.scope = key_values[9];
-
-    if (key_values[11] == "FILE") {
+    if (mapped_did["type"] == "FILE") {
       did.type = rucio_data_type::rucio_file;
-    } else if (key_values[11] == "CONTAINER") {
+      if(mapped_did["bytes"] == "null"){
+        did.size = 0;
+      }
+      else
+      {
+        did.size = std::atoi(mapped_did["bytes"].data());
+      }
+    } else if (mapped_did["type"] == "CONTAINER") {
       did.type = rucio_data_type::rucio_container;
-    } else if (key_values[11] == "DATASET") {
+    } else if (mapped_did["type"] == "DATASET") {
       did.type = rucio_data_type::rucio_dataset;
     }
 
-    did.name = key_values[1];
-    did.parent = key_values[3];
-    did.level = std::atoi(key_values[5].data());
+    did.name = mapped_did["name"];
+    did.parent = mapped_did["parent"];
+    did.level = std::atoi(mapped_did["level"].data());
 
     target.emplace_back(did);
   }
@@ -239,28 +256,27 @@ void structurize_container_did(const std::string& did_str, std::vector<rucio_did
   split_dids(did_str, did_strings_vect);
 
   for (auto &sdid : did_strings_vect) {
-    for (const auto &ch : {' ', '}', '{', '"'}) {
-      sdid.erase(std::remove(sdid.begin(), sdid.end(), ch), sdid.end());
-    }
-
-    std::replace(sdid.begin(), sdid.end(), ':', ' ');
-    std::replace(sdid.begin(), sdid.end(), ',', ' ');
-
-    auto key_values = split(sdid, ' ');
+    auto mapped_did = map_did(sdid);
     rucio_did did;
 
-    did.scope = key_values[13];
+    did.scope = mapped_did["scope"];
 
-    if (key_values[15] == "FILE") {
+    if (mapped_did["type"] == "FILE") {
       did.type = rucio_data_type::rucio_file;
-      did.size = std::atoi(key_values[7].data());
-    } else if (key_values[15] == "CONTAINER") {
+      if(mapped_did["bytes"] == "null"){
+        did.size = 0;
+      }
+      else
+      {
+        did.size = std::atoi(mapped_did["bytes"].data());
+      }
+    } else if (mapped_did["type"] == "CONTAINER") {
       did.type = rucio_data_type::rucio_container;
-    } else if (key_values[15] == "DATASET") {
+    } else if (mapped_did["type"] == "DATASET") {
       did.type = rucio_data_type::rucio_dataset;
     }
 
-    did.name = key_values[3];
+    did.name = mapped_did["name"];
     did.parent = "";
     did.level = 0;
 
