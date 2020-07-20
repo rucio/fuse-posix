@@ -216,19 +216,19 @@ void structurize_did(const std::string& did_str, std::vector<rucio_did>& target)
     auto key_values = split(sdid, ' ');
     rucio_did did;
 
-    did.scope = key_values[1];
+    did.scope = key_values[9];
 
-    if (key_values[3] == "FILE") {
+    if (key_values[11] == "FILE") {
       did.type = rucio_data_type::rucio_file;
-    } else if (key_values[3] == "CONTAINER") {
+    } else if (key_values[11] == "CONTAINER") {
       did.type = rucio_data_type::rucio_container;
-    } else if (key_values[3] == "DATASET") {
+    } else if (key_values[11] == "DATASET") {
       did.type = rucio_data_type::rucio_dataset;
     }
 
-    did.name = key_values[5];
-    did.parent = key_values[7];
-    did.level = std::atoi(key_values[9].data());
+    did.name = key_values[1];
+    did.parent = key_values[3];
+    did.level = std::atoi(key_values[5].data());
 
     target.emplace_back(did);
   }
@@ -249,14 +249,14 @@ void structurize_container_did(const std::string& did_str, std::vector<rucio_did
     auto key_values = split(sdid, ' ');
     rucio_did did;
 
-    did.scope = key_values[7];
+    did.scope = key_values[13];
 
-    if (key_values[9] == "FILE") {
+    if (key_values[15] == "FILE") {
       did.type = rucio_data_type::rucio_file;
-      did.size = std::atoi(key_values[5].data());
-    } else if (key_values[9] == "CONTAINER") {
+      did.size = std::atoi(key_values[7].data());
+    } else if (key_values[15] == "CONTAINER") {
       did.type = rucio_data_type::rucio_container;
-    } else if (key_values[9] == "DATASET") {
+    } else if (key_values[15] == "DATASET") {
       did.type = rucio_data_type::rucio_dataset;
     }
 
