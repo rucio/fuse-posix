@@ -9,5 +9,5 @@ jobs:
     - uses: actions/first-interaction@v1
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
-        issue-message: 'Thank you for contributing! Looking forward to interact more :)'' first issue'
-        pr-message: 'Thank you for your first PR! That's a valuable help for our project!'' first pr'
+        issue-message: 'Thank you for contributing! Looking forward to interact more... ;)'' first issue'
+        pr-message: 'Thank you for your first PR! That is a valuable help for our project!'' first pr'
