@@ -9,9 +9,9 @@ on:
 jobs:
   build:
 
-    runs-on: centos-latest
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
-    - name: build-centos
-      run: ./install-scripts/install-centos.sh
+    - name: build
+      run: ./build.sh
