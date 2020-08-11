@@ -11,7 +11,7 @@ DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
 echo
 echo -e "\033[1;33m/////////////////////////////////////////////////////////////////////////////////////////////////////////////////\033[0m"
 echo
-echo "Perfoming Rucio FUSE module setup and installation"
+echo "Perfoming Rucio FUSE module setup and installation for CentOS"
 echo
 echo -e "\033[1;33m 1. Configuring and updating yum\033[0m"
 echo
