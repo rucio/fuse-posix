@@ -21,9 +21,22 @@ int main( int argc, char *argv[] )
 
   logLevel = INFO;
 
-  parse_settings_cfg();
-
   std::vector<std::string> argvect(argv, argv + argc);
+
+  auto configOpt = std::find(argvect.begin(),argvect.end(),"-c");
+
+  if(configOpt == argvect.end()) {
+    configOpt = std::find(argvect.begin(),argvect.end(),"--config");
+  }
+
+  if(configOpt != argvect.end()) {
+    parse_settings_cfg(*(configOpt+1));
+    fastlog(INFO, "Using custom settings location: %s", (configOpt+1)->data());
+  } else {
+    parse_settings_cfg();
+    fastlog(INFO, "Using default settings location: \"./rucio-settings\" ");
+  }
+
   if(std::find(argvect.begin(),argvect.end(),"-vv") != argvect.end()){
     logLevel = DEBUG;
   }else if(std::find(argvect.begin(),argvect.end(),"-v") != argvect.end()){

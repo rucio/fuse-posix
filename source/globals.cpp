@@ -94,12 +94,11 @@ token_info* get_server_token(const std::string& server_name){
 using namespace fastlog;
 
 // Method to parse and validate all the .cfg files found in the RUCIOFS_SETTINGS_FILES_ROOT folder
-void parse_settings_cfg(){
-  std::string ruciofs_settings_root;
+void parse_settings_cfg(std::string ruciofs_settings_root){
 
   if(getenv("RUCIOFS_SETTINGS_FILES_ROOT") != NULL){
     ruciofs_settings_root = getenv("RUCIOFS_SETTINGS_FILES_ROOT");
-  } else ruciofs_settings_root = "./rucio-settings";
+  }
 
   fastlog(INFO,"Settings files contained at: %s", ruciofs_settings_root.data());
 

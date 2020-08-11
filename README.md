@@ -18,28 +18,6 @@ The Rucio file catalog is much flatter than that of a usual `POSIX` filesystems 
 - container and dataset DiDs will appear as directories;
 - datasets and containers might include already represented DiDs: a routine to handle such loops should be present.
 
-## DONEs
-- Curl-REST wrapper based on `libcurl` has been implemented in the form of `GET` and `POST` methods, for the moment. The `GET` method has been tested widely and appears to be consistent with the output of the `curl` CLI.
-- The curl-REST wrapper uses a singleton-equipped `curl` instance to limit memory fingerprint.
-- Rucio-API wrappers, based on Rucio's RESTFul interface, are being developed. At the moment access token retrieval through userpass authentication and scopes listing are implemented and tested.
-- Fuse mounting works!
-- Rucio-API is now backed with cache, to reduce proactively the number of cURL operations.
-- Introduced runtime parsing of configuration file (`settings.json`?) to replace `globals.cpp`. The syntax is clear from the included example file.
-- Introduced log-level based logging using submodule `fastlog`[link](https://github.com/gabrielefronze/fastlog).
-  As a side note three log levels (ERROR > INFO > DEBUG, in order of reversed gravity and direct verbosity) have been introduced and are usable at runtime:
-  
-  - `-v` = INFO
-  - `-vv` = DEBUG
-  - `<no opt>` = ERROR (default)
-  
-  For example `rucio-fuse-main -v` invokes the software with INFO log level, `rucio-fuse-main -vv` with DEBUG level and so on.
-
-## TODOs
-- Implement the read Fuse operation: ***at the moment the file contents are dummy***!
-- Introduce certificate-base authentication mechanism.
-- Fix Mac OS X mouting issues
-- Surely a lot more...
-
 ## Getting Started
 
 ### Cloning the repository
@@ -148,6 +126,22 @@ $ ./cmake-build-debug/bin/rucio-fuse-main
 ```
 
 Performing the above steps successfully shall parse the `settings.json` file and mount the server to `/ruciofs` mount point.
+
+### CLI Options
+
+#### Log levels
+The following log levels flags are supported:
+* `no-opt`: log level ERROR
+* `-v`: log level INFO
+* `-vv`: log level DEBUG
+
+### Mount point
+The `-f` flag, followed by a valid path, overrides the internally defined `ruciofs` default mount path.
+
+### Config files repository
+The `-c` or `--config` flag, followed by a valid path, overrides the directory from which the `rucio.cfg` files are parsed at startup.
+It will default to `./rucio-settings` if not set up via CLI.
+This is useful for un-the-fly config changes and tests.
 
 ## Extra Notes
 

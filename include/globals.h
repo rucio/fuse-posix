@@ -98,7 +98,7 @@ curlx509Bundle* get_server_SSL_bundle(const std::string& server_name);
 token_info* get_server_token(const std::string& server_name);
 
 // Startup functions
-void parse_settings_cfg();
+void parse_settings_cfg(std::string ruciofs_settings_root = "./rucio-settings");
 bool check_permissions(const std::string& mountpoint_path);
 
 #endif //RUCIO_FUSE_CONNNECTION_PARAMETERS_H
