@@ -14,4 +14,4 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: build
-      run: ./install-scripts/install-ubuntu.sh
+      run: sudo ./install-scripts/install-ubuntu.sh
