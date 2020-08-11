@@ -23,6 +23,7 @@ echo
 apt-get install -y fuse
 apt-get install -y gcc-8 g++-8 make cmake python3 python-pip
 apt-get install -y libfuse libcurl
+apt-get install libfuse-dev libcurl4-gnutls-dev
 apt-get install -y globus-proxy-utils
 #TODO: xrootd-libs xrootd-client gfal2 gfal2-util gfal2-all gfal2-python3
 echo
