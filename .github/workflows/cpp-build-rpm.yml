@@ -19,4 +19,4 @@ jobs:
       uses: actions/upload-artifact@v1.0.0
       with:
         name: Binary RPM
-        path: cmake-build-debug/Linux/RPM/RPMS/ruciofs--1.x86_64.rpm
+        path: cmake-build-debug/ruciofs*.rpm
