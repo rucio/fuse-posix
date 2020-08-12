@@ -14,7 +14,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: build
-      run: sudo ./install-scripts/install-ubuntu.sh && cd cmake-build-debug && cpack
+      run: sudo ./install-scripts/install-ubuntu.sh && cd cmake-build-debug && sudo cpack
     - name: Upload artifact
       uses: actions/upload-artifact@v1.0.0
       with:
