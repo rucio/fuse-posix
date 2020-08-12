@@ -1,0 +1,24 @@
+name: C/C++ CI to RPM
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: build
+      run: sudo ./install-scripts/install-ubuntu.sh
+    - name: pack
+      run: cd cmake-build-debug && cpack
+    - name: Upload artifact
+      uses: actions/upload-artifact@v1.0.0
+      with:
+        name: Binary RPM
+        path: cmake-build-debug/Linux/RPM/RPMS/ruciofs--1.x86_64.rpm
