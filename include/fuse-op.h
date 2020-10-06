@@ -1,7 +1,7 @@
 /*
 Created by Gabriele Gaetano Fronzé on 2019-10-16.
 Authors:
-- Gabriele Gaetano Fronzé <gabriele.fronze at to.infn.it>, 2019
+- Gabriele Gaetano Fronzé <gabriele.fronze at to.infn.it>, 2019-2020
 - Vivek Nigam <viveknigam.nigam3@gmail.com>, 2020
 */
 
@@ -25,6 +25,7 @@ Authors:
 #include "download-cache.h"
 #include "rucio-download.h"
 #include "download-pipeline.h"
+#include "printToPID.h"
 
 using namespace fastlog;
 
@@ -185,15 +186,18 @@ static int rucio_read(const char *path, char *buffer, size_t size, off_t offset,
     // Check if file has been downloaded already and cached
     if(not rucio_download_cache.is_cached(cache_path)) {
 
+      auto ctx = fuse_get_context();
+
       // If file is downloading avoid enqueue-ing it again
       if(is_downloading(path)){
         fastlog(INFO, "File %s @ %s is not cached and already downloading!", did.data(), server_name.data());
+        printToPID(ctx->pid, "\nFile "+did+" @ "+server_name+" is not cached and already downloading!\n");
         return -ENOENT;
 
       // Otherwise download it
       } else {
         fastlog(DEBUG, "File %s @ %s is not cached. Downloading...", did.data(), server_name.data());
-
+        printToPID(ctx->pid, "\nFile "+did+" @ "+server_name+" is not cached. Download started...\n");
         // If not downloaded yet, download file appending its infos to the download jobs queue
         rucio_download_pipeline.append_new_download(rucio_download_info(did, path));
         set_downloading(path);
