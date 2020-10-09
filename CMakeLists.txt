@@ -63,7 +63,8 @@ add_library(utils
 add_library(curl-wrapper
         include/curl-REST.h
         source/curl-REST.cpp
-        include/rucio-download.h include/download-cache.h)
+        include/rucio-download.h
+        include/download-cache.h)
 target_link_libraries(curl-wrapper utils fastlog ${CURL_LIBRARIES})
 
 
