@@ -47,9 +47,9 @@ struct rucio_downloader : public ELWD_Middle_Stage_I<rucio_download_info, rucio_
         fOutputQ->append(*output);
       } else {
         fastlog(ERROR, "Did %s download failed!", output->fdid.data());
-        if(output->freturn_code != MAX_ATTEMPTS){
+        if(output->freturn_code != TOO_MANY_ATTEMPTS){
           fastlog(INFO,"Trying again did %s download in %s.", output->fdid.data(), output->full_cache_path().data());
-//          fInputQ->append(*output);
+          fInputQ->append(*output);
         } else {
           fastlog(ERROR, "Did %s maximum download attempts reached. Aborting!", output->fdid.data());
           fOutputQ->append(*output);
