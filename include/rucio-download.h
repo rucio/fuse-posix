@@ -126,7 +126,7 @@ rucio_download_info* rucio_download_wrapper(rucio_download_info& info){
     info.freturn_code = SERVER_NOT_FOUND;
     return &info;
   } else {
-    if (info.fattempt <= MAX_ATTEMPTS and info.freturn_code != SETTINGS_NOT_FOUND) {
+    if (info.fattempt < MAX_ATTEMPTS and info.freturn_code != SETTINGS_NOT_FOUND) {
       info.fattempt++;
       info.freturn_code = rucio_download_wrapper(info.fserver_name, info.fserver_config, info.scopename(),
                                                  info.filename());
