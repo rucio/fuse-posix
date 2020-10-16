@@ -1,15 +1,8 @@
-//
-// Created by Gabriele Gaetano Fronzé on 2019-10-16.
-//
-
-//#include <fuse-op.h>
-//#include <REST-API.h>
-
-//static int rucio_readdir (const char *path, void *buff, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fi){
-//  printf("rucio_readdir called");
-//  return 0;
-//}
-//static int rucio_read (const char *path, char *buff, size_t size, off_t offset, struct fuse_file_info *fi){
-//  printf("rucio_read called");
-//  return 0;
-//}
+/*//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+Copyright European Organization for Nuclear Research (CERN)
+Licensed under the Apache License, Version 2.0 (the "License");
+You may not use this file except in compliance with the License.
+You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+Authors:
+ - Gabriele Gaetano Fronzé, <gfronze@cern.ch>, 2019-2020
+/*//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

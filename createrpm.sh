@@ -1,5 +1,14 @@
 #!/usr/bin/env bash
 
+#///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#Copyright European Organization for Nuclear Research (CERN)
+#Licensed under the Apache License, Version 2.0 (the "License");
+#You may not use this file except in compliance with the License.
+#You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+#Authors:
+# - Gabriele Gaetano Fronzé, <gfronze@cern.ch>, 2019-2020
+#///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
   DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
