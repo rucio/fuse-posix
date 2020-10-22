@@ -456,7 +456,12 @@ size_t rucio_get_size(const std::string& path){
       auto pos2 = payload.find(',', pos + rucio_bytes_metadata_length - 1);
       auto size_bytes = payload.substr(pos + rucio_bytes_metadata_length, pos2 - pos - rucio_bytes_metadata_length);
       fastlog(INFO, "File size is %s", size_bytes.data());
-      auto size_i = std::stoi(size_bytes);
+      int size_i = 0;
+      try {
+        size_i = std::stoi(size_bytes);
+      } catch (...){
+
+      }
       file_size_cache.emplace(key, size_i);
       return size_i;
     }
