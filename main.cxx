@@ -13,6 +13,7 @@ Authors:
 #include <sys/stat.h>
 #include <globals.h>
 #include <fastlog.h>
+Level fastlog::logLevel = ERROR;
 
 static struct fuse_operations operations = {0};
 
@@ -24,9 +25,15 @@ int main( int argc, char *argv[] )
   operations.readdir = rucio_readdir;
   operations.read	= rucio_read;
 
-  logLevel = INFO;
-
   std::vector<std::string> argvect(argv, argv + argc);
+
+  if(std::find(argvect.begin(),argvect.end(),"-vv") != argvect.end()){
+    logLevel = DEBUG;
+  }else if(std::find(argvect.begin(),argvect.end(),"-v") != argvect.end()){
+    logLevel = INFO;
+  }else{
+    logLevel = ERROR;
+  }
 
   auto configOpt = std::find(argvect.begin(),argvect.end(),"-c");
 
@@ -40,14 +47,6 @@ int main( int argc, char *argv[] )
   } else {
     parse_settings_cfg();
     fastlog(INFO, "Using default settings location: \"./rucio-settings\" ");
-  }
-
-  if(std::find(argvect.begin(),argvect.end(),"-vv") != argvect.end()){
-    logLevel = DEBUG;
-  }else if(std::find(argvect.begin(),argvect.end(),"-v") != argvect.end()){
-    logLevel = INFO;
-  }else{
-    logLevel = ERROR;
   }
 
   auto fOpt = std::find(argvect.begin(),argvect.end(),"-f");
