@@ -19,7 +19,7 @@ extern fastlog::Level fastlog::logLevel;
 
 using namespace fastlog;
 
-logLevel = ERROR;
+fastlog::logLevel = fastlog::Level::ERROR;
 
 int main( int argc, char *argv[] )
 {
