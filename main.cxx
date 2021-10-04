@@ -18,7 +18,7 @@ static struct fuse_operations operations = {0};
 
 using namespace fastlog;
 
-extern fstlog::Level logLevel;
+extern Level logLevel;
 logLevel = ERROR;
 
 int main( int argc, char *argv[] )
