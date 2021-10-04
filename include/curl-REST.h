@@ -23,7 +23,6 @@ using namespace fastlog;
 static const auto CURLOPT_FALSE = 0L;
 static const auto CURLOPT_TRUE = 1L;
 static const auto CURLOPT_SUPERTRUE = 2L;
-static const auto CURLOPT_TCP_FASTOPEN = 244L;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // This curl wrapper handles a CURL pointer with automatic cleanup
@@ -40,7 +39,7 @@ struct curlWrap {
     // Curl performances optimization
     curl_easy_setopt(curl, CURLOPT_ENCODING, "gzip");
     curl_easy_setopt(curl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
-    curl_easy_setopt(curl, CURLOPT_TCP_FASTOPEN, CURLOPT_TRUE);
+    // curl_easy_setopt(curl, CURLoption.TCP_FASTOPEN, CURLOPT_TRUE);
     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, CURLOPT_TRUE);
   }
 
