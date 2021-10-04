@@ -15,10 +15,10 @@ Authors:
 #include <fastlog.h>
 
 static struct fuse_operations operations = {0};
+extern fastlog::Level fastlog::logLevel;
 
 using namespace fastlog;
 
-extern Level logLevel;
 logLevel = ERROR;
 
 int main( int argc, char *argv[] )
