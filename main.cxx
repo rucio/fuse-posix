@@ -13,11 +13,12 @@ Authors:
 #include <sys/stat.h>
 #include <globals.h>
 #include <fastlog.h>
-fastlog::logLevel = ERROR;
 
 static struct fuse_operations operations = {0};
 
 using namespace fastlog;
+
+logLevel = ERROR;
 
 int main( int argc, char *argv[] )
 {
