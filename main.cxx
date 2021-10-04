@@ -13,7 +13,7 @@ Authors:
 #include <sys/stat.h>
 #include <globals.h>
 #include <fastlog.h>
-Level fastlog::logLevel = ERROR;
+fastlog::logLevel = ERROR;
 
 static struct fuse_operations operations = {0};
 
