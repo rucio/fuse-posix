@@ -15,11 +15,7 @@ Authors:
 #include <fastlog.h>
 
 static struct fuse_operations operations = {0};
-extern fastlog::Level fastlog::logLevel;
-
 using namespace fastlog;
-
-fastlog::logLevel = fastlog::Level::ERROR;
 
 int main( int argc, char *argv[] )
 {
@@ -30,11 +26,11 @@ int main( int argc, char *argv[] )
   std::vector<std::string> argvect(argv, argv + argc);
 
   if(std::find(argvect.begin(),argvect.end(),"-vv") != argvect.end()){
-    logLevel = DEBUG;
+    fastlog::logLevel = DEBUG;
   }else if(std::find(argvect.begin(),argvect.end(),"-v") != argvect.end()){
-    logLevel = INFO;
+    fastlog::logLevel = INFO;
   }else{
-    logLevel = ERROR;
+    fastlog::logLevel = ERROR;
   }
 
   auto configOpt = std::find(argvect.begin(),argvect.end(),"-c");
