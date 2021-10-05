@@ -11,6 +11,8 @@ Authors:
 #ifndef RUCIO_FUSE_POSIX_OP_H
 #define RUCIO_FUSE_POSIX_OP_H
 
+#define _FILE_OFFSET_BITS=64
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stddef.h>
@@ -229,7 +231,7 @@ static int rucio_read(const char *path, char *buffer, size_t size, off_t offset,
     if (offset > file_size) return 0;
 
     // Apply offset to file and fread into buffer the requested number of bytes
-    fseek(file, offset, SEEK_SET);
+    fseeko(file, offset, SEEK_SET);
     fread(buffer, sizeof(char), size, file);
     return std::min(size , (unsigned long)(file_size - offset));
   }
