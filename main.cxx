@@ -49,8 +49,8 @@ int main( int argc, char *argv[] )
     if(getenv("RUCIOFS_SETTINGS_FILES_ROOT") != NULL){
       ruciofs_settings_root = getenv("RUCIOFS_SETTINGS_FILES_ROOT");
     }
-    
-    fastlog(INFO, "Using default settings location: %s", ruciofs_settings_root);
+
+    fastlog(INFO, "Using default settings location: %s", ruciofs_settings_root.data());
   }
 
   auto fOpt = std::find(argvect.begin(),argvect.end(),"-f");
