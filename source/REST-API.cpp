@@ -419,7 +419,7 @@ bool rucio_is_file(const std::string& path){
   }
 }
 
-size_t rucio_get_size(const std::string& path){
+off_t rucio_get_size(const std::string& path){
   auto short_server_name = extract_server_name(path);
   auto scope = extract_scope(path);
   auto name = extract_name(path);
@@ -458,7 +458,7 @@ size_t rucio_get_size(const std::string& path){
       fastlog(INFO, "File size is %s", size_bytes.data());
       int size_i = 0;
       try {
-        size_i = std::stoi(size_bytes);
+        size_i = std::stoll(size_bytes);
       } catch (...){
 
       }

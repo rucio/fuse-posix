@@ -11,8 +11,6 @@ Authors:
 #ifndef RUCIO_FUSE_POSIX_OP_H
 #define RUCIO_FUSE_POSIX_OP_H
 
-#define _FILE_OFFSET_BITS=64
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <stddef.h>
@@ -223,9 +221,11 @@ static int rucio_read(const char *path, char *buffer, size_t size, off_t offset,
     // TODO: cache file sizes!
     fastlog(DEBUG,"Getting file...");
     FILE* file = rucio_download_cache.get_file(cache_path);
-    auto file_size = rucio_get_size(path);
+    off_t file_size = rucio_get_size(path);
 
     fastlog(DEBUG,"Seeking file...");
+    fastlog(DEBUG,"File size %lld",file_size);
+    fastlog(DEBUG,"Offset %lld",offset);
 
     // Avoid going over end of file
     if (offset > file_size) return 0;
@@ -233,7 +233,7 @@ static int rucio_read(const char *path, char *buffer, size_t size, off_t offset,
     // Apply offset to file and fread into buffer the requested number of bytes
     fseeko(file, offset, SEEK_SET);
     fread(buffer, sizeof(char), size, file);
-    return std::min(size , (unsigned long)(file_size - offset));
+    return std::min(size , (size_t)(file_size - offset));
   }
   return -1;
 }

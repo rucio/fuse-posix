@@ -88,7 +88,7 @@ std::vector<std::string> rucio_get_replicas_metalinks(const std::string& path);
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // DiD size methods
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-static std::unordered_map<std::string, size_t> file_size_cache;
-size_t rucio_get_size(const std::string& path);
+static std::unordered_map<std::string, off_t> file_size_cache;
+off_t rucio_get_size(const std::string& path);
 
 #endif //RUCIO_FUSE_REST_API_H

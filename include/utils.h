@@ -143,7 +143,7 @@ struct rucio_did{
   rucio_data_type type;
   std::string name;
   std::string parent;
-  size_t size;
+  off_t size;
   int level;
 
 
