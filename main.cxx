@@ -44,7 +44,13 @@ int main( int argc, char *argv[] )
     fastlog(INFO, "Using custom settings location: %s", (configOpt+1)->data());
   } else {
     parse_settings_cfg();
-    fastlog(INFO, "Using default settings location: \"./rucio-settings\" ");
+
+    std::string ruciofs_settings_root = "./rucio-settings";
+    if(getenv("RUCIOFS_SETTINGS_FILES_ROOT") != NULL){
+      ruciofs_settings_root = getenv("RUCIOFS_SETTINGS_FILES_ROOT");
+    }
+    
+    fastlog(INFO, "Using default settings location: %s", ruciofs_settings_root);
   }
 
   auto fOpt = std::find(argvect.begin(),argvect.end(),"-f");
