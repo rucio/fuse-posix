@@ -60,7 +60,7 @@ bool is_mac_specific(const std::string &path);
 // Method to parse a string-printed python list into a vector with correct type content
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template<class T>
-void tokenize_python_list(std::string list, std::vector<T>& target, char separator = ',', std::array<char,2> unwanted_chars = {'"', ' '}){
+void tokenize_python_list(std::string list, std::vector<T>& target, char separator = ',', std::array<char,3> unwanted_chars = {'"', ' ', ']'}){
   std::string list_copy = list;
   std::string element;
 
