@@ -233,6 +233,7 @@ std::vector<std::string> rucio_list_scopes(const std::string& short_server_name)
     }
 
     scopes_cache[short_server_name] = std::move(scopes);
+    scopes_last_hit[short_server_name] = std::time(0);
     return scopes_cache[short_server_name];
   } else {
     fastlog(DEBUG,"USING CACHE");
@@ -264,8 +265,8 @@ std::vector<rucio_did> rucio_list_dids(const std::string& scope, const std::stri
   auto conn_params = get_server_params(short_server_name);
   auto key = short_server_name+scope;
   auto found = dids_cache.find(key);
-  auto last_hit = dids_cache.find(short_server_name);
-  auto cache_delay = (last_hit == dids_cache.end())?CACHE_DIRTY_THRESHOLD+1:std::time(0) - last_hit->second;
+  auto last_hit = dids_last_hit.find(short_server_name);
+  auto cache_delay = (last_hit == dids_last_hit.end())?CACHE_DIRTY_THRESHOLD+1:std::time(0) - last_hit->second;
   if(found == dids_cache.end() || cache_delay>CACHE_DIRTY_THRESHOLD) {
     auto headers = get_auth_headers(short_server_name);
 
@@ -294,6 +295,7 @@ std::vector<rucio_did> rucio_list_dids(const std::string& scope, const std::stri
     }
 
     dids_cache[key] = std::move(dids);
+    dids_last_hit[key] = std::time(0);
     return dids_cache[key];
   } else {
     fastlog(DEBUG,"USING CACHE");
@@ -305,8 +307,8 @@ std::vector<rucio_did> rucio_list_container_dids(const std::string& scope, const
   auto conn_params = get_server_params(short_server_name);
   auto key = short_server_name+scope+container_name;
   auto found = container_dids_cache.find(key);
-  auto last_hit = container_dids_cache.find(short_server_name);
-  auto cache_delay = (last_hit == container_dids_cache.end())?CACHE_DIRTY_THRESHOLD+1:std::time(0) - last_hit->second;
+  auto last_hit = container_dids_last_hit.find(short_server_name);
+  auto cache_delay = (last_hit == container_dids_last_hit.end())?CACHE_DIRTY_THRESHOLD+1:std::time(0) - last_hit->second;
   if(found == container_dids_cache.end() || cache_delay>CACHE_DIRTY_THRESHOLD) {
 
     auto headers = get_auth_headers(short_server_name);
@@ -342,6 +344,7 @@ std::vector<rucio_did> rucio_list_container_dids(const std::string& scope, const
     }
 
     container_dids_cache[key] = std::move(dids);
+    container_dids_last_hit[key] = std::time(0);
     return container_dids_cache[key];
   } else {
     fastlog(DEBUG,"USING CACHE");
