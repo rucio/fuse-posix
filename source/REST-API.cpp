@@ -14,6 +14,7 @@ Authors:
 #include <utils.h>
 #include <iostream>
 #include <time.h>
+#include <ctime>
 
 using namespace fastlog;
 
@@ -197,7 +198,9 @@ const std::vector<std::string>& rucio_list_servers(){
 
 std::vector<std::string> rucio_list_scopes(const std::string& short_server_name){
   auto found = scopes_cache.find(short_server_name);
-  if(found == scopes_cache.end()) {
+  auto last_hit = scopes_last_hit.find(short_server_name);
+  auto cache_delay = (last_hit == scopes_last_hit.end())?CACHE_DIRTY_THRESHOLD+1:std::time(0) - last_hit->second;
+  if(found == scopes_cache.end() || cache_delay>CACHE_DIRTY_THRESHOLD) {
     auto conn_params = get_server_params(short_server_name);
     auto token_info = get_server_token(short_server_name);
 
@@ -261,7 +264,9 @@ std::vector<rucio_did> rucio_list_dids(const std::string& scope, const std::stri
   auto conn_params = get_server_params(short_server_name);
   auto key = short_server_name+scope;
   auto found = dids_cache.find(key);
-  if(found == dids_cache.end()) {
+  auto last_hit = dids_cache.find(short_server_name);
+  auto cache_delay = (last_hit == dids_cache.end())?CACHE_DIRTY_THRESHOLD+1:std::time(0) - last_hit->second;
+  if(found == dids_cache.end() || cache_delay>CACHE_DIRTY_THRESHOLD) {
     auto headers = get_auth_headers(short_server_name);
 
     if (not headers) {
@@ -300,7 +305,9 @@ std::vector<rucio_did> rucio_list_container_dids(const std::string& scope, const
   auto conn_params = get_server_params(short_server_name);
   auto key = short_server_name+scope+container_name;
   auto found = container_dids_cache.find(key);
-  if(found == container_dids_cache.end()) {
+  auto last_hit = container_dids_cache.find(short_server_name);
+  auto cache_delay = (last_hit == container_dids_cache.end())?CACHE_DIRTY_THRESHOLD+1:std::time(0) - last_hit->second;
+  if(found == container_dids_cache.end() || cache_delay>CACHE_DIRTY_THRESHOLD) {
 
     auto headers = get_auth_headers(short_server_name);
 

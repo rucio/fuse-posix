@@ -12,6 +12,7 @@ Authors:
 
 #include <vector>
 #include <string>
+#include <time.h>
 #include <map>
 #include <utils.h>
 #include <unordered_map>
@@ -25,6 +26,8 @@ Authors:
 #define CANNOT_AUTH 2
 #define TOKEN_ERROR 3
 #define CURL_ERROR 4
+
+#define CACHE_DIRTY_THRESHOLD time_t(5)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Ping and server validation methods
@@ -53,18 +56,21 @@ const std::vector<std::string>& rucio_list_servers();
 // Scopes handling cache and methods
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 static std::unordered_map<std::string, std::vector<std::string>> scopes_cache;
+static std::unordered_map<std::string, time_t> scopes_last_hit;
 std::vector<std::string> rucio_list_scopes(const std::string& short_server_name);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // DiDs handling cache and methods
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 static std::unordered_map<std::string, std::vector<rucio_did>> dids_cache;
+static std::unordered_map<std::string, time_t> dids_last_hit;
 std::vector<rucio_did> rucio_list_dids(const std::string& scope, const std::string& short_server_name);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Containers' DiDs handling cache and methods
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 static std::unordered_map<std::string, std::vector<rucio_did>> container_dids_cache;
+static std::unordered_map<std::string, time_t> container_dids_last_hit;
 std::vector<rucio_did> rucio_list_container_dids(const std::string& scope, const std::string& container_name, const std::string& short_server_name);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
