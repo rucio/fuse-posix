@@ -1,3 +1,7 @@
+## :warning: **rucio/fuse-posix is not maintained**
+
+This repository is not maintained and has been archived.
+
 # Rucio `FUSE-posix` interface
 
 This repository carries the best attempt at making the Rucio namespace `posix`-mountable.
